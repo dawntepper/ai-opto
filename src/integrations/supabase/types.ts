@@ -98,37 +98,58 @@ export type Database = {
       }
       players: {
         Row: {
+          ceiling: number | null
           created_at: string | null
+          floor: number | null
           id: string
+          minutes: number | null
           name: string
           opponent: string
           ownership: number
+          partner_id: string | null
           position: string
+          proj_ownership: number | null
           projected_points: number
+          rg_id: string | null
+          roster_positions: string | null
           salary: number
           status: string
           team: string
         }
         Insert: {
+          ceiling?: number | null
           created_at?: string | null
+          floor?: number | null
           id?: string
+          minutes?: number | null
           name: string
           opponent: string
           ownership: number
+          partner_id?: string | null
           position: string
+          proj_ownership?: number | null
           projected_points: number
+          rg_id?: string | null
+          roster_positions?: string | null
           salary: number
           status: string
           team: string
         }
         Update: {
+          ceiling?: number | null
           created_at?: string | null
+          floor?: number | null
           id?: string
+          minutes?: number | null
           name?: string
           opponent?: string
           ownership?: number
+          partner_id?: string | null
           position?: string
+          proj_ownership?: number | null
           projected_points?: number
+          rg_id?: string | null
+          roster_positions?: string | null
           salary?: number
           status?: string
           team?: string
