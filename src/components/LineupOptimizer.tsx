@@ -34,17 +34,19 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
-  const { data: fileUploads, refetch } = useQuery<Tables<'file_uploads'>[]>({
+  const { data: fileUploads, refetch } = useQuery({
     queryKey: ['uploadedFiles'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('file_uploads')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(10); // Limit to most recent uploads
       
       if (error) throw error;
       return data;
-    }
+    },
+    refetchInterval: 5000 // Refresh every 5 seconds
   });
 
   const handleOptimize = () => {
@@ -75,6 +77,8 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       title: fileType === 'draftkings' ? "DraftKings Template Uploaded" : "Projections Uploaded",
       description: "File processed successfully"
     });
+    
+    refetch(); // Refresh the file list after upload
   };
 
   const removeFile = async (fileId: string) => {
@@ -100,9 +104,6 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
   };
 
-  const hasDraftKingsTemplate = uploadedFiles.some(f => f.type === 'draftkings');
-  const hasProjections = uploadedFiles.some(f => f.type === 'projections');
-
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -114,34 +115,33 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         <div className="space-y-4">
           <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
           
-          <div className="mt-4">
-            <h4 className="text-sm font-medium mb-2">Uploaded Files</h4>
-            <ScrollArea className="h-[100px] border rounded-md">
-              <div className="p-2">
-                {fileUploads?.map((file) => (
-                  <div key={file.id} className="flex items-center justify-between py-1">
-                    <span className="text-sm">{file.filename}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400">
-                        {new Date(file.created_at!).toLocaleDateString()}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                        onClick={() => removeFile(file.id)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+          {fileUploads && fileUploads.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-sm font-medium mb-2">Uploaded Files</h4>
+              <ScrollArea className="h-[100px] border rounded-md">
+                <div className="p-2">
+                  {fileUploads.map((file) => (
+                    <div key={file.id} className="flex items-center justify-between py-1">
+                      <span className="text-sm">{file.filename}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-400">
+                          {new Date(file.created_at!).toLocaleDateString()}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                          onClick={() => removeFile(file.id)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {!fileUploads?.length && (
-                  <p className="text-sm text-gray-400 p-2">No files uploaded yet</p>
-                )}
-              </div>
-            </ScrollArea>
-          </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          )}
         </div>
         <SlateAnalysis />
       </div>
@@ -151,11 +151,11 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
           size="lg"
           onClick={handleOptimize}
           className="bg-secondary hover:bg-secondary/90"
-          disabled={!hasDraftKingsTemplate || !hasProjections}
+          disabled={!fileUploads || fileUploads.length < 2}
         >
           Generate Optimal Lineups
         </Button>
-        {(!hasDraftKingsTemplate || !hasProjections) && (
+        {(!fileUploads || fileUploads.length < 2) && (
           <p className="text-sm text-gray-400">
             Please upload both the DraftKings template and projections to generate lineups
           </p>
