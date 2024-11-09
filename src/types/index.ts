@@ -23,7 +23,6 @@ export interface Lineup {
 export interface OptimizationSettings {
   entryType: EntryType;
   maxSalary: number;
-  minValue: number;
   maxOwnership: number;
   correlationStrength: 'weak' | 'medium' | 'strong';
   lineupCount: number;
