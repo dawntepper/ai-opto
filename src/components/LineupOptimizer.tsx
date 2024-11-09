@@ -4,8 +4,9 @@ import { EntryType, OptimizationSettings } from '../types';
 import ProjectionsUpload from './ProjectionsUpload';
 import SlateAnalysis from './SlateAnalysis';
 import { toast } from "./ui/use-toast";
-import OptimizationSettings from './OptimizationSettings';
+import OptimizationSettingsComponent from './OptimizationSettings';
 import EntryTypeSettings from './EntryTypeSettings';
+import { getDefaultMaxOwnership, getDefaultCorrelation, getDefaultLineupCount } from '../utils/optimizationDefaults';
 
 interface LineupOptimizerProps {
   entryType: EntryType;
@@ -56,7 +57,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <OptimizationSettings settings={settings} setSettings={setSettings} />
+        <OptimizationSettingsComponent settings={settings} setSettings={setSettings} />
         <EntryTypeSettings settings={settings} setSettings={setSettings} />
       </div>
 
