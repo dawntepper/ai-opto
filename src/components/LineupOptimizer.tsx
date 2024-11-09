@@ -11,9 +11,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import GeneratedLineups from './GeneratedLineups';
 import FileUploadList from './FileUploadList';
 import { checkValidPlayers, generateLineups, saveOptimizationSettings } from '../services/lineupService';
+import { validateSettings, getValidPlayersStats } from '../services/optimizationService';
 import { supabase } from "@/integrations/supabase/client";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { ChevronDown } from "lucide-react";
+import OptimizerContent from './OptimizerContent';
 
 interface LineupOptimizerProps {
   entryType: EntryType;
@@ -64,18 +66,15 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       return;
     }
 
-    // Additional salary cap validation
-    if (settings.maxSalary > 50000) {
-      toast({
-        title: "Invalid Salary Cap",
-        description: "Maximum salary cap cannot exceed $50,000.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsOptimizing(true);
     try {
+      // Validate settings
+      validateSettings(settings);
+
+      // Get player stats for better error messages
+      const playerStats = await getValidPlayersStats();
+      console.log('Player stats:', playerStats.stats);
+
       const settingsData = await saveOptimizationSettings(settings);
       console.log('Settings saved with ID:', settingsData.id);
       
@@ -83,7 +82,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       console.log('Lineups generated:', lineups);
 
       if (!lineups || lineups.length === 0) {
-        throw new Error('No valid lineups could be generated');
+        throw new Error('No valid lineups could be generated. ' + playerStats.stats);
       }
 
       await queryClient.invalidateQueries({ queryKey: ['lineups'] });
@@ -97,11 +96,10 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     } catch (error: any) {
       console.error('Optimization error:', error);
       const errorMessage = error.message || "Failed to generate lineups";
-      const details = error.details || "";
       
       toast({
         title: "Error Generating Lineups",
-        description: `${errorMessage}${details ? `: ${details}` : ''}`,
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -109,108 +107,51 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
   };
 
-  const handleProjectionsUploaded = async () => {
-    await refetch();
-    await queryClient.invalidateQueries({ queryKey: ['validPlayers'] });
-    toast({
-      title: "Files Processed",
-      description: "Projections have been processed successfully"
-    });
-  };
+  if (showLineups) {
+    return <GeneratedLineups onBack={() => setShowLineups(false)} />;
+  }
 
-  const removeFile = async (fileId: string) => {
-    try {
-      const { error } = await supabase
-        .from('file_uploads')
-        .delete()
-        .eq('id', fileId);
-      
-      if (error) throw error;
-      
+  return <OptimizerContent 
+    settings={settings}
+    setSettings={setSettings}
+    isNotesOpen={isNotesOpen}
+    setIsNotesOpen={setIsNotesOpen}
+    fileUploads={fileUploads}
+    isLoading={fileUploadsLoading || playersLoading || isOptimizing}
+    canOptimize={canOptimize}
+    onOptimize={handleOptimize}
+    onProjectionsUploaded={async () => {
       await refetch();
       await queryClient.invalidateQueries({ queryKey: ['validPlayers'] });
       toast({
-        title: "File Removed",
-        description: "File has been removed successfully"
+        title: "Files Processed",
+        description: "Projections have been processed successfully"
       });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to remove file",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleBack = () => {
-    setShowLineups(false);
-    queryClient.invalidateQueries({ queryKey: ['lineups'] });
-  };
-
-  const isLoading = fileUploadsLoading || playersLoading || isOptimizing;
-
-  if (showLineups) {
-    return <GeneratedLineups onBack={handleBack} />;
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <EntryTypeSettings settings={settings} setSettings={setSettings} />
-        <OptimizationSettingsComponent settings={settings} setSettings={setSettings} />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <Collapsible open={isNotesOpen} onOpenChange={setIsNotesOpen}>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <h3 className="text-lg font-semibold">Additional Analysis Notes</h3>
-                <span className="text-sm text-muted-foreground">(Click to expand)</span>
-              </div>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="hover:bg-transparent">
-                  <ChevronDown className={`h-4 w-4 transition-transform ${isNotesOpen ? 'transform rotate-180' : ''}`} />
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent>
-              <div className="border-2 border-primary/20 rounded-lg p-4 bg-primary/5">
-                <SlateNotes />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-          
-          <div className="border-2 border-secondary/20 rounded-lg p-4 bg-secondary/5">
-            <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
-            <FileUploadList 
-              fileUploads={fileUploads}
-              isLoading={isLoading}
-              onRemoveFile={removeFile}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col items-center gap-2">
-        <Button
-          size="lg"
-          onClick={handleOptimize}
-          className="bg-secondary hover:bg-secondary/90"
-          disabled={!canOptimize || isLoading}
-        >
-          {isOptimizing ? 'Generating Lineups...' : 'Generate Optimal Lineups'}
-        </Button>
-        {isLoading ? (
-          <p className="text-sm text-gray-400">Loading...</p>
-        ) : !canOptimize ? (
-          <p className="text-sm text-gray-400">
-            Need at least 8 valid players with non-zero salary and projected points
-          </p>
-        ) : null}
-      </div>
-    </div>
-  );
+    }}
+    onRemoveFile={async (fileId: string) => {
+      try {
+        const { error } = await supabase
+          .from('file_uploads')
+          .delete()
+          .eq('id', fileId);
+        
+        if (error) throw error;
+        
+        await refetch();
+        await queryClient.invalidateQueries({ queryKey: ['validPlayers'] });
+        toast({
+          title: "File Removed",
+          description: "File has been removed successfully"
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to remove file",
+          variant: "destructive"
+        });
+      }
+    }}
+  />;
 };
 
 export default LineupOptimizer;
