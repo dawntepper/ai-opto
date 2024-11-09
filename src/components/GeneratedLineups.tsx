@@ -86,7 +86,11 @@ const GeneratedLineups = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Generated Lineups</h2>
-        <Button variant="outline" onClick={() => window.history.back()} className="text-primary hover:text-primary">
+        <Button 
+          variant="outline" 
+          onClick={() => window.history.back()}
+          className="text-primary hover:text-primary"
+        >
           Back to Settings
         </Button>
       </div>
