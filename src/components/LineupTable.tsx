@@ -38,12 +38,14 @@ const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints }: 
       </TableRow>
     </TableHeader>
     <TableBody>
-      {players.map((lp) => (
+      {players?.map((lp) => (
         <TableRow key={`${lp.player.id}`}>
           <TableCell>{lp.player.position}</TableCell>
           <TableCell>
-            <div className="font-medium">{lp.player.team}</div>
-            {lp.player.name}
+            <div className="space-y-1">
+              <div className="font-medium text-gray-500">{lp.player.team}</div>
+              <div>{lp.player.name}</div>
+            </div>
           </TableCell>
           <TableCell>{lp.player.team} @ {lp.player.opponent}</TableCell>
           <TableCell className="text-right">${lp.player.salary.toLocaleString()}</TableCell>
