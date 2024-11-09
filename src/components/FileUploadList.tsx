@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, CheckCircle2, Clock } from "lucide-react";
+import { X } from "lucide-react";
 
 interface FileUploadListProps {
   fileUploads: any[] | null;
@@ -21,18 +21,6 @@ const FileUploadList = ({ fileUploads, isLoading, onRemoveFile }: FileUploadList
             <div key={file.id} className="flex items-center justify-between py-1">
               <div className="flex items-center gap-2">
                 <span className="text-sm">{file.filename}</span>
-                {file.processed === false && (
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3 text-yellow-500" />
-                    <span className="text-xs text-yellow-500">(Processing...)</span>
-                  </div>
-                )}
-                {file.processed === true && (
-                  <div className="flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3 text-green-500" />
-                    <span className="text-xs text-green-500">(Processed)</span>
-                  </div>
-                )}
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-400">
