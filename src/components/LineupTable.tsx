@@ -25,44 +25,48 @@ interface LineupTableProps {
   projectedPoints: number;
 }
 
-const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints }: LineupTableProps) => (
-  <div className="w-full overflow-x-auto">
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Slot</TableHead>
-          <TableHead>Player</TableHead>
-          <TableHead>Match</TableHead>
-          <TableHead className="text-right">Salary</TableHead>
-          <TableHead className="text-right">pOwn</TableHead>
-          <TableHead className="text-right">Fpts</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {players?.map((lp) => (
-          <TableRow key={`${lp.player.id}`}>
-            <TableCell className="font-medium">{lp.player.position}</TableCell>
-            <TableCell>
-              <div className="flex flex-col gap-1">
-                <span className="text-sm text-gray-500">{lp.player.team}</span>
-                <span className="font-medium">{lp.player.name}</span>
-              </div>
-            </TableCell>
-            <TableCell>{lp.player.team} @ {lp.player.opponent}</TableCell>
-            <TableCell className="text-right">${lp.player.salary.toLocaleString()}</TableCell>
-            <TableCell className="text-right">{lp.player.ownership.toFixed(2)}%</TableCell>
-            <TableCell className="text-right">{lp.player.projected_points.toFixed(2)}</TableCell>
+const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints }: LineupTableProps) => {
+  console.log('LineupTable players:', players); // Debug log
+  
+  return (
+    <div className="w-full overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Slot</TableHead>
+            <TableHead>Player</TableHead>
+            <TableHead>Match</TableHead>
+            <TableHead className="text-right">Salary</TableHead>
+            <TableHead className="text-right">pOwn</TableHead>
+            <TableHead className="text-right">Fpts</TableHead>
           </TableRow>
-        ))}
-        <TableRow className="bg-muted/50 font-medium">
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">${totalSalary.toLocaleString()}</TableCell>
-          <TableCell className="text-right">{totalOwnership.toFixed(2)}%</TableCell>
-          <TableCell className="text-right">{projectedPoints.toFixed(2)}</TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-  </div>
-);
+        </TableHeader>
+        <TableBody>
+          {players && players.map((lp) => (
+            <TableRow key={`${lp.player.id}`}>
+              <TableCell className="font-medium">{lp.player.position}</TableCell>
+              <TableCell>
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm text-gray-500">{lp.player.team}</span>
+                  <span className="font-medium">{lp.player.name}</span>
+                </div>
+              </TableCell>
+              <TableCell>{lp.player.team} @ {lp.player.opponent}</TableCell>
+              <TableCell className="text-right">${lp.player.salary.toLocaleString()}</TableCell>
+              <TableCell className="text-right">{lp.player.ownership.toFixed(2)}%</TableCell>
+              <TableCell className="text-right">{lp.player.projected_points.toFixed(2)}</TableCell>
+            </TableRow>
+          ))}
+          <TableRow className="bg-muted/50 font-medium">
+            <TableCell colSpan={3}>Total</TableCell>
+            <TableCell className="text-right">${totalSalary.toLocaleString()}</TableCell>
+            <TableCell className="text-right">{totalOwnership.toFixed(2)}%</TableCell>
+            <TableCell className="text-right">{projectedPoints.toFixed(2)}</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
 
 export default LineupTable;

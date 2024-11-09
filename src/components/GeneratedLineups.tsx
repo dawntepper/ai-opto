@@ -36,7 +36,12 @@ const GeneratedLineups = ({ onBack }: GeneratedLineupsProps) => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching lineups:', error);
+        throw error;
+      }
+      
+      console.log('Fetched lineups:', data); // Debug log
       return data;
     }
   });
@@ -138,7 +143,7 @@ const GeneratedLineups = ({ onBack }: GeneratedLineupsProps) => {
               </div>
 
               <LineupTable
-                players={lineup.lineup_players}
+                players={lineup.lineup_players || []}
                 totalSalary={lineup.total_salary}
                 totalOwnership={lineup.total_ownership}
                 projectedPoints={lineup.projected_points}
