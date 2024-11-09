@@ -4,6 +4,7 @@ import { Textarea } from "./ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./ui/use-toast";
+import { Info } from "lucide-react";
 
 const SlateNotes = () => {
   const [notes, setNotes] = useState("");
@@ -56,8 +57,12 @@ const SlateNotes = () => {
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+        <Info className="h-4 w-4" />
+        <p>Add notes about injuries, weather conditions, or any other factors that might affect player performance. These notes will be used to enhance projection analysis.</p>
+      </div>
       <Textarea
-        placeholder="Enter notes about injuries, weather, or any other relevant slate information..."
+        placeholder="Example: John Smith (questionable) expected to play limited minutes. Weather forecast shows heavy rain in Chicago..."
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         className="min-h-[100px] bg-white/50"
@@ -68,7 +73,7 @@ const SlateNotes = () => {
           onClick={handleSave}
           disabled={!notes.trim() || saveMutation.isPending}
         >
-          Save Notes
+          Save Analysis Notes
         </Button>
       </div>
     </div>

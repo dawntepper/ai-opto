@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Upload, HelpCircle } from "lucide-react";
+import { Upload, HelpCircle, ChevronDown } from "lucide-react";
 import { toast } from "./ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -90,6 +90,10 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
             </Tooltip>
           </TooltipProvider>
         </div>
+      </div>
+
+      <div className="text-sm text-muted-foreground mb-4">
+        Click or drag & drop to upload your projections file. After uploading, you can add additional analysis notes above to enhance the optimization process.
       </div>
 
       <TooltipProvider>

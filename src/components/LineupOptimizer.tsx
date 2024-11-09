@@ -164,7 +164,10 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         <div className="space-y-4">
           <Collapsible open={isNotesOpen} onOpenChange={setIsNotesOpen}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold">Slate Notes</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold">Additional Analysis Notes</h3>
+                <span className="text-sm text-muted-foreground">(Click to expand)</span>
+              </div>
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm" className="hover:bg-transparent">
                   <ChevronDown className={`h-4 w-4 transition-transform ${isNotesOpen ? 'transform rotate-180' : ''}`} />
