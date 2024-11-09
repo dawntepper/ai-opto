@@ -19,7 +19,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     // First pass: Fill primary positions (PG, SG, SF, PF, C)
     NBA_POSITIONS.slice(0, 5).forEach((position, index) => {
       const playerForPosition = remainingPlayers.find(lp => 
-        lp.player?.position === position
+        lp.player?.roster_positions?.includes(position)
       );
       if (playerForPosition?.player) {
         slots[index] = `${playerForPosition.player.name} (${playerForPosition.player.partner_id || ''})`;
@@ -30,7 +30,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     // Second pass: Fill G slot (PG/SG)
     if (slots[5] === '') {
       const guardPlayer = remainingPlayers.find(lp => 
-        ['PG', 'SG'].includes(lp.player?.position)
+        lp.player?.roster_positions?.some(pos => ['PG', 'SG'].includes(pos))
       );
       if (guardPlayer?.player) {
         slots[5] = `${guardPlayer.player.name} (${guardPlayer.player.partner_id || ''})`;
@@ -41,7 +41,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     // Third pass: Fill F slot (SF/PF)
     if (slots[6] === '') {
       const forwardPlayer = remainingPlayers.find(lp => 
-        ['SF', 'PF'].includes(lp.player?.position)
+        lp.player?.roster_positions?.some(pos => ['SF', 'PF'].includes(pos))
       );
       if (forwardPlayer?.player) {
         slots[6] = `${forwardPlayer.player.name} (${forwardPlayer.player.partner_id || ''})`;
