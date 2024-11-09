@@ -11,7 +11,7 @@ interface EnhancedProjection {
   Spread: number;
   Total: number;
   'O/U': number;
-  Minutes: number;
+  mins: number;  // Changed from Minutes to mins
   PTS: number;
   AST: number;
   REB: number;
@@ -39,7 +39,7 @@ export const processEnhancedProjections = (data: any[]): EnhancedProjection[] =>
     Spread: Number(row['Spread']) || 0,
     Total: Number(row['Total']) || 0,
     'O/U': Number(row['O/U']) || 0,
-    Minutes: Number(row['Minutes']) || 0,
+    mins: Number(row['mins']) || 0,  // Changed from Minutes to mins
     PTS: Number(row['PTS']) || 0,
     AST: Number(row['AST']) || 0,
     REB: Number(row['REB']) || 0,
