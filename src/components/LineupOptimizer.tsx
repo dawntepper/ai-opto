@@ -63,14 +63,11 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
     setIsOptimizing(true);
     try {
-      console.log('Attempting to save optimization settings:', settings);
       const settingsData = await saveOptimizationSettings(settings);
-      console.log('Successfully saved settings with ID:', settingsData.id);
-      
-      console.log('Final player check count:', validPlayersCount);
-      console.log('Attempting to generate lineups with settings_id:', settingsData.id);
+      console.log('Settings saved with ID:', settingsData.id);
       
       const lineups = await generateLineups(settingsData.id);
+      console.log('Lineups generated:', lineups);
 
       if (!lineups || lineups.length === 0) {
         throw new Error('No valid lineups could be generated');
@@ -79,16 +76,19 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       await queryClient.invalidateQueries({ queryKey: ['lineups'] });
 
       toast({
-        title: "Lineups Generated",
-        description: `Successfully generated ${lineups.length} lineups.`
+        title: "Success",
+        description: `Successfully generated ${lineups.length} lineup${lineups.length > 1 ? 's' : ''}.`
       });
 
       setShowLineups(true);
     } catch (error: any) {
       console.error('Optimization error:', error);
+      const errorMessage = error.message || "Failed to generate lineups";
+      const details = error.details || "";
+      
       toast({
-        title: "Error",
-        description: error.message || "Failed to generate lineups. Please try again.",
+        title: "Error Generating Lineups",
+        description: `${errorMessage}${details ? `: ${details}` : ''}`,
         variant: "destructive"
       });
     } finally {
