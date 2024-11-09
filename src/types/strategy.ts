@@ -1,3 +1,5 @@
+import { EntryType } from './index';
+
 export interface BaseStrategy {
   title: string;
   keyPrinciples: string[];
