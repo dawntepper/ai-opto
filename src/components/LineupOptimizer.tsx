@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { EntryType, OptimizationSettings } from '../types';
 import ProjectionsUpload from './ProjectionsUpload';
-import SlateAnalysis from './SlateAnalysis';
+import SlateNotes from './SlateNotes';
 import { toast } from "./ui/use-toast";
 import OptimizationSettingsComponent from './OptimizationSettings';
 import EntryTypeSettings from './EntryTypeSettings';
@@ -159,6 +159,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
+          <SlateNotes />
           <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
           <FileUploadList 
             fileUploads={fileUploads}
@@ -166,7 +167,6 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
             onRemoveFile={removeFile}
           />
         </div>
-        <SlateAnalysis />
       </div>
 
       <div className="flex flex-col items-center gap-2">
