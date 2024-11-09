@@ -34,6 +34,10 @@ export const StrategyContent = ({ strategy }: StrategyContentProps) => {
         {(strategy.type === '3-max' || strategy.type === '20-max') && renderList(strategy.buildTypes)}
       </TabsContent>
 
+      <TabsContent value="game-selection">
+        {(strategy.type === 'single' || strategy.type === '3-max') && renderList(strategy.gameSelection)}
+      </TabsContent>
+
       {strategy.type === 'single' && (
         <TabsContent value="checklist">
           {renderList(strategy.checklist)}
@@ -43,6 +47,12 @@ export const StrategyContent = ({ strategy }: StrategyContentProps) => {
       {strategy.type === '20-max' && (
         <TabsContent value="advanced">
           {renderList(strategy.advancedConcepts)}
+        </TabsContent>
+      )}
+
+      {strategy.type === '20-max' && (
+        <TabsContent value="implementation">
+          {renderList(strategy.implementationTips)}
         </TabsContent>
       )}
     </>

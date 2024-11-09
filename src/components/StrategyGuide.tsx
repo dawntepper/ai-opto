@@ -40,12 +40,16 @@ const StrategyGuide = ({ entryType }: StrategyGuideProps) => {
         <h2 className="text-2xl font-bold mb-4">{currentStrategy.title}</h2>
         
         <Tabs defaultValue="principles" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="principles">Key Principles</TabsTrigger>
             <TabsTrigger value="ownership">Ownership</TabsTrigger>
             <TabsTrigger value="builds">Build Types</TabsTrigger>
+            {(currentStrategy.type === 'single' || currentStrategy.type === '3-max') && (
+              <TabsTrigger value="game-selection">Game Selection</TabsTrigger>
+            )}
             {currentStrategy.type === 'single' && <TabsTrigger value="checklist">Checklist</TabsTrigger>}
             {currentStrategy.type === '20-max' && <TabsTrigger value="advanced">Advanced</TabsTrigger>}
+            {currentStrategy.type === '20-max' && <TabsTrigger value="implementation">Implementation</TabsTrigger>}
           </TabsList>
 
           <ScrollArea className="h-[300px] w-full rounded-md border p-4">

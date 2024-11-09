@@ -9,6 +9,7 @@ export interface SingleEntryStrategy extends BaseStrategy {
   type: 'single';
   ownershipManagement: string[];
   rosterConstruction: string[];
+  gameSelection: string[];
   checklist: string[];
 }
 
@@ -16,6 +17,7 @@ export interface ThreeMaxStrategy extends BaseStrategy {
   type: '3-max';
   ownershipStructure: string[];
   coreManagement: string[];
+  gameSelection: string[];
   buildTypes: string[];
 }
 
@@ -24,6 +26,7 @@ export interface TwentyMaxStrategy extends BaseStrategy {
   portfolioManagement: string[];
   buildTypes: string[];
   advancedConcepts: string[];
+  implementationTips: string[];
 }
 
 export type Strategy = SingleEntryStrategy | ThreeMaxStrategy | TwentyMaxStrategy;
@@ -33,7 +36,7 @@ export const strategies: Record<EntryType, Strategy> = {
     type: 'single',
     title: "Single-Entry Strategy",
     keyPrinciples: [
-      "Mix of chalk and contrarian plays",
+      "Balanced Approach: Mix of chalk and contrarian plays",
       "1-2 leverage plays maximum",
       "Target 2-3 correlated players",
       "One game stack maximum"
@@ -48,6 +51,11 @@ export const strategies: Record<EntryType, Strategy> = {
       "Target one spend-up spot (typically stud PG or C)",
       "Maintain flexibility for late swap",
       "Focus on minutes security"
+    ],
+    gameSelection: [
+      "Target one primary game environment",
+      "Use basic two-player stacks",
+      "Avoid overly complicated correlation"
     ],
     checklist: [
       "Maximum two players from same team",
@@ -76,10 +84,15 @@ export const strategies: Record<EntryType, Strategy> = {
       "Different captains/multiplier spots",
       "Vary correlation strategies"
     ],
+    gameSelection: [
+      "Primary stack in each lineup",
+      "Mix of game environments",
+      "Correlation variations"
+    ],
     buildTypes: [
       "Balanced Build: 2-3 value plays, even salary distribution",
       "Stars & Scrubs: 2 studs + value, extreme salary distribution",
-      "Game Stack Focus: Heavy game correlation, related player outcomes"
+      "Game Stack Focus: Heavy game correlation, environment-based upside"
     ]
   },
   '20-max': {
@@ -107,10 +120,15 @@ export const strategies: Record<EntryType, Strategy> = {
       "Strategic exposure to different ownership tiers",
       "If Player A, then Player B at >50%",
       "Predetermined swap rules",
+      "Ownership adaptation",
+      "News-based pivots"
+    ],
+    implementationTips: [
       "Core players (30-40% exposure)",
       "Secondary players (15-25% exposure)",
       "Peripheral players (5-15% exposure)",
-      "Primary game stack in 30% of lineups"
+      "Primary game stack in 30% of lineups",
+      "Value play exposure caps"
     ]
   }
 };
