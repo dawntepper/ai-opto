@@ -136,8 +136,13 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
   };
 
+  const handleBack = () => {
+    setShowLineups(false);
+    queryClient.invalidateQueries({ queryKey: ['lineups'] });
+  };
+
   if (showLineups) {
-    return <GeneratedLineups onBack={() => setShowLineups(false)} />;
+    return <GeneratedLineups onBack={handleBack} />;
   }
 
   return (
