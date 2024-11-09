@@ -34,7 +34,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
-  const { data: fileUploads } = useQuery<Tables<'file_uploads'>[]>({
+  const { data: fileUploads, refetch } = useQuery<Tables<'file_uploads'>[]>({
     queryKey: ['uploadedFiles'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -56,22 +56,18 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       });
       return;
     }
-    // TODO: Implement optimization logic
     console.log('Optimizing with settings:', settings);
   };
 
   const handleProjectionsUploaded = (projections: any[], fileName: string) => {
     const fileType = fileName.toLowerCase().includes('draftkings') ? 'draftkings' : 'projections';
     
-    // Check if we already have a file of this type
     const existingFileIndex = uploadedFiles.findIndex(f => f.type === fileType);
     if (existingFileIndex !== -1) {
-      // Replace the existing file
       const newFiles = [...uploadedFiles];
       newFiles[existingFileIndex] = { name: fileName, type: fileType };
       setUploadedFiles(newFiles);
     } else {
-      // Add new file
       setUploadedFiles([...uploadedFiles, { name: fileName, type: fileType }]);
     }
 
@@ -81,8 +77,27 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     });
   };
 
-  const removeFile = (type: 'draftkings' | 'projections') => {
-    setUploadedFiles(uploadedFiles.filter(f => f.type !== type));
+  const removeFile = async (fileId: string) => {
+    try {
+      const { error } = await supabase
+        .from('file_uploads')
+        .delete()
+        .eq('id', fileId);
+      
+      if (error) throw error;
+      
+      refetch();
+      toast({
+        title: "File Removed",
+        description: "File has been removed successfully"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to remove file",
+        variant: "destructive"
+      });
+    }
   };
 
   const hasDraftKingsTemplate = uploadedFiles.some(f => f.type === 'draftkings');
@@ -98,42 +113,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
-          <div className="text-sm text-gray-300">
-            <p>Upload status:</p>
-            <ul className="list-none space-y-2 ml-2">
-              <li className="flex items-center justify-between">
-                <span className={hasDraftKingsTemplate ? "text-green-500" : ""}>
-                  DraftKings contest template (.csv)
-                </span>
-                {hasDraftKingsTemplate && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={() => removeFile('draftkings')}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </li>
-              <li className="flex items-center justify-between">
-                <span className={hasProjections ? "text-green-500" : ""}>
-                  Projections file with matching player IDs (.csv)
-                </span>
-                {hasProjections && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={() => removeFile('projections')}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </li>
-            </ul>
-          </div>
-
+          
           <div className="mt-4">
             <h4 className="text-sm font-medium mb-2">Uploaded Files</h4>
             <ScrollArea className="h-[100px] border rounded-md">
@@ -141,9 +121,19 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
                 {fileUploads?.map((file) => (
                   <div key={file.id} className="flex items-center justify-between py-1">
                     <span className="text-sm">{file.filename}</span>
-                    <span className="text-xs text-gray-400">
-                      {new Date(file.created_at!).toLocaleDateString()}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-400">
+                        {new Date(file.created_at!).toLocaleDateString()}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={() => removeFile(file.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
                 {!fileUploads?.length && (

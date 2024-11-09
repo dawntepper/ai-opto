@@ -6,6 +6,7 @@ import { toast } from './ui/use-toast';
 import { ScrollArea } from './ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
+import { useEffect } from 'react';
 
 const SlateAnalysis = () => {
   const editor = useEditor({
@@ -17,6 +18,13 @@ const SlateAnalysis = () => {
       },
     },
   });
+
+  useEffect(() => {
+    const savedContent = localStorage.getItem('slateAnalysis');
+    if (savedContent && editor) {
+      editor.commands.setContent(savedContent);
+    }
+  }, [editor]);
 
   const handleSave = () => {
     const content = editor?.getHTML();
