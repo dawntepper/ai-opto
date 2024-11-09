@@ -40,7 +40,7 @@ const LineupAnalysis: React.FC<LineupAnalysisProps> = ({ lineup }) => {
       </h3>
 
       {/* Key Insights at the top */}
-      <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
         <h4 className="font-semibold mb-2">Key Insights:</h4>
         <ul className="list-disc pl-5 space-y-2">
           <li>This lineup leverages {highCeilingPlayers.length} high-ceiling players for tournament upside.</li>
@@ -49,7 +49,7 @@ const LineupAnalysis: React.FC<LineupAnalysisProps> = ({ lineup }) => {
         </ul>
       </div>
       
-      <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
         <ul className="list-disc pl-5 space-y-2">
           <li>Total Salary: ${lineup.total_salary.toLocaleString()} (Avg: ${averageSalary.toFixed(0)})</li>
           <li>Projected Points: {lineup.projected_points.toFixed(2)}</li>
@@ -60,22 +60,22 @@ const LineupAnalysis: React.FC<LineupAnalysisProps> = ({ lineup }) => {
       </div>
 
       {slateAnalysis ? (
-        <Collapsible className="w-full">
-          <CollapsibleTrigger className="flex w-full items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-t-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <Collapsible className="w-full" defaultOpen>
+          <CollapsibleTrigger className="flex w-full items-center justify-between p-4 bg-white dark:bg-gray-900 rounded-t-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <div className="flex items-center gap-2 font-semibold">
               <Users className="h-5 w-5 text-green-600" />
-              Latest Slate Analysis
+              Additional Data/Info
             </div>
             <ChevronDown className="h-4 w-4 transition-transform duration-200" />
           </CollapsibleTrigger>
-          <CollapsibleContent className="bg-gray-50 dark:bg-gray-900 p-4 rounded-b-lg border-x border-b border-gray-200 dark:border-gray-700">
+          <CollapsibleContent className="bg-white dark:bg-gray-900 p-4 rounded-b-lg border-x border-b border-gray-200 dark:border-gray-700">
             <p className="whitespace-pre-wrap">{slateAnalysis.content}</p>
           </CollapsibleContent>
         </Collapsible>
       ) : (
         <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
           <AlertCircle className="h-5 w-5" />
-          <p>No additional slate analysis available</p>
+          <p>No additional data available</p>
         </div>
       )}
     </div>
