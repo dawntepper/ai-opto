@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
-import { X } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import LineupSummary from "./LineupSummary";
 import LineupTable from "./LineupTable";
@@ -15,7 +15,7 @@ interface LineupCardProps {
 
 const LineupCard = ({ lineup, index, onRemove }: LineupCardProps) => {
   return (
-    <Card key={lineup.id} className="relative p-6 bg-white dark:bg-gray-800 border-green-100">
+    <Card key={lineup.id} className="relative p-6 bg-white dark:bg-gray-800 border border-green-200 dark:border-green-800">
       <Button
         variant="ghost"
         size="icon"
@@ -29,25 +29,25 @@ const LineupCard = ({ lineup, index, onRemove }: LineupCardProps) => {
         <TabsList className="bg-gray-100 dark:bg-gray-700">
           <TabsTrigger 
             value="lineup"
-            className="data-[state=active]:bg-green-600 data-[state=active]:text-white"
+            className="text-gray-900 dark:text-white data-[state=active]:bg-green-600 data-[state=active]:text-white"
           >
             Lineup
           </TabsTrigger>
           <TabsTrigger 
             value="analysis"
-            className="data-[state=active]:bg-green-600 data-[state=active]:text-white"
+            className="text-gray-900 dark:text-white data-[state=active]:bg-green-600 data-[state=active]:text-white"
           >
             Analysis
           </TabsTrigger>
           <TabsTrigger 
             value="visualizations"
-            className="data-[state=active]:bg-green-600 data-[state=active]:text-white"
+            className="text-gray-900 dark:text-white data-[state=active]:bg-green-600 data-[state=active]:text-white"
           >
             Visualizations
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="lineup">
+        <TabsContent value="lineup" className="bg-white dark:bg-gray-800 rounded-b-lg p-4">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="text-lg font-semibold text-gray-900 dark:text-white">{index + 1}</div>
@@ -67,11 +67,11 @@ const LineupCard = ({ lineup, index, onRemove }: LineupCardProps) => {
           </div>
         </TabsContent>
         
-        <TabsContent value="analysis">
+        <TabsContent value="analysis" className="bg-white dark:bg-gray-800 rounded-b-lg p-4">
           <LineupAnalysis lineup={lineup} />
         </TabsContent>
         
-        <TabsContent value="visualizations">
+        <TabsContent value="visualizations" className="bg-white dark:bg-gray-800 rounded-b-lg p-4">
           <LineupVisualizations lineup={lineup} />
         </TabsContent>
       </Tabs>
