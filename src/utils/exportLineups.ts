@@ -1,5 +1,31 @@
 const NBA_POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'UTIL'];
 
+const mapPositionToRosterPositions = (position: string): string[] => {
+  // Handle multi-position players (e.g., "PG/SG")
+  const positions = position.split('/');
+  
+  // Map each position to its eligible roster spots
+  const rosterPositions = positions.flatMap(pos => {
+    switch (pos.trim()) {
+      case 'PG':
+        return ['PG', 'G', 'UTIL'];
+      case 'SG':
+        return ['SG', 'G', 'UTIL'];
+      case 'SF':
+        return ['SF', 'F', 'UTIL'];
+      case 'PF':
+        return ['PF', 'F', 'UTIL'];
+      case 'C':
+        return ['C', 'UTIL'];
+      default:
+        return ['UTIL'];
+    }
+  });
+
+  // Deduplicate the array
+  return [...new Set(rosterPositions)];
+};
+
 export const exportLineupsToDraftKings = (lineups: any[]) => {
   // Create header row
   const header = NBA_POSITIONS.join(',');
@@ -19,9 +45,9 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       console.log('Current remaining players:', remainingPlayers);
       
       const playerIndex = remainingPlayers.findIndex(lp => {
-        const positions = lp.player?.roster_positions?.split(',') || [];
-        console.log(`Checking player ${lp.player?.name} positions:`, positions);
-        return positions.includes(position);
+        const rosterPositions = mapPositionToRosterPositions(lp.player?.position || '');
+        console.log(`Checking player ${lp.player?.name} positions:`, rosterPositions);
+        return rosterPositions.includes(position);
       });
 
       if (playerIndex !== -1) {
@@ -47,8 +73,8 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     if (slots[5] === '') {
       console.log('Looking for G slot player');
       const guardPlayer = remainingPlayers.find(lp => {
-        const positions = lp.player?.roster_positions?.split(',') || [];
-        return positions.includes('G');
+        const rosterPositions = mapPositionToRosterPositions(lp.player?.position || '');
+        return rosterPositions.includes('G');
       });
       
       if (guardPlayer?.player) {
@@ -62,8 +88,8 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     if (slots[6] === '') {
       console.log('Looking for F slot player');
       const forwardPlayer = remainingPlayers.find(lp => {
-        const positions = lp.player?.roster_positions?.split(',') || [];
-        return positions.includes('F');
+        const rosterPositions = mapPositionToRosterPositions(lp.player?.position || '');
+        return rosterPositions.includes('F');
       });
       
       if (forwardPlayer?.player) {
