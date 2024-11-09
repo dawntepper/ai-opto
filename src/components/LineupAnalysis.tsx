@@ -1,14 +1,17 @@
 import React from 'react';
 
 interface LineupAnalysisProps {
-  lineup: any; // Replace 'any' with a more specific type if available
+  lineup: any;
 }
 
 const LineupAnalysis: React.FC<LineupAnalysisProps> = ({ lineup }) => {
-  // Calculate some analysis metrics
   const averageSalary = lineup.total_salary / lineup.lineup_players.length;
-  const highCeilingPlayers = lineup.lineup_players.filter((lp: any) => lp.player.ceiling > lp.player.projected_points * 1.2);
-  const lowOwnershipPlayers = lineup.lineup_players.filter((lp: any) => lp.player.ownership < 10);
+  const highCeilingPlayers = lineup.lineup_players.filter((lp: any) => 
+    lp.player.ceiling && lp.player.ceiling > lp.player.projected_points * 1.2
+  );
+  const lowOwnershipPlayers = lineup.lineup_players.filter((lp: any) => 
+    lp.player.ownership < 10
+  );
 
   return (
     <div className="space-y-4">
