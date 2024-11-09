@@ -28,7 +28,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
   const [showLineups, setShowLineups] = useState(false);
 
-  const { data: fileUploads, refetch, isLoading } = useQuery({
+  const { data: fileUploads, refetch, isLoading: fileUploadsLoading } = useQuery({
     queryKey: ['uploadedFiles'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -42,42 +42,35 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
   });
 
-  // Query to check if we have players data
-  const { data: playersData } = useQuery({
-    queryKey: ['players'],
+  // Query to check if we have valid players data
+  const { data: validPlayersCount, isLoading: playersLoading } = useQuery({
+    queryKey: ['validPlayers'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { count, error } = await supabase
         .from('players')
-        .select('id')
-        .limit(1);
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'available')
+        .gt('salary', 0)
+        .gt('projected_points', 0);
       
       if (error) throw error;
-      return data;
+      return count || 0;
     }
   });
 
-  const hasProjections = playersData && playersData.length > 0;
-  const canOptimize = hasProjections;
+  const canOptimize = validPlayersCount && validPlayersCount >= 8;
 
   const handleOptimize = async () => {
     if (!canOptimize) {
       toast({
-        title: "Missing Required File",
-        description: "Please upload the projections file before generating lineups.",
+        title: "Cannot Generate Lineups",
+        description: "Please ensure you have at least 8 valid players with non-zero salary and projected points.",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      console.log('Optimization Settings being used:', {
-        entryType: settings.entryType,
-        maxSalary: settings.maxSalary,
-        maxOwnership: settings.maxOwnership,
-        correlationStrength: settings.correlationStrength,
-        lineupCount: settings.lineupCount
-      });
-
       const { data: settingsData, error: settingsError } = await supabase
         .from('optimization_settings')
         .insert({
@@ -91,27 +84,17 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         .select()
         .single();
 
-      if (settingsError) {
-        console.error('Error saving optimization settings:', settingsError);
-        throw settingsError;
-      }
-
-      console.log('Saved optimization settings:', settingsData);
+      if (settingsError) throw settingsError;
 
       const { data: lineups, error: lineupsError } = await supabase
         .rpc('generate_optimal_lineups', {
           settings_id: settingsData.id
         });
 
-      if (lineupsError) {
-        console.error('Error generating lineups:', lineupsError);
-        throw lineupsError;
-      }
-
-      console.log('Generated lineups:', lineups);
+      if (lineupsError) throw lineupsError;
 
       if (!lineups || lineups.length === 0) {
-        throw new Error('No lineups were generated');
+        throw new Error('No valid lineups could be generated');
       }
 
       await queryClient.invalidateQueries({ queryKey: ['lineups'] });
@@ -134,6 +117,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
   const handleProjectionsUploaded = async () => {
     await refetch();
+    await queryClient.invalidateQueries({ queryKey: ['validPlayers'] });
     toast({
       title: "Files Processed",
       description: "Projections have been processed successfully"
@@ -150,6 +134,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       if (error) throw error;
       
       await refetch();
+      await queryClient.invalidateQueries({ queryKey: ['validPlayers'] });
       toast({
         title: "File Removed",
         description: "File has been removed successfully"
@@ -171,6 +156,8 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   if (showLineups) {
     return <GeneratedLineups onBack={handleBack} />;
   }
+
+  const isLoading = fileUploadsLoading || playersLoading;
 
   return (
     <div className="space-y-6">
@@ -196,15 +183,17 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
           size="lg"
           onClick={handleOptimize}
           className="bg-secondary hover:bg-secondary/90"
-          disabled={!canOptimize}
+          disabled={!canOptimize || isLoading}
         >
           Generate Optimal Lineups
         </Button>
-        {!canOptimize && (
+        {isLoading ? (
+          <p className="text-sm text-gray-400">Loading...</p>
+        ) : !canOptimize ? (
           <p className="text-sm text-gray-400">
-            {isLoading ? "Loading files..." : "Please upload the projections file"}
+            Need at least 8 valid players with non-zero salary and projected points
           </p>
-        )}
+        ) : null}
       </div>
     </div>
   );
