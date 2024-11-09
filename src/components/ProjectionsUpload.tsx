@@ -41,20 +41,35 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
         const validData = processedData.filter(player => player.ID);
         console.log('Processing DraftKings data:', validData.length, 'valid players');
         
-        const { error } = await supabase.from('players').upsert(
-          validData.map(player => ({
-            name: player.Name,
-            position: player.Position,
-            salary: player.Salary,
-            team: player.TeamAbbrev,
-            opponent: extractGameInfo(player.GameInfo).awayTeam,
-            partner_id: player.ID,
-            projected_points: player.AvgPointsPerGame || 0,
-            ownership: 0, // Default ownership
-            status: 'available',
-            roster_positions: player.RosterPosition
-          }))
-        );
+        // First, mark all existing players as unavailable
+        const { error: updateError } = await supabase
+          .from('players')
+          .update({ status: 'unavailable' })
+          .neq('status', 'out');  // Don't update players already marked as 'out'
+        
+        if (updateError) {
+          console.error('Error updating player statuses:', updateError);
+          throw updateError;
+        }
+
+        // Then insert/update new players as available
+        const { error } = await supabase
+          .from('players')
+          .upsert(
+            validData.map(player => ({
+              name: player.Name,
+              position: player.Position,
+              salary: player.Salary,
+              team: player.TeamAbbrev,
+              opponent: extractGameInfo(player.GameInfo).awayTeam,
+              partner_id: player.ID,
+              projected_points: player.AvgPointsPerGame || 0,
+              ownership: 0, // Default ownership
+              status: 'available', // Mark new/updated players as available
+              roster_positions: player.RosterPosition
+            })),
+            { onConflict: 'partner_id' }
+          );
 
         if (error) {
           console.error('Error upserting DraftKings data:', error);
@@ -66,18 +81,21 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
         const validData = processedData.filter(proj => proj.partner_id);
         console.log('Processing projections data:', validData.length, 'valid projections');
         
-        const { error } = await supabase.from('players').upsert(
-          validData.map(proj => ({
-            partner_id: proj.partner_id,
-            projected_points: proj.fpts || 0,
-            ownership: proj.proj_own || 0,
-            ceiling: proj.ceil,
-            floor: proj.floor,
-            minutes: proj.minutes,
-            rg_id: proj.rg_id
-          })), 
-          { onConflict: 'partner_id' }
-        );
+        const { error } = await supabase
+          .from('players')
+          .upsert(
+            validData.map(proj => ({
+              partner_id: proj.partner_id,
+              projected_points: proj.fpts || 0,
+              ownership: proj.proj_own || 0,
+              ceiling: proj.ceil,
+              floor: proj.floor,
+              minutes: proj.minutes,
+              rg_id: proj.rg_id,
+              status: 'available' // Ensure players are marked as available
+            })), 
+            { onConflict: 'partner_id' }
+          );
 
         if (error) {
           console.error('Error upserting projections:', error);
