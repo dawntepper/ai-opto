@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { HelpCircle } from "lucide-react";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
 
 const SlateAnalysis = () => {
   const editor = useEditor({
@@ -20,7 +21,7 @@ const SlateAnalysis = () => {
     },
   });
 
-  const { data: uploadedFiles } = useQuery({
+  const { data: uploadedFiles } = useQuery<Tables<'file_uploads'>[]>({
     queryKey: ['uploadedFiles'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -78,7 +79,7 @@ const SlateAnalysis = () => {
               <div key={file.id} className="flex items-center justify-between py-1">
                 <span className="text-sm">{file.filename}</span>
                 <span className="text-xs text-gray-400">
-                  {new Date(file.created_at).toLocaleDateString()}
+                  {new Date(file.created_at!).toLocaleDateString()}
                 </span>
               </div>
             ))}
