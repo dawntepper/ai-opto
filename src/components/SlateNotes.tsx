@@ -104,15 +104,15 @@ const SlateNotes = () => {
   };
 
   return (
-    <div className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-lg border border-green-100">
+    <div className="space-y-4 bg-white dark:bg-slate-800 p-6 rounded-lg border-2 border-green-200 dark:border-green-900">
       <div className="flex items-center gap-2 mb-4">
-        <Sun className="h-5 w-5 text-green-600" />
+        <Sun className="h-5 w-5 text-green-600 dark:text-green-400" />
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Slate Analysis</h3>
       </div>
 
       <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2">
         <Info className="h-4 w-4" />
-        <p>Add notes about injuries, weather conditions, or any other factors that might affect player performance. These notes will be used to enhance projection analysis.</p>
+        <p>Add notes about injuries, weather conditions, or any other factors that might affect player performance.</p>
       </div>
 
       <div
@@ -133,7 +133,7 @@ const SlateNotes = () => {
         placeholder="Example: John Smith (questionable) expected to play limited minutes. Weather forecast shows heavy rain in Chicago..."
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
-        className="min-h-[100px] bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-green-100"
+        className="min-h-[100px] bg-white dark:bg-slate-700 text-gray-900 dark:text-white border-green-100 dark:border-green-800 placeholder:text-gray-500 dark:placeholder:text-gray-400"
       />
       
       <div className="flex justify-end gap-2">
@@ -141,7 +141,7 @@ const SlateNotes = () => {
           variant="secondary"
           onClick={handleSave}
           disabled={!notes.trim() || saveMutation.isPending}
-          className="bg-green-600 hover:bg-green-700 text-white"
+          className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-600 dark:text-white"
         >
           Save Analysis Notes
         </Button>
