@@ -13,7 +13,11 @@ import { Download, Pencil } from "lucide-react";
 import { useState } from "react";
 import { toast } from "./ui/use-toast";
 
-const GeneratedLineups = () => {
+interface GeneratedLineupsProps {
+  onBack: () => void;
+}
+
+const GeneratedLineups = ({ onBack }: GeneratedLineupsProps) => {
   const [editingLineupId, setEditingLineupId] = useState<string | null>(null);
 
   const { data: lineups, isLoading } = useQuery({
@@ -88,7 +92,7 @@ const GeneratedLineups = () => {
         <h2 className="text-xl font-semibold">Generated Lineups</h2>
         <Button 
           variant="outline" 
-          onClick={() => window.history.back()}
+          onClick={onBack}
           className="text-primary hover:text-primary"
         >
           Back to Settings

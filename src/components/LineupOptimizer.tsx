@@ -7,7 +7,7 @@ import { toast } from "./ui/use-toast";
 import OptimizationSettingsComponent from './OptimizationSettings';
 import EntryTypeSettings from './EntryTypeSettings';
 import { getDefaultMaxOwnership, getDefaultCorrelation, getDefaultLineupCount } from '../utils/optimizationDefaults';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import GeneratedLineups from './GeneratedLineups';
 import FileUploadList from './FileUploadList';
@@ -17,6 +17,7 @@ interface LineupOptimizerProps {
 }
 
 const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
+  const queryClient = useQueryClient();
   const [settings, setSettings] = useState<OptimizationSettings>({
     entryType,
     maxSalary: 50000,
@@ -85,6 +86,9 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         throw new Error('No lineups were generated');
       }
 
+      // Invalidate the lineups query to force a refresh
+      await queryClient.invalidateQueries({ queryKey: ['lineups'] });
+
       toast({
         title: "Lineups Generated",
         description: `Successfully generated ${lineups.length} lineups.`
@@ -133,17 +137,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   };
 
   if (showLineups) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Generated Lineups</h2>
-          <Button variant="outline" onClick={() => setShowLineups(false)}>
-            Back to Settings
-          </Button>
-        </div>
-        <GeneratedLineups />
-      </div>
-    );
+    return <GeneratedLineups onBack={() => setShowLineups(false)} />;
   }
 
   return (
