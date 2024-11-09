@@ -7,11 +7,10 @@ import { toast } from "./ui/use-toast";
 import OptimizationSettingsComponent from './OptimizationSettings';
 import EntryTypeSettings from './EntryTypeSettings';
 import { getDefaultMaxOwnership, getDefaultCorrelation, getDefaultLineupCount } from '../utils/optimizationDefaults';
-import { X } from 'lucide-react';
-import { ScrollArea } from './ui/scroll-area';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import GeneratedLineups from './GeneratedLineups';
+import FileUploadList from './FileUploadList';
 
 interface LineupOptimizerProps {
   entryType: EntryType;
@@ -42,7 +41,6 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
   });
 
-  // Check if we have both required file types
   const hasDraftKings = fileUploads?.some(file => file.file_type === 'draftkings' && file.processed);
   const hasProjections = fileUploads?.some(file => file.file_type === 'projections' && file.processed);
   const canOptimize = hasDraftKings && hasProjections;
@@ -58,7 +56,6 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
 
     try {
-      // First, save the optimization settings
       const { data: settingsData, error: settingsError } = await supabase
         .from('optimization_settings')
         .insert({
@@ -67,14 +64,13 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
           max_ownership: settings.maxOwnership,
           correlation_strength: settings.correlationStrength,
           lineup_count: settings.lineupCount,
-          min_value: 0 // Default value, can be made configurable later
+          min_value: 0
         })
         .select()
         .single();
 
       if (settingsError) throw settingsError;
 
-      // Generate lineups based on settings
       const { data: lineups, error: lineupsError } = await supabase
         .rpc('generate_optimal_lineups', {
           settings_id: settingsData.id
@@ -88,25 +84,22 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       });
 
       setShowLineups(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating lineups:', error);
       toast({
         title: "Error",
-        description: "Failed to generate lineups. Please try again.",
+        description: error.message || "Failed to generate lineups. Please try again.",
         variant: "destructive"
       });
     }
   };
 
-  const handleProjectionsUploaded = async (projections: any[], fileName: string) => {
-    const fileType = fileName.toLowerCase().includes('draftkings') ? 'draftkings' : 'projections';
-    
-    toast({
-      title: fileType === 'draftkings' ? "DraftKings Template Uploaded" : "Projections Uploaded",
-      description: "File processed successfully"
-    });
-    
+  const handleProjectionsUploaded = async () => {
     await refetch();
+    toast({
+      title: "Files Processed",
+      description: "Files have been processed successfully"
+    });
   };
 
   const removeFile = async (fileId: string) => {
@@ -132,85 +125,57 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
   };
 
+  if (showLineups) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">Generated Lineups</h2>
+          <Button variant="outline" onClick={() => setShowLineups(false)}>
+            Back to Settings
+          </Button>
+        </div>
+        <GeneratedLineups />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {!showLineups ? (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <EntryTypeSettings settings={settings} setSettings={setSettings} />
-            <OptimizationSettingsComponent settings={settings} setSettings={setSettings} />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <EntryTypeSettings settings={settings} setSettings={setSettings} />
+        <OptimizationSettingsComponent settings={settings} setSettings={setSettings} />
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
-              
-              {fileUploads && fileUploads.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium mb-2">Uploaded Files</h4>
-                  <ScrollArea className="h-[100px] border rounded-md">
-                    <div className="p-2">
-                      {fileUploads.map((file) => (
-                        <div key={file.id} className="flex items-center justify-between py-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm">{file.filename}</span>
-                            {!file.processed && (
-                              <span className="text-xs text-yellow-500">(Processing...)</span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-400">
-                              {new Date(file.created_at!).toLocaleDateString()}
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0"
-                              onClick={() => removeFile(file.id)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              )}
-            </div>
-            <SlateAnalysis />
-          </div>
-
-          <div className="flex flex-col items-center gap-2">
-            <Button
-              size="lg"
-              onClick={handleOptimize}
-              className="bg-secondary hover:bg-secondary/90"
-              disabled={!canOptimize}
-            >
-              Generate Optimal Lineups
-            </Button>
-            {!canOptimize && (
-              <p className="text-sm text-gray-400">
-                {isLoading ? "Loading files..." : 
-                 !hasDraftKings && !hasProjections ? "Please upload both the DraftKings template and projections" :
-                 !hasDraftKings ? "Please upload the DraftKings template" :
-                 "Please upload the projections file"}
-              </p>
-            )}
-          </div>
-        </>
-      ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Generated Lineups</h2>
-            <Button variant="outline" onClick={() => setShowLineups(false)}>
-              Back to Settings
-            </Button>
-          </div>
-          <GeneratedLineups />
+          <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
+          <FileUploadList 
+            fileUploads={fileUploads}
+            isLoading={isLoading}
+            onRemoveFile={removeFile}
+          />
         </div>
-      )}
+        <SlateAnalysis />
+      </div>
+
+      <div className="flex flex-col items-center gap-2">
+        <Button
+          size="lg"
+          onClick={handleOptimize}
+          className="bg-secondary hover:bg-secondary/90"
+          disabled={!canOptimize}
+        >
+          Generate Optimal Lineups
+        </Button>
+        {!canOptimize && (
+          <p className="text-sm text-gray-400">
+            {isLoading ? "Loading files..." : 
+             !hasDraftKings && !hasProjections ? "Please upload both the DraftKings template and projections" :
+             !hasDraftKings ? "Please upload the DraftKings template" :
+             "Please upload the projections file"}
+          </p>
+        )}
+      </div>
     </div>
   );
 };
