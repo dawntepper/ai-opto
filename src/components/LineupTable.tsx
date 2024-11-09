@@ -33,38 +33,38 @@ const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints }: 
     <div className="w-full overflow-x-auto">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50 dark:bg-gray-900">
-            <TableHead className="text-gray-900 dark:text-gray-100">Slot</TableHead>
-            <TableHead className="text-gray-900 dark:text-gray-100">Player</TableHead>
-            <TableHead className="text-gray-900 dark:text-gray-100">Match</TableHead>
-            <TableHead className="text-right text-gray-900 dark:text-gray-100">Salary</TableHead>
-            <TableHead className="text-right text-gray-900 dark:text-gray-100">pOwn</TableHead>
-            <TableHead className="text-right text-gray-900 dark:text-gray-100">Fpts</TableHead>
+          <TableRow className="bg-muted">
+            <TableHead className="text-foreground">Slot</TableHead>
+            <TableHead className="text-foreground">Player</TableHead>
+            <TableHead className="text-foreground">Match</TableHead>
+            <TableHead className="text-right text-foreground">Salary</TableHead>
+            <TableHead className="text-right text-foreground">pOwn</TableHead>
+            <TableHead className="text-right text-foreground">Fpts</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {players && players.map((lp, index) => (
-            <TableRow key={`${lp.player.id}`} className="hover:bg-gray-50 dark:hover:bg-gray-900">
-              <TableCell className="font-medium text-gray-900 dark:text-gray-100">
+            <TableRow key={`${lp.player.id}`} className="hover:bg-muted">
+              <TableCell className="font-medium text-foreground">
                 {NBA_POSITIONS[index]}
               </TableCell>
               <TableCell>
                 <div className="flex flex-col gap-1">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">{lp.player.team}</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{lp.player.name}</span>
+                  <span className="text-sm text-muted-foreground">{lp.player.team}</span>
+                  <span className="font-medium text-foreground">{lp.player.name}</span>
                 </div>
               </TableCell>
-              <TableCell className="text-gray-900 dark:text-gray-100">{lp.player.team} @ {lp.player.opponent}</TableCell>
-              <TableCell className="text-right text-gray-900 dark:text-gray-100">${lp.player.salary.toLocaleString()}</TableCell>
-              <TableCell className="text-right text-gray-900 dark:text-gray-100">{lp.player.ownership.toFixed(2)}%</TableCell>
-              <TableCell className="text-right text-gray-900 dark:text-gray-100">{lp.player.projected_points.toFixed(2)}</TableCell>
+              <TableCell className="text-foreground">{lp.player.team} @ {lp.player.opponent}</TableCell>
+              <TableCell className="text-right text-foreground">${lp.player.salary.toLocaleString()}</TableCell>
+              <TableCell className="text-right text-foreground">{lp.player.ownership.toFixed(2)}%</TableCell>
+              <TableCell className="text-right text-foreground">{lp.player.projected_points.toFixed(2)}</TableCell>
             </TableRow>
           ))}
-          <TableRow className="bg-gray-50 dark:bg-gray-900 font-medium">
-            <TableCell colSpan={3} className="text-gray-900 dark:text-gray-100">Total</TableCell>
-            <TableCell className="text-right text-gray-900 dark:text-gray-100">${totalSalary.toLocaleString()}</TableCell>
-            <TableCell className="text-right text-gray-900 dark:text-gray-100">{totalOwnership.toFixed(2)}%</TableCell>
-            <TableCell className="text-right text-gray-900 dark:text-gray-100">{projectedPoints.toFixed(2)}</TableCell>
+          <TableRow className="bg-muted font-medium">
+            <TableCell colSpan={3} className="text-foreground">Total</TableCell>
+            <TableCell className="text-right text-foreground">${totalSalary.toLocaleString()}</TableCell>
+            <TableCell className="text-right text-foreground">{totalOwnership.toFixed(2)}%</TableCell>
+            <TableCell className="text-right text-foreground">{projectedPoints.toFixed(2)}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
