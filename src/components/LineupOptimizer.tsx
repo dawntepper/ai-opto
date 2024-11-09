@@ -56,6 +56,14 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
 
     try {
+      console.log('Optimization Settings being used:', {
+        entryType: settings.entryType,
+        maxSalary: settings.maxSalary,
+        maxOwnership: settings.maxOwnership,
+        correlationStrength: settings.correlationStrength,
+        lineupCount: settings.lineupCount
+      });
+
       const { data: settingsData, error: settingsError } = await supabase
         .from('optimization_settings')
         .insert({
@@ -69,7 +77,12 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         .select()
         .single();
 
-      if (settingsError) throw settingsError;
+      if (settingsError) {
+        console.error('Error saving optimization settings:', settingsError);
+        throw settingsError;
+      }
+
+      console.log('Saved optimization settings:', settingsData);
 
       const { data: lineups, error: lineupsError } = await supabase
         .rpc('generate_optimal_lineups', {
@@ -77,9 +90,11 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         });
 
       if (lineupsError) {
-        console.error('Error details:', lineupsError);
+        console.error('Error generating lineups:', lineupsError);
         throw lineupsError;
       }
+
+      console.log('Generated lineups:', lineups);
 
       if (!lineups || lineups.length === 0) {
         throw new Error('No lineups were generated');
@@ -94,7 +109,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
       setShowLineups(true);
     } catch (error: any) {
-      console.error('Error generating lineups:', error);
+      console.error('Error in optimization process:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to generate lineups. Please try again.",
