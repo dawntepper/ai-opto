@@ -25,7 +25,7 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
                 </div>
               </TooltipTrigger>
               <TooltipContent className="max-w-[200px] whitespace-normal">
-                <p>The maximum total salary allowed for a lineup</p>
+                <p>The maximum total salary allowed for a lineup (DraftKings limit: 50000)</p>
               </TooltipContent>
             </Tooltip>
             <Input
@@ -34,10 +34,11 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
               onChange={(e) => {
                 const salary = parseInt(e.target.value);
                 if (!isNaN(salary)) {
-                  setSettings({ ...settings, maxSalary: salary });
+                  setSettings({ ...settings, maxSalary: Math.min(Math.max(salary, 30000), 50000) });
                 }
               }}
-              min={1}
+              min={30000}
+              max={50000}
               className="bg-white/5"
             />
           </div>
@@ -51,7 +52,7 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
                 </div>
               </TooltipTrigger>
               <TooltipContent className="max-w-[200px] whitespace-normal">
-                <p>The minimum fantasy points per $1000 salary required for a player</p>
+                <p>The minimum fantasy points per $1000 salary required for a player (typical range: 3-6)</p>
               </TooltipContent>
             </Tooltip>
             <Input
@@ -60,10 +61,11 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
               onChange={(e) => {
                 const value = parseFloat(e.target.value);
                 if (!isNaN(value)) {
-                  setSettings({ ...settings, minValue: value });
+                  setSettings({ ...settings, minValue: Math.min(Math.max(value, 0), 10) });
                 }
               }}
               min={0}
+              max={10}
               step={0.1}
               className="bg-white/5"
             />
@@ -78,7 +80,7 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
                 </div>
               </TooltipTrigger>
               <TooltipContent className="max-w-[200px] whitespace-normal">
-                <p>The maximum projected ownership percentage allowed for any player</p>
+                <p>The maximum projected ownership percentage allowed for any player (0-100%)</p>
               </TooltipContent>
             </Tooltip>
             <Input
@@ -87,11 +89,12 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
               onChange={(e) => {
                 const ownership = parseFloat(e.target.value);
                 if (!isNaN(ownership)) {
-                  setSettings({ ...settings, maxOwnership: ownership });
+                  setSettings({ ...settings, maxOwnership: Math.min(Math.max(ownership, 0), 100) });
                 }
               }}
               min={0}
               max={100}
+              step={1}
               className="bg-white/5"
             />
           </div>
