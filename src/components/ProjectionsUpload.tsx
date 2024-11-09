@@ -122,20 +122,30 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
   });
 
   return (
-    <Card
-      {...getRootProps()}
-      className="p-6 border-dashed border-2 cursor-pointer hover:border-primary transition-colors"
-    >
-      <input {...getInputProps()} />
-      {isDragActive ? (
-        <p className="text-center text-primary">Drop the file here...</p>
-      ) : (
-        <p className="text-center">Drag & drop DraftKings template or projections file here</p>
-      )}
-      <p className="text-center text-sm text-muted-foreground mt-2">
-        Supports CSV and Excel files
-      </p>
-    </Card>
+    <div className="space-y-4">
+      <Card
+        {...getRootProps()}
+        className="p-6 border-dashed border-2 cursor-pointer hover:border-primary transition-colors"
+      >
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          <p className="text-center text-primary">Drop the file here...</p>
+        ) : (
+          <p className="text-center">Drag & drop DraftKings template or projections file here</p>
+        )}
+        <p className="text-center text-sm text-muted-foreground mt-2">
+          Supports CSV and Excel files
+        </p>
+      </Card>
+
+      <div className="text-sm text-gray-300">
+        <p>Required files:</p>
+        <ul className="list-disc list-inside ml-2">
+          <li>DraftKings contest template (.csv)</li>
+          <li>Projections file with matching player IDs (.csv)</li>
+        </ul>
+      </div>
+    </div>
   );
 };
 
