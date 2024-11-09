@@ -26,4 +26,5 @@ export interface OptimizationSettings {
   minValue: number;
   maxOwnership: number;
   correlationStrength: 'weak' | 'medium' | 'strong';
+  lineupCount: number;
 }

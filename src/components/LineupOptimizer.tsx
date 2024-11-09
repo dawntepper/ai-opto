@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 import { EntryType, OptimizationSettings } from '../types';
+import ProjectionsUpload from './ProjectionsUpload';
+import SlateAnalysis from './SlateAnalysis';
 
 interface LineupOptimizerProps {
   entryType: EntryType;
@@ -13,13 +16,19 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     entryType,
     maxSalary: 50000,
     minValue: 4,
-    maxOwnership: 100,
-    correlationStrength: 'medium'
+    maxOwnership: getDefaultMaxOwnership(entryType),
+    correlationStrength: getDefaultCorrelation(entryType),
+    lineupCount: getDefaultLineupCount(entryType)
   });
 
   const handleOptimize = () => {
     // TODO: Implement optimization logic
     console.log('Optimizing with settings:', settings);
+  };
+
+  const handleProjectionsUploaded = (projections: any[]) => {
+    // Store projections in state or context
+    console.log('Projections uploaded:', projections);
   };
 
   return (
@@ -60,28 +69,68 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
             <div className="grid grid-cols-3 gap-2">
               <Button
                 variant={settings.entryType === 'single' ? "default" : "outline"}
-                onClick={() => setSettings({ ...settings, entryType: 'single' })}
+                onClick={() => setSettings({ 
+                  ...settings, 
+                  entryType: 'single',
+                  maxOwnership: getDefaultMaxOwnership('single'),
+                  correlationStrength: getDefaultCorrelation('single'),
+                  lineupCount: getDefaultLineupCount('single')
+                })}
                 className={settings.entryType !== 'single' ? "text-primary" : ""}
               >
                 Single
               </Button>
               <Button
                 variant={settings.entryType === '3-max' ? "default" : "outline"}
-                onClick={() => setSettings({ ...settings, entryType: '3-max' })}
+                onClick={() => setSettings({ 
+                  ...settings, 
+                  entryType: '3-max',
+                  maxOwnership: getDefaultMaxOwnership('3-max'),
+                  correlationStrength: getDefaultCorrelation('3-max'),
+                  lineupCount: getDefaultLineupCount('3-max')
+                })}
                 className={settings.entryType !== '3-max' ? "text-primary" : ""}
               >
                 3-Max
               </Button>
               <Button
                 variant={settings.entryType === '20-max' ? "default" : "outline"}
-                onClick={() => setSettings({ ...settings, entryType: '20-max' })}
+                onClick={() => setSettings({ 
+                  ...settings, 
+                  entryType: '20-max',
+                  maxOwnership: getDefaultMaxOwnership('20-max'),
+                  correlationStrength: getDefaultCorrelation('20-max'),
+                  lineupCount: getDefaultLineupCount('20-max')
+                })}
                 className={settings.entryType !== '20-max' ? "text-primary" : ""}
               >
                 20-Max
               </Button>
             </div>
+
+            <div>
+              <label className="block text-sm mb-2">Number of Lineups</label>
+              <Input
+                type="number"
+                value={settings.lineupCount}
+                onChange={(e) => {
+                  const count = parseInt(e.target.value);
+                  if (!isNaN(count) && count > 0) {
+                    setSettings({ ...settings, lineupCount: count });
+                  }
+                }}
+                min={1}
+                max={getMaxLineups(settings.entryType)}
+                className="bg-white/5"
+              />
+            </div>
           </div>
         </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
+        <SlateAnalysis />
       </div>
 
       <div className="flex justify-center">
@@ -96,5 +145,38 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     </div>
   );
 };
+
+// Helper functions for default values based on entry type
+function getDefaultMaxOwnership(entryType: EntryType): number {
+  switch (entryType) {
+    case 'single': return 35;
+    case '3-max': return 45;
+    case '20-max': return 55;
+  }
+}
+
+function getDefaultCorrelation(entryType: EntryType): 'weak' | 'medium' | 'strong' {
+  switch (entryType) {
+    case 'single': return 'medium';
+    case '3-max': return 'medium';
+    case '20-max': return 'strong';
+  }
+}
+
+function getDefaultLineupCount(entryType: EntryType): number {
+  switch (entryType) {
+    case 'single': return 1;
+    case '3-max': return 3;
+    case '20-max': return 20;
+  }
+}
+
+function getMaxLineups(entryType: EntryType): number {
+  switch (entryType) {
+    case 'single': return 1;
+    case '3-max': return 3;
+    case '20-max': return 20;
+  }
+}
 
 export default LineupOptimizer;
