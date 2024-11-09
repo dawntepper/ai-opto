@@ -24,23 +24,21 @@ export const generateLineups = async (settingsId: string) => {
     const { data, error } = await supabase
       .rpc('generate_optimal_lineups', {
         settings_id: settingsId
-      }, {
-        count: 'exact'
       });
 
     if (error) {
       console.error('RPC Error:', error);
-      throw error;
+      throw new Error(error.message || 'Failed to generate lineups');
     }
 
-    if (!data || data.length === 0) {
-      throw new Error('No lineups were generated');
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      throw new Error('No valid lineups could be generated');
     }
 
     return data;
   } catch (error: any) {
     console.error('Error in generateLineups:', error);
-    throw error;
+    throw new Error(error.message || 'Failed to generate lineups');
   }
 };
 
