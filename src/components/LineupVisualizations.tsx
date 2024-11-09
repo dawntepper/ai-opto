@@ -1,144 +1,132 @@
-import React from 'react';
-import { 
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, 
-  ScatterChart, Scatter, ZAxis, Cell, RadarChart, PolarGrid, 
-  PolarAngleAxis, PolarRadiusAxis, Radar, Legend
-} from 'recharts';
-import { AlertCircle, BarChart as BarChartIcon, TrendingUp, Activity } from 'lucide-react';
+import { useMemo } from 'react';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid } from 'recharts';
 import { Card } from './ui/card';
 
 interface LineupVisualizationsProps {
   lineup: any;
 }
 
-const LineupVisualizations: React.FC<LineupVisualizationsProps> = ({ lineup }) => {
-  const playerData = lineup.lineup_players.map((lp: any) => ({
-    name: lp.player.name,
-    salary: lp.player.salary,
-    projectedPoints: parseFloat(lp.player.projected_points.toFixed(2)),
-    ownership: parseFloat(lp.player.ownership?.toFixed(2) || '0'),
-    minutes: lp.player.minutes || 0,
-    usage: lp.player.usage_rate || 0,
-    dvp: lp.player.dvp || 0,
-    fppm: lp.player.fppm || 0,
-  }));
+const LineupVisualizations = ({ lineup }: LineupVisualizationsProps) => {
+  const radarData = useMemo(() => {
+    if (!lineup.lineup_players?.length) return [];
+    
+    return lineup.lineup_players.map((lp: any) => ({
+      name: lp.player.name,
+      'Usage Rate': lp.player.usage_rate || 0,
+      'DVP': lp.player.dvp || 0,
+      'FPPM': (lp.player.fppm || 0) * 10, // Scale up for visibility
+      'Proj Points': lp.player.projected_points || 0,
+      'Minutes': lp.player.minutes || 0,
+    }));
+  }, [lineup]);
 
-  const radarData = playerData.map(player => ({
-    name: player.name,
-    'Proj Pts': (player.projectedPoints / Math.max(...playerData.map(p => p.projectedPoints))) * 100,
-    'Usage': player.usage,
-    'FPPM': (player.fppm / Math.max(...playerData.map(p => p.fppm))) * 100,
-    'Minutes': (player.minutes / Math.max(...playerData.map(p => p.minutes))) * 100,
-    'DVP': player.dvp,
-  }));
+  const scatterData = useMemo(() => {
+    if (!lineup.lineup_players?.length) return [];
+    
+    return lineup.lineup_players.map((lp: any) => ({
+      name: lp.player.name,
+      minutes: lp.player.minutes || 0,
+      projectedPoints: lp.player.projected_points || 0,
+      salary: lp.player.salary,
+    }));
+  }, [lineup]);
 
-  // Check if we have enhanced metrics data
-  const hasEnhancedMetrics = playerData.some(player => player.usage > 0 || player.dvp > 0);
+  const hasEnhancedMetrics = lineup.lineup_players?.some((lp: any) => 
+    lp.player.usage_rate || lp.player.dvp || lp.player.fppm
+  );
+
+  if (!hasEnhancedMetrics) {
+    return (
+      <div className="text-center p-4 text-gray-500">
+        Enhanced metrics not available for this lineup
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8 text-gray-900 dark:text-gray-100">
+    <div className="space-y-6">
       <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <BarChartIcon className="h-5 w-5 text-green-600" />
-          Projected Points Distribution
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={playerData}>
-            <XAxis dataKey="name" stroke="currentColor" />
-            <YAxis stroke="currentColor" />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgb(17 24 39)', 
-                border: '1px solid rgb(75 85 99)',
-                color: 'white' 
-              }} 
-            />
-            <Bar dataKey="projectedPoints" fill="#10B981" name="Projected Points" />
-          </BarChart>
-        </ResponsiveContainer>
-      </Card>
-
-      {hasEnhancedMetrics && (
-        <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Activity className="h-5 w-5 text-green-600" />
-            Player Metrics Comparison
-          </h3>
-          <ResponsiveContainer width="100%" height={400}>
+        <h3 className="text-lg font-semibold mb-4">Player Metrics Comparison</h3>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={radarData}>
-              <PolarGrid stroke="currentColor" />
-              <PolarAngleAxis dataKey="name" stroke="currentColor" />
-              <PolarRadiusAxis stroke="currentColor" />
+              <PolarGrid />
+              <PolarAngleAxis dataKey="name" />
+              <PolarRadiusAxis />
+              <Tooltip />
               <Radar
-                name="Projected Points %"
-                dataKey="Proj Pts"
-                stroke="#10B981"
-                fill="#10B981"
-                fillOpacity={0.5}
+                name="Usage Rate"
+                dataKey="Usage Rate"
+                stroke="#22c55e"
+                fill="#22c55e"
+                fillOpacity={0.3}
               />
               <Radar
-                name="Usage %"
-                dataKey="Usage"
-                stroke="#3B82F6"
-                fill="#3B82F6"
-                fillOpacity={0.5}
+                name="DVP"
+                dataKey="DVP"
+                stroke="#3b82f6"
+                fill="#3b82f6"
+                fillOpacity={0.3}
               />
               <Radar
-                name="FPPM %"
+                name="FPPM"
                 dataKey="FPPM"
-                stroke="#F59E0B"
-                fill="#F59E0B"
-                fillOpacity={0.5}
+                stroke="#f59e0b"
+                fill="#f59e0b"
+                fillOpacity={0.3}
               />
-              <Legend />
             </RadarChart>
           </ResponsiveContainer>
-        </Card>
-      )}
-
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-green-600" />
-          Minutes vs. Projected Points
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <ScatterChart>
-            <XAxis 
-              dataKey="minutes" 
-              name="Minutes" 
-              stroke="currentColor"
-              label={{ value: 'Minutes', position: 'bottom', fill: 'currentColor' }} 
-            />
-            <YAxis 
-              dataKey="projectedPoints" 
-              name="Projected Points" 
-              stroke="currentColor"
-              label={{ value: 'Projected Points', angle: -90, position: 'left', fill: 'currentColor' }} 
-            />
-            <ZAxis range={[50, 400]} />
-            <Tooltip 
-              cursor={{ strokeDasharray: '3 3' }}
-              contentStyle={{ 
-                backgroundColor: 'rgb(17 24 39)', 
-                border: '1px solid rgb(75 85 99)',
-                color: 'white' 
-              }} 
-            />
-            <Scatter data={playerData} fill="#10B981">
-              {playerData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill="#10B981" />
-              ))}
-            </Scatter>
-          </ScatterChart>
-        </ResponsiveContainer>
+        </div>
       </Card>
 
-      {!hasEnhancedMetrics && (
-        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-          <AlertCircle className="h-5 w-5" />
-          <p>Enhanced metrics (Usage Rate, DVP, FPPM) not available for visualization</p>
+      <Card className="p-4">
+        <h3 className="text-lg font-semibold mb-4">Minutes vs Projected Points</h3>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <CartesianGrid />
+              <XAxis 
+                type="number" 
+                dataKey="minutes" 
+                name="Minutes" 
+                unit=" min"
+              />
+              <YAxis 
+                type="number" 
+                dataKey="projectedPoints" 
+                name="Projected Points" 
+                unit=" pts"
+              />
+              <ZAxis 
+                type="number" 
+                dataKey="salary" 
+                range={[50, 400]} 
+                name="Salary"
+              />
+              <Tooltip 
+                cursor={{ strokeDasharray: '3 3' }}
+                content={({ payload }) => {
+                  if (!payload?.length) return null;
+                  const data = payload[0].payload;
+                  return (
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded shadow border">
+                      <p className="font-semibold">{data.name}</p>
+                      <p>Minutes: {data.minutes}</p>
+                      <p>Projected: {data.projectedPoints.toFixed(1)} pts</p>
+                      <p>Salary: ${data.salary.toLocaleString()}</p>
+                    </div>
+                  );
+                }}
+              />
+              <Scatter 
+                data={scatterData} 
+                fill="#22c55e"
+              />
+            </ScatterChart>
+          </ResponsiveContainer>
         </div>
-      )}
+      </Card>
     </div>
   );
 };

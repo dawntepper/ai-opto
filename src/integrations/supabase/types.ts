@@ -160,61 +160,112 @@ export type Database = {
       }
       players: {
         Row: {
+          assists: number | null
+          blocks: number | null
           ceiling: number | null
           created_at: string | null
+          dvp: number | null
+          effective_field_goal_percentage: number | null
+          field_goal_percentage: number | null
+          field_goals_attempted: number | null
+          field_goals_made: number | null
           floor: number | null
+          fppm: number | null
+          free_throws: number | null
           id: string
           minutes: number | null
           name: string
           opponent: string
+          over_under: number | null
           ownership: number
           partner_id: string | null
+          player_efficiency: number | null
+          points: number | null
           position: string
           proj_ownership: number | null
           projected_points: number
+          rebounds: number | null
           rg_id: string | null
           roster_positions: string | null
           salary: number
+          spread: number | null
           status: string
+          steals: number | null
           team: string
+          total: number | null
+          usage_rate: number | null
         }
         Insert: {
+          assists?: number | null
+          blocks?: number | null
           ceiling?: number | null
           created_at?: string | null
+          dvp?: number | null
+          effective_field_goal_percentage?: number | null
+          field_goal_percentage?: number | null
+          field_goals_attempted?: number | null
+          field_goals_made?: number | null
           floor?: number | null
+          fppm?: number | null
+          free_throws?: number | null
           id?: string
           minutes?: number | null
           name: string
           opponent: string
+          over_under?: number | null
           ownership: number
           partner_id?: string | null
+          player_efficiency?: number | null
+          points?: number | null
           position: string
           proj_ownership?: number | null
           projected_points: number
+          rebounds?: number | null
           rg_id?: string | null
           roster_positions?: string | null
           salary: number
+          spread?: number | null
           status: string
+          steals?: number | null
           team: string
+          total?: number | null
+          usage_rate?: number | null
         }
         Update: {
+          assists?: number | null
+          blocks?: number | null
           ceiling?: number | null
           created_at?: string | null
+          dvp?: number | null
+          effective_field_goal_percentage?: number | null
+          field_goal_percentage?: number | null
+          field_goals_attempted?: number | null
+          field_goals_made?: number | null
           floor?: number | null
+          fppm?: number | null
+          free_throws?: number | null
           id?: string
           minutes?: number | null
           name?: string
           opponent?: string
+          over_under?: number | null
           ownership?: number
           partner_id?: string | null
+          player_efficiency?: number | null
+          points?: number | null
           position?: string
           proj_ownership?: number | null
           projected_points?: number
+          rebounds?: number | null
           rg_id?: string | null
           roster_positions?: string | null
           salary?: number
+          spread?: number | null
           status?: string
+          steals?: number | null
           team?: string
+          total?: number | null
+          usage_rate?: number | null
         }
         Relationships: []
       }
