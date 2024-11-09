@@ -11,38 +11,47 @@ interface OptimizationSettingsProps {
   setSettings: (settings: Settings) => void;
 }
 
-const getMaxOwnershipLimit = (entryType: 'single' | '3-max' | '20-max') => {
+const getSalaryTooltip = (entryType: 'single' | '3-max' | '20-max') => {
   switch (entryType) {
     case 'single':
-      return 35; // More conservative for single entry
+      return "Using full salary (within $500 of cap) recommended to maximize ceiling potential.";
     case '3-max':
-      return 45; // Moderate for 3-max
+      return "Vary salary usage across lineups (one near max, one $1-2K under, one $2-3K under) to create differentiation.";
     case '20-max':
-      return 55; // More aggressive for 20-max
-    default:
-      return 35;
-  }
-};
-
-const getOwnershipTooltip = (entryType: 'single' | '3-max' | '20-max') => {
-  switch (entryType) {
-    case 'single':
-      return "Lower ownership cap (35%) for single-entry to reduce risk and avoid popular chalk plays. This helps differentiate your lineup in large tournaments.";
-    case '3-max':
-      return "Moderate ownership cap (45%) for 3-max entries balances risk and reward. You can take some chances on popular plays while maintaining uniqueness.";
-    case '20-max':
-      return "Higher ownership cap (55%) for 20-max entries allows exposure to chalk plays. With multiple entries, you can afford to have some lineups with popular combinations.";
+      return "Strategically vary salary usage:\n- 25% of lineups: Within $500 of cap\n- 50% of lineups: $500-$2000 under cap\n- 25% of lineups: $2000+ under cap";
   }
 };
 
 const getCorrelationTooltip = (entryType: 'single' | '3-max' | '20-max') => {
   switch (entryType) {
     case 'single':
-      return "For single entry, medium correlation is recommended to balance upside potential with risk management.";
+      return "Target moderate correlation (2-3 correlated players max) to maintain balanced exposure.";
     case '3-max':
-      return "For 3-max, you can mix correlation strengths across your entries to create lineup diversity.";
+      return "Each lineup should feature different correlation approaches:\n- One lineup with game stack\n- One lineup with team stack\n- One lineup with mini-correlations";
     case '20-max':
-      return "For 20-max, strong correlation is often preferred as you can create multiple correlated stacks across your lineup set.";
+      return "Use systematic correlation rules:\n- Max 30% exposure to any single game stack\n- Max 35% exposure to any team stack\n- Vary correlation strength across lineup sets\n- Include some negative correlation between competing players";
+  }
+};
+
+const getMaxOwnershipLimit = (entryType: 'single' | '3-max' | '20-max') => {
+  switch (entryType) {
+    case 'single':
+      return 35;
+    case '3-max':
+      return 45;
+    case '20-max':
+      return 55;
+  }
+};
+
+const getOwnershipTooltip = (entryType: 'single' | '3-max' | '20-max') => {
+  switch (entryType) {
+    case 'single':
+      return "Lower ownership cap (35%) for single-entry reduces risk and avoids chalk plays. Include 1-2 contrarian plays for differentiation.";
+    case '3-max':
+      return "Moderate ownership cap (45%) for 3-max entries. Decrease chalk exposure across lineups while maintaining some popular plays.";
+    case '20-max':
+      return "Higher ownership cap (55%) allows for varied exposure:\n- Core plays: 25-35% exposure\n- Mid-tier: 15-25% exposure\n- Low exposure: 5-15%\n- Dart throws: <5%";
   }
 };
 
@@ -56,19 +65,19 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
 
   return (
     <TooltipProvider>
-      <Card className="p-4 bg-green-50 dark:bg-green-900/10">
+      <Card className="p-4 bg-green-50/5 dark:bg-green-900/10 border-green-100/20">
         <h3 className="text-xl font-semibold mb-4">Optimization Settings</h3>
         <div className="space-y-4">
           <div>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1 cursor-help mb-2">
-                  <label className="block text-sm">Maximum Salary</label>
-                  <Info className="h-4 w-4 text-gray-400" />
+                  <label className="block text-sm font-medium">Salary Cap Usage</label>
+                  <Info className="h-4 w-4 text-green-400" />
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="max-w-[300px] whitespace-normal">
-                <p>The maximum total salary allowed for a lineup (DraftKings limit: 50000). Using the full salary cap is recommended for tournaments to maximize potential scoring.</p>
+              <TooltipContent side="right" className="max-w-[300px] p-4 bg-green-950/90 text-green-50">
+                <p className="whitespace-pre-line">{getSalaryTooltip(settings.entryType)}</p>
               </TooltipContent>
             </Tooltip>
             <Input
@@ -82,7 +91,7 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
               }}
               min={30000}
               max={50000}
-              className="bg-white/5"
+              className="bg-green-950/20 border-green-100/20"
             />
           </div>
 
@@ -90,12 +99,12 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1 cursor-help mb-2">
-                  <label className="block text-sm">Maximum Ownership</label>
-                  <Info className="h-4 w-4 text-gray-400" />
+                  <label className="block text-sm font-medium">Maximum Ownership</label>
+                  <Info className="h-4 w-4 text-green-400" />
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="max-w-[300px] whitespace-normal">
-                <p>{getOwnershipTooltip(settings.entryType)}</p>
+              <TooltipContent side="right" className="max-w-[300px] p-4 bg-green-950/90 text-green-50">
+                <p className="whitespace-pre-line">{getOwnershipTooltip(settings.entryType)}</p>
               </TooltipContent>
             </Tooltip>
             <Input
@@ -111,7 +120,7 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
               min={0}
               max={getMaxOwnershipLimit(settings.entryType)}
               step={1}
-              className="bg-white/5"
+              className="bg-green-950/20 border-green-100/20"
             />
           </div>
 
@@ -119,12 +128,12 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1 cursor-help mb-2">
-                  <label className="block text-sm">Correlation Strength</label>
-                  <Info className="h-4 w-4 text-gray-400" />
+                  <label className="block text-sm font-medium">Correlation Strategy</label>
+                  <Info className="h-4 w-4 text-green-400" />
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="max-w-[300px] whitespace-normal">
-                <p>{getCorrelationTooltip(settings.entryType)}</p>
+              <TooltipContent side="right" className="max-w-[300px] p-4 bg-green-950/90 text-green-50">
+                <p className="whitespace-pre-line">{getCorrelationTooltip(settings.entryType)}</p>
               </TooltipContent>
             </Tooltip>
             <Select
@@ -133,7 +142,7 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
                 setSettings({ ...settings, correlationStrength: value })
               }
             >
-              <SelectTrigger className="bg-white/5">
+              <SelectTrigger className="bg-green-950/20 border-green-100/20">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

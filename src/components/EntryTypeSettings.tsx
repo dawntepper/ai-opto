@@ -11,7 +11,7 @@ interface EntryTypeSettingsProps {
 
 const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) => {
   return (
-    <Card className="p-4 bg-white/5">
+    <Card className="p-4 bg-green-50/5 dark:bg-green-900/10 border-green-100/20">
       <h3 className="text-xl font-semibold mb-4">Entry Type Settings</h3>
       <div className="space-y-4">
         <div className="grid grid-cols-3 gap-2">
@@ -24,7 +24,7 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
               correlationStrength: getDefaultCorrelation('single'),
               lineupCount: getDefaultLineupCount('single')
             })}
-            className={settings.entryType !== 'single' ? "text-primary" : ""}
+            className={`${settings.entryType !== 'single' ? "text-green-400 border-green-100/20" : "bg-green-600 hover:bg-green-700"}`}
           >
             Single
           </Button>
@@ -37,7 +37,7 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
               correlationStrength: getDefaultCorrelation('3-max'),
               lineupCount: getDefaultLineupCount('3-max')
             })}
-            className={settings.entryType !== '3-max' ? "text-primary" : ""}
+            className={`${settings.entryType !== '3-max' ? "text-green-400 border-green-100/20" : "bg-green-600 hover:bg-green-700"}`}
           >
             3-Max
           </Button>
@@ -50,14 +50,14 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
               correlationStrength: getDefaultCorrelation('20-max'),
               lineupCount: getDefaultLineupCount('20-max')
             })}
-            className={settings.entryType !== '20-max' ? "text-primary" : ""}
+            className={`${settings.entryType !== '20-max' ? "text-green-400 border-green-100/20" : "bg-green-600 hover:bg-green-700"}`}
           >
             20-Max
           </Button>
         </div>
 
         <div>
-          <label className="block text-sm mb-2">Number of Lineups</label>
+          <label className="block text-sm font-medium mb-2">Number of Lineups</label>
           <Input
             type="number"
             value={settings.lineupCount}
@@ -69,7 +69,7 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
             }}
             min={1}
             max={getMaxLineups(settings.entryType)}
-            className="bg-white/5"
+            className="bg-green-950/20 border-green-100/20"
           />
         </div>
       </div>
