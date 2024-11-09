@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 import { EntryType, OptimizationSettings } from '../types';
 import ProjectionsUpload from './ProjectionsUpload';
 import SlateAnalysis from './SlateAnalysis';
@@ -21,6 +23,8 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     lineupCount: getDefaultLineupCount(entryType)
   });
 
+  const [showSlateAnalysis, setShowSlateAnalysis] = useState(false);
+
   const handleOptimize = () => {
     // TODO: Implement optimization logic
     console.log('Optimizing with settings:', settings);
@@ -29,6 +33,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   const handleProjectionsUploaded = (projections: any[]) => {
     // Store projections in state or context
     console.log('Projections uploaded:', projections);
+    setShowSlateAnalysis(true);
   };
 
   return (
@@ -51,14 +56,26 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
             </div>
 
             <div>
-              <label className="block text-sm mb-2">Max Ownership %</label>
+              <div className="flex items-center gap-2 mb-2">
+                <label className="block text-sm">Max Ownership %</label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Maximum allowed projected ownership percentage for any player in your lineups. Adjust based on contest type - lower for GPPs, higher for cash games.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <Slider
                 value={[settings.maxOwnership]}
                 min={0}
                 max={100}
                 onValueChange={(value) => setSettings({ ...settings, maxOwnership: value[0] })}
               />
-              <span className="text-sm text-gray-300">{settings.maxOwnership}%</span>
+              <span className="text-sm text-gray-300">{settings.maxOwnership}% (Default for {settings.entryType}: {getDefaultMaxOwnership(settings.entryType)}%)</span>
             </div>
           </div>
         </Card>
@@ -130,7 +147,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
-        <SlateAnalysis />
+        {showSlateAnalysis && <SlateAnalysis />}
       </div>
 
       <div className="flex justify-center">
