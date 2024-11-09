@@ -76,7 +76,14 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
           settings_id: settingsData.id
         });
 
-      if (lineupsError) throw lineupsError;
+      if (lineupsError) {
+        console.error('Error details:', lineupsError);
+        throw lineupsError;
+      }
+
+      if (!lineups || lineups.length === 0) {
+        throw new Error('No lineups were generated');
+      }
 
       toast({
         title: "Lineups Generated",
