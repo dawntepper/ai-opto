@@ -14,8 +14,22 @@ interface ProjectionsUploadProps {
 const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) => {
   const processFile = async (data: any[], fileName: string) => {
     try {
+      const fileType = fileName.toLowerCase().includes('draftkings') ? 'draftkings' : 'projections';
+      
+      // First, record the file upload
+      const { error: uploadError } = await supabase.from('file_uploads').insert({
+        filename: fileName,
+        file_type: fileType,
+        processed: false
+      });
+
+      if (uploadError) {
+        console.error('Error recording file upload:', uploadError);
+        throw uploadError;
+      }
+
       let processedData;
-      if (fileName.toLowerCase().includes('draftkings')) {
+      if (fileType === 'draftkings') {
         processedData = processDraftKingsTemplate(data);
         
         const validData = processedData.filter(player => player.ID);
@@ -61,14 +75,14 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
         }
       }
       
-      const { error: uploadError } = await supabase.from('file_uploads').insert({
-        filename: fileName,
-        file_type: fileName.toLowerCase().includes('draftkings') ? 'draftkings' : 'projections',
-        processed: true
-      });
+      // Mark the file as processed
+      const { error: updateError } = await supabase
+        .from('file_uploads')
+        .update({ processed: true })
+        .eq('filename', fileName);
 
-      if (uploadError) {
-        console.error('Error recording file upload:', uploadError);
+      if (updateError) {
+        console.error('Error updating file status:', updateError);
       }
       
       onProjectionsUploaded(processedData, fileName);
