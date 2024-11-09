@@ -8,7 +8,7 @@ import { processDraftKingsTemplate, extractGameInfo } from '@/lib/process-draftk
 import { processProjections } from '@/lib/process-projections';
 
 interface ProjectionsUploadProps {
-  onProjectionsUploaded: (projections: any[]) => void;
+  onProjectionsUploaded: (projections: any[], fileName: string) => void;
 }
 
 const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) => {
@@ -40,11 +40,6 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
           console.error('Error upserting DraftKings data:', error);
           throw error;
         }
-        
-        toast({
-          title: "Success",
-          description: "DraftKings template processed successfully",
-        });
       } else {
         processedData = processProjections(data);
         
@@ -68,14 +63,20 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
           console.error('Error upserting projections:', error);
           throw error;
         }
-        
-        toast({
-          title: "Success",
-          description: "Projections processed successfully",
-        });
       }
       
-      onProjectionsUploaded(processedData);
+      // Store file upload record
+      const { error: uploadError } = await supabase.from('file_uploads').insert({
+        filename: fileName,
+        file_type: fileName.toLowerCase().includes('draftkings') ? 'draftkings' : 'projections',
+        processed: true
+      });
+
+      if (uploadError) {
+        console.error('Error recording file upload:', uploadError);
+      }
+      
+      onProjectionsUploaded(processedData, fileName);
     } catch (error) {
       console.error('Error processing file:', error);
       toast({

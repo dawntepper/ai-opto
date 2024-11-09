@@ -8,6 +8,7 @@ import { HelpCircle } from "lucide-react";
 import { EntryType, OptimizationSettings } from '../types';
 import ProjectionsUpload from './ProjectionsUpload';
 import SlateAnalysis from './SlateAnalysis';
+import { toast } from "./ui/use-toast";
 
 interface LineupOptimizerProps {
   entryType: EntryType;
@@ -24,15 +25,36 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   });
 
   const [showSlateAnalysis, setShowSlateAnalysis] = useState(false);
+  const [hasDraftKingsTemplate, setHasDraftKingsTemplate] = useState(false);
+  const [hasProjections, setHasProjections] = useState(false);
 
   const handleOptimize = () => {
+    if (!hasDraftKingsTemplate || !hasProjections) {
+      toast({
+        title: "Missing Required Files",
+        description: "Please upload both the DraftKings template and projections before generating lineups.",
+        variant: "destructive"
+      });
+      return;
+    }
     // TODO: Implement optimization logic
     console.log('Optimizing with settings:', settings);
   };
 
-  const handleProjectionsUploaded = (projections: any[]) => {
-    // Store projections in state or context
-    console.log('Projections uploaded:', projections);
+  const handleProjectionsUploaded = (projections: any[], fileName: string) => {
+    if (fileName.toLowerCase().includes('draftkings')) {
+      setHasDraftKingsTemplate(true);
+      toast({
+        title: "DraftKings Template Uploaded",
+        description: "Template processed successfully"
+      });
+    } else {
+      setHasProjections(true);
+      toast({
+        title: "Projections Uploaded",
+        description: "Projections processed successfully"
+      });
+    }
     setShowSlateAnalysis(true);
   };
 
@@ -150,14 +172,20 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         {showSlateAnalysis && <SlateAnalysis />}
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex flex-col items-center gap-2">
         <Button
           size="lg"
           onClick={handleOptimize}
           className="bg-secondary hover:bg-secondary/90"
+          disabled={!hasDraftKingsTemplate || !hasProjections}
         >
           Generate Optimal Lineups
         </Button>
+        {(!hasDraftKingsTemplate || !hasProjections) && (
+          <p className="text-sm text-gray-400">
+            Please upload both the DraftKings template and projections to generate lineups
+          </p>
+        )}
       </div>
     </div>
   );
