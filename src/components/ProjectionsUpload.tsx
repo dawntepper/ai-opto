@@ -18,9 +18,12 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
       if (fileName.toLowerCase().includes('draftkings')) {
         processedData = processDraftKingsTemplate(data);
         
+        // Filter out entries without partner_id
+        const validData = processedData.filter(player => player.ID);
+        
         // Insert into players table
         const { error } = await supabase.from('players').upsert(
-          processedData.map(player => ({
+          validData.map(player => ({
             name: player.Name,
             position: player.Position,
             salary: player.Salary,
@@ -34,7 +37,11 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
           { onConflict: 'partner_id' }
         );
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error upserting DraftKings data:', error);
+          throw error;
+        }
+        
         toast({
           title: "Success",
           description: "DraftKings template processed successfully",
@@ -42,9 +49,12 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
       } else {
         processedData = processProjections(data);
         
+        // Filter out entries without partner_id
+        const validData = processedData.filter(proj => proj.partner_id);
+        
         // Update players with projections
         const { error } = await supabase.from('players').upsert(
-          processedData.map(proj => ({
+          validData.map(proj => ({
             partner_id: proj.partner_id,
             projected_points: proj.fpts,
             ownership: proj.proj_own,
@@ -56,7 +66,11 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
           { onConflict: 'partner_id' }
         );
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error upserting projections:', error);
+          throw error;
+        }
+        
         toast({
           title: "Success",
           description: "Projections processed successfully",
@@ -68,7 +82,7 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
       console.error('Error processing file:', error);
       toast({
         title: "Error",
-        description: "Failed to process file",
+        description: "Failed to process file. Please ensure the file format is correct and try again.",
         variant: "destructive",
       });
     }
@@ -90,7 +104,7 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
       } catch (error) {
         toast({
           title: "Error",
-          description: "Failed to parse file",
+          description: "Failed to parse file. Please ensure it's a valid Excel or CSV file.",
           variant: "destructive",
         });
       }
