@@ -123,6 +123,41 @@ export type Database = {
         }
         Relationships: []
       }
+      player_adjustments: {
+        Row: {
+          created_at: string | null
+          id: string
+          ownership_multiplier: number
+          player_id: string
+          projection_multiplier: number
+          reason: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ownership_multiplier: number
+          player_id: string
+          projection_multiplier: number
+          reason: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ownership_multiplier?: number
+          player_id?: string
+          projection_multiplier?: number
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_adjustments_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       players: {
         Row: {
           ceiling: number | null
@@ -219,6 +254,20 @@ export type Database = {
           projected_points: number
           total_ownership: number
         }[]
+      }
+      multiply_ownership: {
+        Args: {
+          player_id: string
+          multiplier: number
+        }
+        Returns: number
+      }
+      multiply_points: {
+        Args: {
+          player_id: string
+          multiplier: number
+        }
+        Returns: number
       }
     }
     Enums: {
