@@ -24,7 +24,6 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     lineupCount: getDefaultLineupCount(entryType)
   });
 
-  const [showSlateAnalysis, setShowSlateAnalysis] = useState(false);
   const [hasDraftKingsTemplate, setHasDraftKingsTemplate] = useState(false);
   const [hasProjections, setHasProjections] = useState(false);
 
@@ -55,7 +54,6 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         description: "Projections processed successfully"
       });
     }
-    setShowSlateAnalysis(true);
   };
 
   return (
@@ -85,8 +83,8 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
                     <TooltipTrigger>
                       <HelpCircle className="h-4 w-4 text-gray-400" />
                     </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Maximum allowed projected ownership percentage for any player in your lineups. Adjust based on contest type - lower for GPPs, higher for cash games.</p>
+                    <TooltipContent className="max-w-[250px]">
+                      <p>Maximum allowed projected ownership percentage for any player in your lineups. Lower for GPPs, higher for cash games.</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -168,8 +166,21 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
-        {showSlateAnalysis && <SlateAnalysis />}
+        <div className="space-y-4">
+          <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
+          <div className="text-sm text-gray-300">
+            <p>Required files:</p>
+            <ul className="list-disc list-inside ml-2">
+              <li className={hasDraftKingsTemplate ? "text-green-500" : ""}>
+                DraftKings contest template (.csv)
+              </li>
+              <li className={hasProjections ? "text-green-500" : ""}>
+                Projections file with matching player IDs (.csv)
+              </li>
+            </ul>
+          </div>
+        </div>
+        <SlateAnalysis />
       </div>
 
       <div className="flex flex-col items-center gap-2">
