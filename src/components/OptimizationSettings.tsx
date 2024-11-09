@@ -61,7 +61,6 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
     if (settings.maxOwnership > maxLimit) {
       setSettings({ ...settings, maxOwnership: maxLimit });
     }
-    // Ensure salary never exceeds 50000
     if (settings.maxSalary > 50000) {
       setSettings({ ...settings, maxSalary: 50000 });
     }
@@ -69,18 +68,18 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
 
   return (
     <TooltipProvider>
-      <Card className="p-4 bg-green-50/5 dark:bg-green-900/10 border-green-100/20">
-        <h3 className="text-xl font-semibold mb-4">Optimization Settings</h3>
+      <Card className="p-6 bg-black/40 backdrop-blur-sm border-green-900/30">
+        <h3 className="text-xl font-semibold mb-4 text-green-50">Optimization Settings</h3>
         <div className="space-y-4">
           <div>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1 cursor-help mb-2">
-                  <label className="block text-sm font-medium">Salary Cap Usage</label>
+                  <label className="block text-sm font-medium text-green-300">Salary Cap Usage</label>
                   <Info className="h-4 w-4 text-green-400" />
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" className="max-w-[300px] p-4 bg-green-950/90 text-green-50">
+              <TooltipContent side="right" className="max-w-[300px] p-4 bg-green-950/90 text-green-50 border border-green-900/30">
                 <p className="whitespace-pre-line">{getSalaryTooltip(settings.entryType)}</p>
               </TooltipContent>
             </Tooltip>
@@ -90,14 +89,13 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
               onChange={(e) => {
                 const salary = parseInt(e.target.value);
                 if (!isNaN(salary)) {
-                  // Strictly enforce the 50000 cap
                   const cappedSalary = Math.min(Math.max(salary, 30000), 50000);
                   setSettings({ ...settings, maxSalary: cappedSalary });
                 }
               }}
               min={30000}
               max={50000}
-              className="bg-green-950/20 border-green-100/20"
+              className="bg-black/20 border-green-900/30 text-green-50 placeholder:text-green-700"
             />
           </div>
 
@@ -105,11 +103,11 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1 cursor-help mb-2">
-                  <label className="block text-sm font-medium">Maximum Ownership</label>
+                  <label className="block text-sm font-medium text-green-300">Maximum Ownership</label>
                   <Info className="h-4 w-4 text-green-400" />
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" className="max-w-[300px] p-4 bg-green-950/90 text-green-50">
+              <TooltipContent side="right" className="max-w-[300px] p-4 bg-green-950/90 text-green-50 border border-green-900/30">
                 <p className="whitespace-pre-line">{getOwnershipTooltip(settings.entryType)}</p>
               </TooltipContent>
             </Tooltip>
@@ -126,7 +124,7 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
               min={0}
               max={getMaxOwnershipLimit(settings.entryType)}
               step={1}
-              className="bg-green-950/20 border-green-100/20"
+              className="bg-black/20 border-green-900/30 text-green-50 placeholder:text-green-700"
             />
           </div>
 
@@ -134,11 +132,11 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1 cursor-help mb-2">
-                  <label className="block text-sm font-medium">Correlation Strategy</label>
+                  <label className="block text-sm font-medium text-green-300">Correlation Strategy</label>
                   <Info className="h-4 w-4 text-green-400" />
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" className="max-w-[300px] p-4 bg-green-950/90 text-green-50">
+              <TooltipContent side="right" className="max-w-[300px] p-4 bg-green-950/90 text-green-50 border border-green-900/30">
                 <p className="whitespace-pre-line">{getCorrelationTooltip(settings.entryType)}</p>
               </TooltipContent>
             </Tooltip>
@@ -148,13 +146,13 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
                 setSettings({ ...settings, correlationStrength: value })
               }
             >
-              <SelectTrigger className="bg-green-950/20 border-green-100/20">
+              <SelectTrigger className="bg-black/20 border-green-900/30 text-green-300">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="weak">Weak</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="strong">Strong</SelectItem>
+              <SelectContent className="bg-green-950 border-green-900/30">
+                <SelectItem value="weak" className="text-green-300">Weak</SelectItem>
+                <SelectItem value="medium" className="text-green-300">Medium</SelectItem>
+                <SelectItem value="strong" className="text-green-300">Strong</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -111,17 +111,17 @@ const SlateNotes = ({ defaultOpen = false }: SlateNotesProps) => {
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-      <div className="p-6">
+      <div className="p-6 bg-black/40 backdrop-blur-sm rounded-lg border border-green-900/30">
         <CollapsibleTrigger className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
-            <Sun className="h-5 w-5 text-green-600 dark:text-green-400" />
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Slate Analysis</h3>
+            <Sun className="h-5 w-5 text-green-400" />
+            <h3 className="text-xl font-semibold text-green-50">Slate Analysis</h3>
           </div>
-          <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`h-4 w-4 text-green-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
         </CollapsibleTrigger>
 
         <CollapsibleContent className="mt-4">
-          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2">
+          <div className="flex items-center gap-2 text-sm text-green-300/80 mb-2">
             <Info className="h-4 w-4" />
             <p>Add notes about injuries, weather conditions, or any other factors that might affect player performance.</p>
           </div>
@@ -130,11 +130,11 @@ const SlateNotes = ({ defaultOpen = false }: SlateNotesProps) => {
             {...getRootProps()}
             className={`border-2 border-dashed rounded-lg p-4 mb-4 cursor-pointer transition-colors
               ${isDragActive 
-                ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
-                : 'border-gray-300 hover:border-green-500 dark:border-gray-600 dark:hover:border-green-500'}`}
+                ? 'border-green-400 bg-green-900/20' 
+                : 'border-green-800 hover:border-green-600 bg-black/20'}`}
           >
             <input {...getInputProps()} />
-            <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <div className="flex items-center justify-center gap-2 text-sm text-green-300/80">
               <Upload className="h-4 w-4" />
               <p>{isDragActive ? "Drop the file here" : "Drag & drop a CSV/TXT file, or click to import analysis data"}</p>
             </div>
@@ -144,7 +144,7 @@ const SlateNotes = ({ defaultOpen = false }: SlateNotesProps) => {
             placeholder="Example: John Smith (questionable) expected to play limited minutes. Weather forecast shows heavy rain in Chicago..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="min-h-[100px] bg-white dark:bg-slate-700 text-gray-900 dark:text-white border-green-100 dark:border-green-800 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+            className="min-h-[100px] bg-black/20 text-green-50 border-green-900/30 placeholder:text-green-700"
           />
           
           <div className="flex justify-end gap-2 mt-4">
@@ -152,7 +152,7 @@ const SlateNotes = ({ defaultOpen = false }: SlateNotesProps) => {
               variant="secondary"
               onClick={handleSave}
               disabled={!notes.trim() || saveMutation.isPending}
-              className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-600 dark:text-white"
+              className="bg-green-700 hover:bg-green-600 text-green-50"
             >
               Save Analysis Notes
             </Button>
