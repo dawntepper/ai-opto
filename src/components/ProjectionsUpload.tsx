@@ -26,8 +26,12 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
       const text = reader.result as string;
 
       const { data, error } = await supabase
-        .from('projections')
-        .insert([{ content: text }]);
+        .from('file_uploads')
+        .insert([{ 
+          filename: file.name,
+          file_type: 'projections',
+          content: text 
+        }]);
 
       if (error) {
         toast({
