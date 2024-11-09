@@ -32,7 +32,6 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
   
   // Transform lineups into DraftKings format
   const formattedLineups = lineups.map(lineup => {
-    console.log('Processing lineup:', lineup);
     const players = lineup.lineup_players || [];
     console.log('Initial players:', players);
     
@@ -41,65 +40,56 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
 
     // Helper function to find player for position
     const findPlayerForPosition = (position: string) => {
-      console.log(`Looking for player for position: ${position}`);
-      console.log('Current remaining players:', remainingPlayers);
-      
       const playerIndex = remainingPlayers.findIndex(lp => {
         const rosterPositions = mapPositionToRosterPositions(lp.player?.position || '');
-        console.log(`Checking player ${lp.player?.name} positions:`, rosterPositions);
         return rosterPositions.includes(position);
       });
 
       if (playerIndex !== -1) {
         const player = remainingPlayers[playerIndex];
-        console.log(`Found player for ${position}:`, player.player?.name);
         remainingPlayers.splice(playerIndex, 1);
         return player;
       }
-      console.log(`No player found for position ${position}`);
       return null;
     };
 
-    // Fill primary positions (PG, SG, SF, PF, C)
+    // Fill primary positions first (PG, SG, SF, PF, C)
     NBA_POSITIONS.slice(0, 5).forEach((position, index) => {
       const player = findPlayerForPosition(position);
       if (player?.player) {
         slots[index] = `${player.player.name} (${player.player.partner_id || ''})`;
-        console.log(`Assigned ${player.player.name} to ${position}`);
       }
     });
 
-    // Fill G slot (PG/SG)
-    const guardPlayer = remainingPlayers.find(lp => {
+    // Store players that could be guards or forwards before filling UTIL
+    const potentialGuards = remainingPlayers.filter(lp => {
       const pos = lp.player?.position || '';
       return pos.includes('PG') || pos.includes('SG');
     });
-    
-    if (guardPlayer?.player) {
-      slots[5] = `${guardPlayer.player.name} (${guardPlayer.player.partner_id || ''})`;
-      remainingPlayers = remainingPlayers.filter(p => p !== guardPlayer);
-      console.log(`Assigned ${guardPlayer.player.name} to G slot`);
-    }
 
-    // Fill F slot (SF/PF)
-    const forwardPlayer = remainingPlayers.find(lp => {
+    const potentialForwards = remainingPlayers.filter(lp => {
       const pos = lp.player?.position || '';
       return pos.includes('SF') || pos.includes('PF');
     });
-    
-    if (forwardPlayer?.player) {
+
+    // Fill G slot (PG/SG)
+    if (potentialGuards.length > 0) {
+      const guardPlayer = potentialGuards[0];
+      slots[5] = `${guardPlayer.player.name} (${guardPlayer.player.partner_id || ''})`;
+      remainingPlayers = remainingPlayers.filter(p => p !== guardPlayer);
+    }
+
+    // Fill F slot (SF/PF)
+    if (potentialForwards.length > 0) {
+      const forwardPlayer = potentialForwards[0];
       slots[6] = `${forwardPlayer.player.name} (${forwardPlayer.player.partner_id || ''})`;
       remainingPlayers = remainingPlayers.filter(p => p !== forwardPlayer);
-      console.log(`Assigned ${forwardPlayer.player.name} to F slot`);
     }
 
     // Fill UTIL with first remaining player
-    if (slots[7] === '' && remainingPlayers.length > 0) {
+    if (remainingPlayers.length > 0) {
       const utilPlayer = remainingPlayers[0];
-      if (utilPlayer?.player) {
-        slots[7] = `${utilPlayer.player.name} (${utilPlayer.player.partner_id || ''})`;
-        console.log(`Assigned ${utilPlayer.player.name} to UTIL slot`);
-      }
+      slots[7] = `${utilPlayer.player.name} (${utilPlayer.player.partner_id || ''})`;
     }
 
     // Fill any remaining empty slots with ()
