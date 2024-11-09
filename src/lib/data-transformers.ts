@@ -23,16 +23,19 @@ export interface Projection {
   team: string;
   opp: string;
   pos: string;
+  salary: number;
 }
 
 export const transformDraftKingsData = (player: DraftKingsPlayer) => {
   const gameInfo = extractGameInfo(player.GameInfo);
+  const opponent = gameInfo.awayTeam === player.TeamAbbrev ? gameInfo.homeTeam : gameInfo.awayTeam;
+  
   return {
     name: player.Name,
     position: player.Position,
     salary: Number(player.Salary),
     team: player.TeamAbbrev,
-    opponent: gameInfo.awayTeam === player.TeamAbbrev ? gameInfo.homeTeam : gameInfo.awayTeam,
+    opponent: opponent,
     partner_id: player.ID,
     projected_points: Number(player.AvgPointsPerGame) || 0,
     ownership: 0,

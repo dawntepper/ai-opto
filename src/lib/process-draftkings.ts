@@ -23,8 +23,10 @@ export const processDraftKingsTemplate = (data: any[]): DKPlayer[] => {
 };
 
 export const extractGameInfo = (gameInfo: string) => {
-  const [teams, dateTime] = gameInfo.split(' ');
-  const [away, home] = teams.split('@');
+  if (!gameInfo) return { homeTeam: '', awayTeam: '', gameTime: '' };
+  
+  const [teams = '', dateTime = ''] = gameInfo.split(' ');
+  const [away = '', home = ''] = teams.split('@');
   return {
     homeTeam: home,
     awayTeam: away,

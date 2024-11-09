@@ -11,6 +11,7 @@ interface Projection {
   floor: number;
   rg_id: string;
   partner_id: string;
+  salary: number;
 }
 
 export const processProjections = (data: any[]): Projection[] => {
@@ -26,6 +27,7 @@ export const processProjections = (data: any[]): Projection[] => {
     ceil: Number(row['ceil']) || 0,
     floor: Number(row['floor']) || 0,
     rg_id: row['rg_id'] || '',
-    partner_id: row['partner_id'] || ''
+    partner_id: row['partner_id'] || '',
+    salary: Number(row['salary']) || 0
   }));
 };

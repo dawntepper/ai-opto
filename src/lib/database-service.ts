@@ -16,7 +16,7 @@ export const upsertDraftKingsPlayers = async (validData: DraftKingsPlayer[]) => 
 
   // Transform and insert new data
   const transformedData = validData.map(transformDraftKingsData);
-  console.log('Upserting DraftKings players:', transformedData); // Debug log
+  console.log('Upserting DraftKings players:', transformedData);
 
   const { error } = await supabase
     .from('players')
@@ -34,7 +34,7 @@ export const upsertDraftKingsPlayers = async (validData: DraftKingsPlayer[]) => 
 export const upsertProjections = async (validData: Projection[]) => {
   // Transform the data
   const transformedData = validData.map(transformProjectionsData);
-  console.log('Upserting projections:', transformedData); // Debug log
+  console.log('Upserting projections:', transformedData);
 
   // Get existing players to preserve salary data
   const { data: existingPlayers } = await supabase
