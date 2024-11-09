@@ -1,10 +1,8 @@
 const NBA_POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'UTIL'];
 
 const mapPositionToRosterPositions = (position: string): string[] => {
-  // Handle multi-position players (e.g., "PG/SG")
   const positions = position.split('/');
   
-  // Map each position to its eligible roster spots
   const rosterPositions = positions.flatMap(pos => {
     switch (pos.trim()) {
       case 'PG':
@@ -22,15 +20,12 @@ const mapPositionToRosterPositions = (position: string): string[] => {
     }
   });
 
-  // Deduplicate the array
   return [...new Set(rosterPositions)];
 };
 
 export const exportLineupsToDraftKings = (lineups: any[]) => {
-  // Create header row
   const header = NBA_POSITIONS.join(',');
   
-  // Transform lineups into DraftKings format
   const formattedLineups = lineups.map(lineup => {
     const players = lineup.lineup_players || [];
     console.log('Initial players:', players);
@@ -61,27 +56,24 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       }
     });
 
-    // Store players that could be guards or forwards before filling UTIL
-    const potentialGuards = remainingPlayers.filter(lp => {
+    // Find and assign guard for G slot
+    const guardPlayer = remainingPlayers.find(lp => {
       const pos = lp.player?.position || '';
       return pos.includes('PG') || pos.includes('SG');
     });
 
-    const potentialForwards = remainingPlayers.filter(lp => {
-      const pos = lp.player?.position || '';
-      return pos.includes('SF') || pos.includes('PF');
-    });
-
-    // Fill G slot (PG/SG)
-    if (potentialGuards.length > 0) {
-      const guardPlayer = potentialGuards[0];
+    if (guardPlayer) {
       slots[5] = `${guardPlayer.player.name} (${guardPlayer.player.partner_id || ''})`;
       remainingPlayers = remainingPlayers.filter(p => p !== guardPlayer);
     }
 
-    // Fill F slot (SF/PF)
-    if (potentialForwards.length > 0) {
-      const forwardPlayer = potentialForwards[0];
+    // Find and assign forward for F slot
+    const forwardPlayer = remainingPlayers.find(lp => {
+      const pos = lp.player?.position || '';
+      return pos.includes('SF') || pos.includes('PF');
+    });
+
+    if (forwardPlayer) {
       slots[6] = `${forwardPlayer.player.name} (${forwardPlayer.player.partner_id || ''})`;
       remainingPlayers = remainingPlayers.filter(p => p !== forwardPlayer);
     }
@@ -100,10 +92,8 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     return filledSlots.join(',');
   });
 
-  // Combine header and lineups
   const content = [header, ...formattedLineups].join('\n');
   
-  // Create and trigger download
   const blob = new Blob([content], { type: 'text/csv' });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
