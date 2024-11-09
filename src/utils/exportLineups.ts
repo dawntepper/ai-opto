@@ -11,58 +11,48 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     // Initialize slots array with empty strings
     const slots = new Array(8).fill('');
     
+    // Create a copy of players that we can modify as we assign positions
+    let remainingPlayers = [...players];
+    
     // First pass: Fill primary positions (PG, SG, SF, PF, C)
-    players.forEach((lp: any) => {
-      const player = lp.player;
-      if (!player) return;
-      
-      const playerString = `${player.name} (${player.partner_id || ''})`;
-      const position = player.position;
-      
-      // Try to fill primary position first
-      const primaryIndex = NBA_POSITIONS.indexOf(position);
-      if (primaryIndex !== -1 && primaryIndex < 5 && slots[primaryIndex] === '') {
-        slots[primaryIndex] = playerString;
-        return;
+    NBA_POSITIONS.slice(0, 5).forEach((position, index) => {
+      const playerForPosition = remainingPlayers.find(lp => lp.player?.position === position);
+      if (playerForPosition) {
+        slots[index] = `${playerForPosition.player.name} (${playerForPosition.player.partner_id})`;
+        remainingPlayers = remainingPlayers.filter(p => p !== playerForPosition);
       }
     });
 
     // Second pass: Fill G slot (PG/SG)
     if (slots[5] === '') {
-      const guardPlayer = players.find((lp: any) => {
-        const pos = lp.player?.position;
-        return (pos === 'PG' || pos === 'SG') && 
-          !slots.includes(`${lp.player.name} (${lp.player.partner_id || ''})`);
-      });
+      const guardPlayer = remainingPlayers.find(lp => 
+        lp.player?.position === 'PG' || lp.player?.position === 'SG'
+      );
       if (guardPlayer) {
-        slots[5] = `${guardPlayer.player.name} (${guardPlayer.player.partner_id || ''})`;
+        slots[5] = `${guardPlayer.player.name} (${guardPlayer.player.partner_id})`;
+        remainingPlayers = remainingPlayers.filter(p => p !== guardPlayer);
       }
     }
 
     // Third pass: Fill F slot (SF/PF)
     if (slots[6] === '') {
-      const forwardPlayer = players.find((lp: any) => {
-        const pos = lp.player?.position;
-        return (pos === 'SF' || pos === 'PF') && 
-          !slots.includes(`${lp.player.name} (${lp.player.partner_id || ''})`);
-      });
+      const forwardPlayer = remainingPlayers.find(lp => 
+        lp.player?.position === 'SF' || lp.player?.position === 'PF'
+      );
       if (forwardPlayer) {
-        slots[6] = `${forwardPlayer.player.name} (${forwardPlayer.player.partner_id || ''})`;
+        slots[6] = `${forwardPlayer.player.name} (${forwardPlayer.player.partner_id})`;
+        remainingPlayers = remainingPlayers.filter(p => p !== forwardPlayer);
       }
     }
 
-    // Final pass: Fill UTIL with any remaining player
-    if (slots[7] === '') {
-      const remainingPlayer = players.find((lp: any) => {
-        if (!lp.player) return false;
-        return !slots.includes(`${lp.player.name} (${lp.player.partner_id || ''})`);
-      });
-      if (remainingPlayer) {
-        slots[7] = `${remainingPlayer.player.name} (${remainingPlayer.player.partner_id || ''})`;
-      }
+    // Final pass: Fill UTIL with first remaining player
+    if (slots[7] === '' && remainingPlayers.length > 0) {
+      const utilPlayer = remainingPlayers[0];
+      slots[7] = `${utilPlayer.player.name} (${utilPlayer.player.partner_id})`;
     }
 
-    return slots.join(',');
+    // Ensure all slots are filled with at least empty parentheses
+    return slots.map(slot => slot || '()').join(',');
   });
 
   // Combine header and lineups
