@@ -12,6 +12,8 @@ import GeneratedLineups from './GeneratedLineups';
 import FileUploadList from './FileUploadList';
 import { checkValidPlayers, generateLineups, saveOptimizationSettings } from '../services/lineupService';
 import { supabase } from "@/integrations/supabase/client";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 interface LineupOptimizerProps {
   entryType: EntryType;
@@ -19,9 +21,10 @@ interface LineupOptimizerProps {
 
 const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   const queryClient = useQueryClient();
+  const [isNotesOpen, setIsNotesOpen] = useState(true);
   const [settings, setSettings] = useState<OptimizationSettings>({
     entryType,
-    maxSalary: 50000, // Set default to maximum allowed
+    maxSalary: 50000,
     maxOwnership: getDefaultMaxOwnership(entryType),
     correlationStrength: getDefaultCorrelation(entryType),
     lineupCount: getDefaultLineupCount(entryType)
@@ -159,13 +162,30 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <SlateNotes />
-          <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
-          <FileUploadList 
-            fileUploads={fileUploads}
-            isLoading={isLoading}
-            onRemoveFile={removeFile}
-          />
+          <Collapsible open={isNotesOpen} onOpenChange={setIsNotesOpen}>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold">Slate Notes</h3>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="hover:bg-transparent">
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isNotesOpen ? 'transform rotate-180' : ''}`} />
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent>
+              <div className="border-2 border-primary/20 rounded-lg p-4 bg-primary/5">
+                <SlateNotes />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+          
+          <div className="border-2 border-secondary/20 rounded-lg p-4 bg-secondary/5">
+            <ProjectionsUpload onProjectionsUploaded={handleProjectionsUploaded} />
+            <FileUploadList 
+              fileUploads={fileUploads}
+              isLoading={isLoading}
+              onRemoveFile={removeFile}
+            />
+          </div>
         </div>
       </div>
 
