@@ -16,23 +16,30 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
     try {
       const fileType = fileName.toLowerCase().includes('draftkings') ? 'draftkings' : 'projections';
       
-      // First, record the file upload
-      const { error: uploadError } = await supabase.from('file_uploads').insert({
-        filename: fileName,
-        file_type: fileType,
-        processed: false
-      });
+      // First, record the file upload and get the ID
+      const { data: fileUpload, error: uploadError } = await supabase
+        .from('file_uploads')
+        .insert({
+          filename: fileName,
+          file_type: fileType,
+          processed: false
+        })
+        .select()
+        .single();
 
       if (uploadError) {
         console.error('Error recording file upload:', uploadError);
         throw uploadError;
       }
 
+      console.log('File upload recorded:', fileUpload);
+
       let processedData;
       if (fileType === 'draftkings') {
         processedData = processDraftKingsTemplate(data);
         
         const validData = processedData.filter(player => player.ID);
+        console.log('Processing DraftKings data:', validData.length, 'valid players');
         
         const { error } = await supabase.from('players').upsert(
           validData.map(player => ({
@@ -42,7 +49,8 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
             team: player.TeamAbbrev,
             opponent: extractGameInfo(player.GameInfo).awayTeam,
             partner_id: player.ID,
-            projected_points: player.AvgPointsPerGame,
+            projected_points: player.AvgPointsPerGame || 0,
+            ownership: 0, // Default ownership
             status: 'available',
             roster_positions: player.RosterPosition
           }))
@@ -56,17 +64,19 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
         processedData = processProjections(data);
         
         const validData = processedData.filter(proj => proj.partner_id);
+        console.log('Processing projections data:', validData.length, 'valid projections');
         
         const { error } = await supabase.from('players').upsert(
           validData.map(proj => ({
             partner_id: proj.partner_id,
-            projected_points: proj.fpts,
-            ownership: proj.proj_own,
+            projected_points: proj.fpts || 0,
+            ownership: proj.proj_own || 0,
             ceiling: proj.ceil,
             floor: proj.floor,
             minutes: proj.minutes,
             rg_id: proj.rg_id
-          }))
+          })), 
+          { onConflict: 'partner_id' }
         );
 
         if (error) {
@@ -79,11 +89,17 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
       const { error: updateError } = await supabase
         .from('file_uploads')
         .update({ processed: true })
-        .eq('filename', fileName);
+        .eq('id', fileUpload.id);
 
       if (updateError) {
         console.error('Error updating file status:', updateError);
+        throw updateError;
       }
+
+      toast({
+        title: "Success",
+        description: `File ${fileName} processed successfully`,
+      });
       
       onProjectionsUploaded(processedData, fileName);
     } catch (error) {
@@ -119,6 +135,7 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
         
         processFile(jsonData, file.name);
       } catch (error) {
+        console.error('Error parsing file:', error);
         toast({
           title: "Error",
           description: "Failed to parse file. Please ensure it's a valid Excel or CSV file.",
