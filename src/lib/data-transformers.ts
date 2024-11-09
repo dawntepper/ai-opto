@@ -52,7 +52,6 @@ export const transformDraftKingsData = (player: DraftKingsPlayer) => {
     projected_points: Number(player.AvgPointsPerGame) || 0,
     ownership: 0,
     status: 'available',
-    roster_positions: player.RosterPosition
   };
 };
 
@@ -64,6 +63,8 @@ export const transformEnhancedProjections = (proj: EnhancedProjection, positionD
     opponent: proj.Opp,
     projected_points: Number(proj.Projection) || 0,
     salary: Number(proj.Salary) || 0,
+    ownership: 0, // Required field, default to 0
+    status: 'available',
     fppm: Number(proj.FPPM) || 0,
     usage_rate: Number(proj['USG%']) || 0,
     dvp: Number(proj.DVP) || 0,
@@ -81,7 +82,6 @@ export const transformEnhancedProjections = (proj: EnhancedProjection, positionD
     field_goals_made: Number(proj.FGM) || 0,
     player_efficiency: Number(proj.PER) || 0,
     field_goal_percentage: Number(proj['FG%']) || 0,
-    effective_field_goal_percentage: Number(proj['eFG%']) || 0,
-    status: 'available'
+    effective_field_goal_percentage: Number(proj['eFG%']) || 0
   };
 };
