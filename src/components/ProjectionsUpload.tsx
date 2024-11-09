@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Upload, HelpCircle, ChevronDown } from "lucide-react";
+import { Upload, HelpCircle } from "lucide-react";
 import { toast } from "./ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -63,18 +62,18 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
   });
 
   return (
-    <Card className="p-4">
+    <div className="bg-black/90 p-6 rounded-xl">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold">Upload Projections</h3>
+          <h3 className="text-lg font-medium text-white">Upload Projections</h3>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
                 <HelpCircle className="h-4 w-4 text-gray-400" />
               </TooltipTrigger>
-              <TooltipContent className="max-w-sm">
-                <p className="font-semibold mb-2">Required CSV Headers:</p>
-                <ul className="text-sm list-disc pl-4">
+              <TooltipContent className="max-w-sm bg-zinc-900 border-zinc-800">
+                <p className="font-medium text-white mb-2">Required CSV Headers:</p>
+                <ul className="text-sm text-gray-300 list-disc pl-4">
                   <li>partner_id - Unique identifier</li>
                   <li>name - Player name</li>
                   <li>fpts - Projected fantasy points</li>
@@ -85,53 +84,35 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
                   <li>salary - Player salary</li>
                   <li>Optional: ceil, floor, minutes</li>
                 </ul>
-                <p className="mt-2 text-xs">You can use any projections source as long as your CSV matches these headers.</p>
+                <p className="mt-2 text-xs text-gray-400">You can use any projections source as long as your CSV matches these headers.</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
       </div>
 
-      <div className="text-sm text-muted-foreground mb-4">
-        Click or drag & drop to upload your projections file. After uploading, you can add additional analysis notes above to enhance the optimization process.
+      <div className="text-sm text-gray-400 mb-4">
+        Click or drag & drop to upload your projections file.
       </div>
 
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div
-              {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
-                ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-primary'}`}
-            >
-              <input {...getInputProps()} />
-              <Upload className="mx-auto h-8 w-8 mb-2 text-gray-400" />
-              <p className="text-sm text-gray-500">
-                {isDragActive
-                  ? "Drop the file here"
-                  : "Drag & drop your projections file, or click to select"}
-              </p>
-              <p className="text-xs text-gray-400 mt-1">Accepts CSV, XLS, XLSX</p>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent className="max-w-sm">
-            <p className="font-semibold mb-2">Required CSV Headers:</p>
-            <ul className="text-sm list-disc pl-4">
-              <li>partner_id - Unique identifier</li>
-              <li>name - Player name</li>
-              <li>fpts - Projected fantasy points</li>
-              <li>proj_own - Projected ownership %</li>
-              <li>team - Team abbreviation</li>
-              <li>opp - Opponent team</li>
-              <li>pos - Position</li>
-              <li>salary - Player salary</li>
-              <li>Optional: ceil, floor, minutes</li>
-            </ul>
-            <p className="mt-2 text-xs">You can use any projections source as long as your CSV matches these headers.</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </Card>
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors
+          ${isDragActive 
+            ? 'border-green-500 bg-green-500/10' 
+            : 'border-zinc-700 hover:border-green-500 hover:bg-green-500/5'
+          }`}
+      >
+        <input {...getInputProps()} />
+        <Upload className={`mx-auto h-8 w-8 mb-2 ${isDragActive ? 'text-green-500' : 'text-gray-500'}`} />
+        <p className="text-sm text-gray-300">
+          {isDragActive
+            ? "Drop the file here"
+            : "Drag & drop your projections file, or click to select"}
+        </p>
+        <p className="text-xs text-gray-500 mt-1">Accepts CSV, XLS, XLSX</p>
+      </div>
+    </div>
   );
 };
 
