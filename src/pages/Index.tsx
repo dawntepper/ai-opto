@@ -8,6 +8,14 @@ import LineupAnalysis from '../components/LineupAnalysis';
 import CurrentLineups from '../components/CurrentLineups';
 import { EntryType } from '../types';
 
+const emptyLineup = {
+  id: '',
+  total_salary: 0,
+  projected_points: 0,
+  total_ownership: 0,
+  lineup_players: []
+};
+
 const Index = () => {
   const [entryType, setEntryType] = useState<EntryType>('single');
 
@@ -41,7 +49,7 @@ const Index = () => {
 
           <TabsContent value="analysis">
             <Card className="bg-white/10 backdrop-blur p-6">
-              <LineupAnalysis />
+              <LineupAnalysis lineup={emptyLineup} />
             </Card>
           </TabsContent>
 
