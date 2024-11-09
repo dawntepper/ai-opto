@@ -8,6 +8,10 @@ import OptimizationSettingsComponent from './OptimizationSettings';
 import EntryTypeSettings from './EntryTypeSettings';
 import { getDefaultMaxOwnership, getDefaultCorrelation, getDefaultLineupCount } from '../utils/optimizationDefaults';
 import { X } from 'lucide-react';
+import { ScrollArea } from './ui/scroll-area';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
 
 interface LineupOptimizerProps {
   entryType: EntryType;
@@ -29,6 +33,19 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   });
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+
+  const { data: fileUploads } = useQuery<Tables<'file_uploads'>[]>({
+    queryKey: ['uploadedFiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('file_uploads')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
 
   const handleOptimize = () => {
     if (uploadedFiles.length < 2) {
@@ -115,6 +132,25 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
                 )}
               </li>
             </ul>
+          </div>
+
+          <div className="mt-4">
+            <h4 className="text-sm font-medium mb-2">Uploaded Files</h4>
+            <ScrollArea className="h-[100px] border rounded-md">
+              <div className="p-2">
+                {fileUploads?.map((file) => (
+                  <div key={file.id} className="flex items-center justify-between py-1">
+                    <span className="text-sm">{file.filename}</span>
+                    <span className="text-xs text-gray-400">
+                      {new Date(file.created_at!).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+                {!fileUploads?.length && (
+                  <p className="text-sm text-gray-400 p-2">No files uploaded yet</p>
+                )}
+              </div>
+            </ScrollArea>
           </div>
         </div>
         <SlateAnalysis />
