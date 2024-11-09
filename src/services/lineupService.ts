@@ -34,32 +34,30 @@ export const generateLineups = async (settingsId: string): Promise<GeneratedLine
   console.log('Starting lineup generation with settings ID:', settingsId);
   
   try {
-    // Use single() to ensure we get a single response object
     const { data, error } = await supabase
       .rpc('generate_optimal_lineups', {
         settings_id: settingsId
-      })
-      .single();
+      });
 
     if (error) {
       console.error('Failed to generate lineups:', error);
       throw error;
     }
 
-    // Immediately after getting the response, check if it's valid
     if (!data) {
       throw new Error('No data received from lineup generation');
     }
 
-    // Convert the single response into an array with one lineup
-    const lineup = {
-      lineup_id: data.lineup_id,
-      total_salary: data.total_salary,
-      projected_points: data.projected_points,
-      total_ownership: data.total_ownership
-    };
+    // Ensure data is an array, if not, wrap it in an array
+    const lineups = Array.isArray(data) ? data : [data];
+    
+    return lineups.map(lineup => ({
+      lineup_id: lineup.lineup_id,
+      total_salary: lineup.total_salary,
+      projected_points: lineup.projected_points,
+      total_ownership: lineup.total_ownership
+    }));
 
-    return [lineup];
   } catch (error: any) {
     console.error('Lineup generation error:', error);
     throw new Error(error.message || 'Failed to generate lineups');
