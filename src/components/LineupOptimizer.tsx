@@ -11,6 +11,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import GeneratedLineups from './GeneratedLineups';
 import FileUploadList from './FileUploadList';
 import { checkValidPlayers, generateLineups, saveOptimizationSettings } from '../services/lineupService';
+import { supabase } from "@/integrations/supabase/client";
 
 interface LineupOptimizerProps {
   entryType: EntryType;
@@ -60,10 +61,13 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
 
     try {
-      // Save settings
+      console.log('Attempting to save optimization settings:', settings);
       const settingsData = await saveOptimizationSettings(settings);
+      console.log('Successfully saved settings with ID:', settingsData.id);
       
-      // Generate lineups
+      console.log('Final player check count:', validPlayersCount);
+      console.log('Attempting to generate lineups with settings_id:', settingsData.id);
+      
       const lineups = await generateLineups(settingsData.id);
 
       if (!lineups || lineups.length === 0) {

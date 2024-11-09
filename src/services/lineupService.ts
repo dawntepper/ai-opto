@@ -23,11 +23,13 @@ export const generateLineups = async (settingsId: string) => {
   const { data, error } = await supabase
     .rpc('generate_optimal_lineups', {
       settings_id: settingsId
-    }, {
-      count: 'exact'
     });
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error generating lineups:', error);
+    throw error;
+  }
+
   return data;
 };
 
