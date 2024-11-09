@@ -37,6 +37,9 @@ serve(async (req) => {
 
     if (playersError) throw playersError;
 
+    console.log('Analyzing slate with content:', slateAnalysis?.content);
+    console.log('Available players:', players?.length);
+
     // Use GPT-4 to analyze the slate content and generate player adjustments
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -55,8 +58,8 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: `Slate Analysis: ${slateAnalysis.content}
-                     Available Players: ${JSON.stringify(players.map(p => ({
+            content: `Slate Analysis: ${slateAnalysis?.content}
+                     Available Players: ${JSON.stringify(players?.map(p => ({
                        id: p.id,
                        name: p.name,
                        team: p.team,
@@ -69,19 +72,35 @@ serve(async (req) => {
     });
 
     const aiResponse = await response.json();
+    console.log('AI Response:', aiResponse);
+
+    if (!aiResponse.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response from OpenAI');
+    }
+
     const adjustments = JSON.parse(aiResponse.choices[0].message.content);
+    console.log('Generated adjustments:', adjustments);
 
-    // Store the adjustments in a new table
-    const { error: insertError } = await supabase
-      .from('player_adjustments')
-      .insert(adjustments.map((adj: any) => ({
-        player_id: adj.playerId,
-        projection_multiplier: adj.projectionMultiplier,
-        ownership_multiplier: adj.ownershipMultiplier,
-        reason: adj.reason
-      })));
+    // Apply the adjustments to the players
+    for (const adjustment of adjustments) {
+      const { error: updateError } = await supabase
+        .from('players')
+        .update({
+          projected_points: supabase.rpc('multiply_points', { 
+            player_id: adjustment.playerId,
+            multiplier: adjustment.projectionMultiplier 
+          }),
+          ownership: supabase.rpc('multiply_ownership', {
+            player_id: adjustment.playerId,
+            multiplier: adjustment.ownershipMultiplier
+          })
+        })
+        .eq('id', adjustment.playerId);
 
-    if (insertError) throw insertError;
+      if (updateError) {
+        console.error('Error updating player:', updateError);
+      }
+    }
 
     return new Response(JSON.stringify({ success: true, adjustments }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
