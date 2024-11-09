@@ -1,118 +1,109 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { read, utils } from 'xlsx';
-import { Card } from './ui/card';
-import { toast } from './ui/use-toast';
-import { processProjections } from '@/lib/process-projections';
-import { 
-  upsertProjections,
-  recordFileUpload,
-  markFileProcessed
-} from '@/lib/database-service';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Upload } from "lucide-react";
+import { toast } from "./ui/use-toast";
+import { supabase } from '@/integrations/supabase/client';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 
 interface ProjectionsUploadProps {
   onProjectionsUploaded: () => void;
 }
 
 const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) => {
-  const processFile = async (data: any[], fileName: string) => {
-    try {
-      // Record the file upload
-      const fileUpload = await recordFileUpload(fileName, 'projections');
-      console.log('File upload recorded:', fileUpload);
-
-      const processedData = processProjections(data);
-      const validData = processedData.filter(proj => proj.partner_id);
-      console.log('Processing projections data:', validData.length, 'valid projections');
-      
-      await upsertProjections(validData);
-      await markFileProcessed(fileUpload.id);
-
-      toast({
-        title: "Success",
-        description: `File ${fileName} processed successfully`,
-      });
-      
-      onProjectionsUploaded();
-    } catch (error: any) {
-      console.error('Error processing file:', error);
-      toast({
-        title: "Error",
-        description: "Failed to process file. Please ensure the file format is correct and try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 1) {
-      toast({
-        title: "Warning",
-        description: "Please upload only one file at a time.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     const reader = new FileReader();
 
-    reader.onload = (e) => {
-      try {
-        const data = e.target?.result;
-        const workbook = read(data, { type: 'binary' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = utils.sheet_to_json(worksheet);
-        
-        processFile(jsonData, file.name);
-      } catch (error) {
-        console.error('Error parsing file:', error);
+    reader.onload = async () => {
+      const text = reader.result as string;
+
+      const { data, error } = await supabase
+        .from('projections')
+        .insert([{ content: text }]);
+
+      if (error) {
         toast({
-          title: "Error",
-          description: "Failed to parse file. Please ensure it's a valid Excel or CSV file.",
-          variant: "destructive",
+          title: "Error uploading projections",
+          description: error.message,
+          variant: "destructive"
         });
+        return;
       }
+
+      toast({
+        title: "Projections uploaded successfully!",
+        description: `Uploaded ${file.name}`,
+      });
+
+      onProjectionsUploaded();
     };
 
-    reader.readAsBinaryString(file);
-  }, []);
+    reader.readAsText(file);
+  }, [onProjectionsUploaded]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
+      'text/csv': ['.csv'],
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-      'text/csv': ['.csv']
+      'application/vnd.ms-excel': ['.xls']
     },
-    maxFiles: 1,
-    multiple: false
+    maxFiles: 1
   });
 
   return (
-    <div className="space-y-4">
-      <Card
+    <Card className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold">Upload Projections</h3>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <HelpCircle className="h-4 w-4 text-gray-400" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-sm">
+                <p className="font-semibold mb-2">Required CSV Headers:</p>
+                <ul className="text-sm list-disc pl-4">
+                  <li>partner_id - Unique identifier</li>
+                  <li>name - Player name</li>
+                  <li>fpts - Projected fantasy points</li>
+                  <li>proj_own - Projected ownership %</li>
+                  <li>team - Team abbreviation</li>
+                  <li>opp - Opponent team</li>
+                  <li>pos - Position</li>
+                  <li>salary - Player salary</li>
+                  <li>Optional: ceil, floor, minutes</li>
+                </ul>
+                <p className="mt-2 text-xs">You can use any projections source as long as your CSV matches these headers.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+
+      <div
         {...getRootProps()}
-        className="p-6 border-dashed border-2 cursor-pointer hover:border-primary transition-colors"
+        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
+          ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-primary'}`}
       >
         <input {...getInputProps()} />
-        {isDragActive ? (
-          <p className="text-center text-primary">Drop the file here...</p>
-        ) : (
-          <p className="text-center">Drop a single file here or click to browse</p>
-        )}
-        <p className="text-center text-sm text-muted-foreground mt-2">
-          Upload projections file in CSV or Excel format
+        <Upload className="mx-auto h-8 w-8 mb-2 text-gray-400" />
+        <p className="text-sm text-gray-500">
+          {isDragActive
+            ? "Drop the file here"
+            : "Drag & drop your projections file, or click to select"}
         </p>
-      </Card>
-
-      <div className="text-sm text-gray-300">
-        <p>Required file format:</p>
-        <ul className="list-disc list-inside ml-2">
-          <li>Projections file with player IDs (.csv or .xlsx)</li>
-        </ul>
+        <p className="text-xs text-gray-400 mt-1">Accepts CSV, XLS, XLSX</p>
       </div>
-    </div>
+    </Card>
   );
 };
 
