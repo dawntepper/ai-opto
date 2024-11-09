@@ -8,9 +8,9 @@ import OptimizationSettingsComponent from './OptimizationSettings';
 import EntryTypeSettings from './EntryTypeSettings';
 import { getDefaultMaxOwnership, getDefaultCorrelation, getDefaultLineupCount } from '../utils/optimizationDefaults';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import GeneratedLineups from './GeneratedLineups';
 import FileUploadList from './FileUploadList';
+import { checkValidPlayers, generateLineups, saveOptimizationSettings } from '../services/lineupService';
 
 interface LineupOptimizerProps {
   entryType: EntryType;
@@ -28,25 +28,11 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
   const [showLineups, setShowLineups] = useState(false);
 
-  // Query to check valid players
   const { data: validPlayersCount, isLoading: playersLoading } = useQuery({
     queryKey: ['validPlayers'],
-    queryFn: async () => {
-      console.log('Checking for valid players...');
-      const { count, error } = await supabase
-        .from('players')
-        .select('id', { count: 'exact', head: true })
-        .eq('status', 'available')
-        .gt('salary', 0)
-        .gt('projected_points', 0);
-      
-      if (error) throw error;
-      console.log(`Found ${count} valid players`);
-      return count || 0;
-    }
+    queryFn: checkValidPlayers
   });
 
-  // Query for file uploads
   const { data: fileUploads, refetch, isLoading: fileUploadsLoading } = useQuery({
     queryKey: ['uploadedFiles'],
     queryFn: async () => {
@@ -74,53 +60,11 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
 
     try {
-      // Log current settings
-      console.log('Attempting to save optimization settings:', settings);
-
-      // Save optimization settings
-      const { data: settingsData, error: settingsError } = await supabase
-        .from('optimization_settings')
-        .insert({
-          entry_type: settings.entryType,
-          max_salary: settings.maxSalary,
-          max_ownership: settings.maxOwnership,
-          correlation_strength: settings.correlationStrength,
-          lineup_count: settings.lineupCount,
-          min_value: 0
-        })
-        .select()
-        .single();
-
-      if (settingsError) {
-        console.error('Settings save error:', settingsError);
-        throw settingsError;
-      }
-
-      console.log('Successfully saved settings with ID:', settingsData.id);
-
-      // Double check players before generating lineups
-      const { count: finalCheck } = await supabase
-        .from('players')
-        .select('id', { count: 'exact', head: true })
-        .eq('status', 'available')
-        .gt('salary', 0)
-        .gt('projected_points', 0);
-
-      console.log('Final player check count:', finalCheck);
-
+      // Save settings
+      const settingsData = await saveOptimizationSettings(settings);
+      
       // Generate lineups
-      console.log('Attempting to generate lineups with settings_id:', settingsData.id);
-      const { data: lineups, error: lineupsError } = await supabase
-        .rpc('generate_optimal_lineups', {
-          settings_id: settingsData.id
-        });
-
-      if (lineupsError) {
-        console.error('Lineup generation error:', lineupsError);
-        throw lineupsError;
-      }
-
-      console.log('Generated lineups result:', lineups);
+      const lineups = await generateLineups(settingsData.id);
 
       if (!lineups || lineups.length === 0) {
         throw new Error('No valid lineups could be generated');
@@ -135,7 +79,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
       setShowLineups(true);
     } catch (error: any) {
-      console.error('Full optimization error:', error);
+      console.error('Optimization error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to generate lineups. Please try again.",
