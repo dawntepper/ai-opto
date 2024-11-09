@@ -28,6 +28,25 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
   const [showLineups, setShowLineups] = useState(false);
 
+  // Query to check valid players
+  const { data: validPlayersCount, isLoading: playersLoading } = useQuery({
+    queryKey: ['validPlayers'],
+    queryFn: async () => {
+      console.log('Checking for valid players...');
+      const { count, error } = await supabase
+        .from('players')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'available')
+        .gt('salary', 0)
+        .gt('projected_points', 0);
+      
+      if (error) throw error;
+      console.log(`Found ${count} valid players`);
+      return count || 0;
+    }
+  });
+
+  // Query for file uploads
   const { data: fileUploads, refetch, isLoading: fileUploadsLoading } = useQuery({
     queryKey: ['uploadedFiles'],
     queryFn: async () => {
@@ -39,22 +58,6 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       
       if (error) throw error;
       return data;
-    }
-  });
-
-  // Query to check if we have valid players data
-  const { data: validPlayersCount, isLoading: playersLoading } = useQuery({
-    queryKey: ['validPlayers'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('players')
-        .select('id', { count: 'exact', head: true })
-        .eq('status', 'available')
-        .gt('salary', 0)
-        .gt('projected_points', 0);
-      
-      if (error) throw error;
-      return count || 0;
     }
   });
 
@@ -71,6 +74,10 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
 
     try {
+      // Log current settings
+      console.log('Attempting to save optimization settings:', settings);
+
+      // Save optimization settings
       const { data: settingsData, error: settingsError } = await supabase
         .from('optimization_settings')
         .insert({
@@ -84,14 +91,36 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         .select()
         .single();
 
-      if (settingsError) throw settingsError;
+      if (settingsError) {
+        console.error('Settings save error:', settingsError);
+        throw settingsError;
+      }
 
+      console.log('Successfully saved settings with ID:', settingsData.id);
+
+      // Double check players before generating lineups
+      const { count: finalCheck } = await supabase
+        .from('players')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'available')
+        .gt('salary', 0)
+        .gt('projected_points', 0);
+
+      console.log('Final player check count:', finalCheck);
+
+      // Generate lineups
+      console.log('Attempting to generate lineups with settings_id:', settingsData.id);
       const { data: lineups, error: lineupsError } = await supabase
         .rpc('generate_optimal_lineups', {
           settings_id: settingsData.id
         });
 
-      if (lineupsError) throw lineupsError;
+      if (lineupsError) {
+        console.error('Lineup generation error:', lineupsError);
+        throw lineupsError;
+      }
+
+      console.log('Generated lineups result:', lineups);
 
       if (!lineups || lineups.length === 0) {
         throw new Error('No valid lineups could be generated');
@@ -106,7 +135,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
       setShowLineups(true);
     } catch (error: any) {
-      console.error('Error in optimization process:', error);
+      console.error('Full optimization error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to generate lineups. Please try again.",
@@ -153,11 +182,11 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     queryClient.invalidateQueries({ queryKey: ['lineups'] });
   };
 
+  const isLoading = fileUploadsLoading || playersLoading;
+
   if (showLineups) {
     return <GeneratedLineups onBack={handleBack} />;
   }
-
-  const isLoading = fileUploadsLoading || playersLoading;
 
   return (
     <div className="space-y-6">
