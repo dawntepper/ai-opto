@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { DraftKingsPlayer, Projection, transformDraftKingsData, transformProjectionsData } from './data-transformers';
+import { DraftKingsPlayer, EnhancedProjection, transformDraftKingsData, transformEnhancedProjections } from './data-transformers';
 
 export const markExistingPlayersUnavailable = async () => {
   console.log('Marking existing players as unavailable...');
@@ -34,15 +34,15 @@ export const upsertDraftKingsPlayers = async (validData: DraftKingsPlayer[]) => 
   return data;
 };
 
-export const upsertProjections = async (validData: Projection[]) => {
-  console.log('Processing projections:', validData.length, 'projections');
-  const transformedData = validData.map(transformProjectionsData);
+export const upsertEnhancedProjections = async (validData: EnhancedProjection[], positionData?: { [key: string]: string }) => {
+  console.log('Processing enhanced projections:', validData.length, 'projections');
+  const transformedData = validData.map(proj => transformEnhancedProjections(proj, positionData));
   console.log('Transformed projections data:', transformedData);
 
   const { data: existingPlayers, error: fetchError } = await supabase
     .from('players')
-    .select('partner_id, salary')
-    .in('partner_id', transformedData.map(p => p.partner_id));
+    .select('name, position')
+    .in('name', transformedData.map(p => p.name));
 
   if (fetchError) {
     console.error('Error fetching existing players:', fetchError);
@@ -52,13 +52,10 @@ export const upsertProjections = async (validData: Projection[]) => {
   console.log('Found existing players:', existingPlayers?.length);
 
   const mergedData = transformedData.map(player => {
-    const existing = existingPlayers?.find(ep => ep.partner_id === player.partner_id);
-    if (existing) {
-      console.log(`Merging data for player ${player.name} with existing salary ${existing.salary}`);
-    }
+    const existing = existingPlayers?.find(ep => ep.name === player.name);
     return {
       ...player,
-      salary: existing?.salary || player.salary || 0,
+      position: existing?.position || player.position,
       status: 'available'
     };
   });
@@ -66,17 +63,17 @@ export const upsertProjections = async (validData: Projection[]) => {
   const { error, data } = await supabase
     .from('players')
     .upsert(mergedData, { 
-      onConflict: 'partner_id',
+      onConflict: 'name',
       ignoreDuplicates: false 
     })
     .select();
   
   if (error) {
-    console.error('Error upserting projections:', error);
+    console.error('Error upserting enhanced projections:', error);
     throw error;
   }
 
-  console.log('Successfully upserted projections:', data?.length);
+  console.log('Successfully upserted enhanced projections:', data?.length);
   return data;
 };
 

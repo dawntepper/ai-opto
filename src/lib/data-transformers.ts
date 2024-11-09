@@ -11,19 +11,31 @@ export interface DraftKingsPlayer {
   RosterPosition: string;
 }
 
-export interface Projection {
-  partner_id: string;
-  fpts: number;
-  proj_own: number;
-  ceil: number;
-  floor: number;
-  minutes: number;
-  rg_id: string;
-  name: string;
-  team: string;
-  opp: string;
-  pos: string;
-  salary: number;
+export interface EnhancedProjection {
+  Name: string;
+  Team: string;
+  Projection: number;
+  Salary: number;
+  'Pts/$1k': number;
+  FPPM: number;
+  'USG%': number;
+  Opp: string;
+  DVP: number;
+  Spread: number;
+  Total: number;
+  'O/U': number;
+  Minutes: number;
+  PTS: number;
+  AST: number;
+  REB: number;
+  STL: number;
+  BLK: number;
+  FT: number;
+  FGA: number;
+  FGM: number;
+  PER: number;
+  'FG%': number;
+  'eFG%': number;
 }
 
 export const transformDraftKingsData = (player: DraftKingsPlayer) => {
@@ -44,20 +56,32 @@ export const transformDraftKingsData = (player: DraftKingsPlayer) => {
   };
 };
 
-export const transformProjectionsData = (proj: Projection) => {
+export const transformEnhancedProjections = (proj: EnhancedProjection, positionData?: { [key: string]: string }) => {
   return {
-    partner_id: proj.partner_id,
-    name: proj.name,
-    position: proj.pos,
-    team: proj.team,
-    opponent: proj.opp,
-    projected_points: Number(proj.fpts) || 0,
-    ownership: Number(proj.proj_own) || 0,
-    ceiling: Number(proj.ceil) || null,
-    floor: Number(proj.floor) || null,
-    minutes: Number(proj.minutes) || null,
-    rg_id: proj.rg_id || null,
-    status: 'available',
-    salary: Number(proj.salary) || 0
+    name: proj.Name,
+    position: positionData?.[proj.Name] || 'UNKNOWN',
+    team: proj.Team,
+    opponent: proj.Opp,
+    projected_points: Number(proj.Projection) || 0,
+    salary: Number(proj.Salary) || 0,
+    fppm: Number(proj.FPPM) || 0,
+    usage_rate: Number(proj['USG%']) || 0,
+    dvp: Number(proj.DVP) || 0,
+    spread: Number(proj.Spread) || 0,
+    total: Number(proj.Total) || 0,
+    over_under: Number(proj['O/U']) || 0,
+    minutes: Number(proj.Minutes) || 0,
+    points: Number(proj.PTS) || 0,
+    assists: Number(proj.AST) || 0,
+    rebounds: Number(proj.REB) || 0,
+    steals: Number(proj.STL) || 0,
+    blocks: Number(proj.BLK) || 0,
+    free_throws: Number(proj.FT) || 0,
+    field_goals_attempted: Number(proj.FGA) || 0,
+    field_goals_made: Number(proj.FGM) || 0,
+    player_efficiency: Number(proj.PER) || 0,
+    field_goal_percentage: Number(proj['FG%']) || 0,
+    effective_field_goal_percentage: Number(proj['eFG%']) || 0,
+    status: 'available'
   };
 };
