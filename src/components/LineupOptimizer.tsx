@@ -11,7 +11,6 @@ import { X } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import type { Tables } from '@/integrations/supabase/types';
 
 interface LineupOptimizerProps {
   entryType: EntryType;
@@ -26,7 +25,6 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   const [settings, setSettings] = useState<OptimizationSettings>({
     entryType,
     maxSalary: 50000,
-    minValue: 4,
     maxOwnership: getDefaultMaxOwnership(entryType),
     correlationStrength: getDefaultCorrelation(entryType),
     lineupCount: getDefaultLineupCount(entryType)
@@ -78,7 +76,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       description: "File processed successfully"
     });
     
-    refetch(); // Refresh the file list after upload
+    refetch();
   };
 
   const removeFile = async (fileId: string) => {
