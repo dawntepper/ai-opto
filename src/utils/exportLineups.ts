@@ -47,7 +47,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       }
     });
 
-    // Fill G slot with remaining eligible guard
+    // Fill G slot with remaining eligible guard (PG or SG)
     const guardIndex = remainingPlayers.findIndex(lp => {
       const pos = lp.player?.position || '';
       return pos.includes('PG') || pos.includes('SG');
@@ -57,9 +57,19 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       const guardPlayer = remainingPlayers[guardIndex];
       slots[5] = `${guardPlayer.player.name} (${guardPlayer.player.partner_id || ''})`;
       remainingPlayers.splice(guardIndex, 1);
+    } else {
+      // If no dedicated guard remains, look through already placed players
+      const availableGuard = players.find(lp => {
+        const pos = lp.player?.position || '';
+        return (pos.includes('PG') || pos.includes('SG')) && 
+               !slots.includes(`${lp.player.name} (${lp.player.partner_id || ''})`);
+      });
+      if (availableGuard) {
+        slots[5] = `${availableGuard.player.name} (${availableGuard.player.partner_id || ''})`;
+      }
     }
 
-    // Fill F slot with remaining eligible forward
+    // Fill F slot with remaining eligible forward (SF or PF)
     const forwardIndex = remainingPlayers.findIndex(lp => {
       const pos = lp.player?.position || '';
       return pos.includes('SF') || pos.includes('PF');
@@ -69,6 +79,16 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       const forwardPlayer = remainingPlayers[forwardIndex];
       slots[6] = `${forwardPlayer.player.name} (${forwardPlayer.player.partner_id || ''})`;
       remainingPlayers.splice(forwardIndex, 1);
+    } else {
+      // If no dedicated forward remains, look through already placed players
+      const availableForward = players.find(lp => {
+        const pos = lp.player?.position || '';
+        return (pos.includes('SF') || pos.includes('PF')) && 
+               !slots.includes(`${lp.player.name} (${lp.player.partner_id || ''})`);
+      });
+      if (availableForward) {
+        slots[6] = `${availableForward.player.name} (${availableForward.player.partner_id || ''})`;
+      }
     }
 
     // Fill UTIL slot with first remaining player
