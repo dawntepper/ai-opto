@@ -33,7 +33,7 @@ export const transformDraftKingsData = (player: DraftKingsPlayer) => {
   return {
     name: player.Name,
     position: player.Position,
-    salary: Number(player.Salary),
+    salary: Number(player.Salary) || 0,
     team: player.TeamAbbrev,
     opponent: opponent,
     partner_id: player.ID,
@@ -44,17 +44,23 @@ export const transformDraftKingsData = (player: DraftKingsPlayer) => {
   };
 };
 
-export const transformProjectionsData = (proj: Projection) => ({
-  partner_id: proj.partner_id,
-  name: proj.name,
-  position: proj.pos,
-  team: proj.team,
-  opponent: proj.opp,
-  projected_points: Number(proj.fpts) || 0,
-  ownership: Number(proj.proj_own) || 0,
-  ceiling: Number(proj.ceil) || null,
-  floor: Number(proj.floor) || null,
-  minutes: Number(proj.minutes) || null,
-  rg_id: proj.rg_id || null,
-  status: 'available'
-});
+export const transformProjectionsData = (proj: Projection) => {
+  // Ensure we preserve the salary if it exists in the projections
+  const salary = proj.salary ? Number(proj.salary) : 0;
+  
+  return {
+    partner_id: proj.partner_id,
+    name: proj.name,
+    position: proj.pos,
+    team: proj.team,
+    opponent: proj.opp,
+    projected_points: Number(proj.fpts) || 0,
+    ownership: Number(proj.proj_own) || 0,
+    ceiling: Number(proj.ceil) || null,
+    floor: Number(proj.floor) || null,
+    minutes: Number(proj.minutes) || null,
+    rg_id: proj.rg_id || null,
+    status: 'available',
+    salary: salary // Preserve the salary field
+  };
+};

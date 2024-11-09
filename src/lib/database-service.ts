@@ -11,9 +11,6 @@ export const markExistingPlayersUnavailable = async () => {
 };
 
 export const upsertDraftKingsPlayers = async (validData: DraftKingsPlayer[]) => {
-  // First, mark existing players as unavailable
-  await markExistingPlayersUnavailable();
-
   // Transform and insert new data
   const transformedData = validData.map(transformDraftKingsData);
   console.log('Upserting DraftKings players:', transformedData);
@@ -37,17 +34,19 @@ export const upsertProjections = async (validData: Projection[]) => {
   console.log('Upserting projections:', transformedData);
 
   // Get existing players to preserve salary data
-  const { data: existingPlayers } = await supabase
+  const { data: existingPlayers, error: fetchError } = await supabase
     .from('players')
     .select('partner_id, salary')
     .in('partner_id', transformedData.map(p => p.partner_id));
+
+  if (fetchError) throw fetchError;
 
   // Merge with existing salary data
   const mergedData = transformedData.map(player => {
     const existing = existingPlayers?.find(ep => ep.partner_id === player.partner_id);
     return {
       ...player,
-      salary: existing?.salary || 0, // Preserve existing salary
+      salary: existing?.salary || player.salary || 0, // Use existing salary if available
     };
   });
 
