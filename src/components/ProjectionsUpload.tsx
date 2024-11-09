@@ -4,7 +4,7 @@ import { read, utils } from 'xlsx';
 import { Card } from './ui/card';
 import { toast } from './ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { processDraftKingsTemplate } from '@/lib/process-draftkings';
+import { processDraftKingsTemplate, extractGameInfo } from '@/lib/process-draftkings';
 import { processProjections } from '@/lib/process-projections';
 
 interface ProjectionsUploadProps {
