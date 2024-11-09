@@ -4,7 +4,7 @@ import { Textarea } from "./ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./ui/use-toast";
-import { Info, Upload } from "lucide-react";
+import { Info, Upload, Sun } from "lucide-react";
 import { useDropzone } from 'react-dropzone';
 
 const SlateNotes = () => {
@@ -67,7 +67,6 @@ const SlateNotes = () => {
 
         if (error) throw error;
 
-        // Append the CSV content to the existing notes
         setNotes(prev => {
           const newContent = `${prev}\n\nImported from ${file.name}:\n${text}`;
           return newContent.trim();
@@ -105,8 +104,13 @@ const SlateNotes = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+    <div className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-lg border border-green-100">
+      <div className="flex items-center gap-2 mb-4">
+        <Sun className="h-5 w-5 text-green-600" />
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Slate Analysis</h3>
+      </div>
+
+      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2">
         <Info className="h-4 w-4" />
         <p>Add notes about injuries, weather conditions, or any other factors that might affect player performance. These notes will be used to enhance projection analysis.</p>
       </div>
@@ -114,10 +118,12 @@ const SlateNotes = () => {
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-4 mb-4 cursor-pointer transition-colors
-          ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-primary'}`}
+          ${isDragActive 
+            ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
+            : 'border-gray-300 hover:border-green-500 dark:border-gray-600 dark:hover:border-green-500'}`}
       >
         <input {...getInputProps()} />
-        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-300">
           <Upload className="h-4 w-4" />
           <p>{isDragActive ? "Drop the file here" : "Drag & drop a CSV/TXT file, or click to import analysis data"}</p>
         </div>
@@ -127,13 +133,15 @@ const SlateNotes = () => {
         placeholder="Example: John Smith (questionable) expected to play limited minutes. Weather forecast shows heavy rain in Chicago..."
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
-        className="min-h-[100px] bg-white/50"
+        className="min-h-[100px] bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-green-100"
       />
+      
       <div className="flex justify-end gap-2">
         <Button
           variant="secondary"
           onClick={handleSave}
           disabled={!notes.trim() || saveMutation.isPending}
+          className="bg-green-600 hover:bg-green-700 text-white"
         >
           Save Analysis Notes
         </Button>
