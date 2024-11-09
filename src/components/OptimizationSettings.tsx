@@ -4,13 +4,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
 import { OptimizationSettings as Settings } from '../types';
+import { useEffect } from 'react';
 
 interface OptimizationSettingsProps {
   settings: Settings;
   setSettings: (settings: Settings) => void;
 }
 
+const getMaxOwnershipLimit = (entryType: 'single' | '3-max' | '20-max') => {
+  switch (entryType) {
+    case 'single':
+      return 35; // More conservative for single entry
+    case '3-max':
+      return 45; // Moderate for 3-max
+    case '20-max':
+      return 55; // More aggressive for 20-max
+    default:
+      return 35;
+  }
+};
+
 const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsProps) => {
+  // Adjust max ownership when entry type changes
+  useEffect(() => {
+    const maxLimit = getMaxOwnershipLimit(settings.entryType);
+    if (settings.maxOwnership > maxLimit) {
+      setSettings({ ...settings, maxOwnership: maxLimit });
+    }
+  }, [settings.entryType]);
+
   return (
     <TooltipProvider>
       <Card className="p-4 bg-white/5">
@@ -80,7 +102,7 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
                 </div>
               </TooltipTrigger>
               <TooltipContent className="max-w-[200px] whitespace-normal">
-                <p>The maximum projected ownership percentage allowed for any player (0-100%)</p>
+                <p>The maximum projected ownership percentage allowed for any player (Single: 35%, 3-max: 45%, 20-max: 55%)</p>
               </TooltipContent>
             </Tooltip>
             <Input
@@ -89,11 +111,12 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
               onChange={(e) => {
                 const ownership = parseFloat(e.target.value);
                 if (!isNaN(ownership)) {
-                  setSettings({ ...settings, maxOwnership: Math.min(Math.max(ownership, 0), 100) });
+                  const maxLimit = getMaxOwnershipLimit(settings.entryType);
+                  setSettings({ ...settings, maxOwnership: Math.min(Math.max(ownership, 0), maxLimit) });
                 }
               }}
               min={0}
-              max={100}
+              max={getMaxOwnershipLimit(settings.entryType)}
               step={1}
               className="bg-white/5"
             />
