@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Table,
@@ -9,15 +9,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "./ui/button";
-import { Download, Pencil } from "lucide-react";
+import { Download, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "./ui/use-toast";
+import { Card, CardContent, CardHeader } from "./ui/card";
 
 interface GeneratedLineupsProps {
   onBack: () => void;
 }
 
 const GeneratedLineups = ({ onBack }: GeneratedLineupsProps) => {
+  const queryClient = useQueryClient();
   const [editingLineupId, setEditingLineupId] = useState<string | null>(null);
 
   const { data: lineups, isLoading } = useQuery({
@@ -34,7 +36,9 @@ const GeneratedLineups = ({ onBack }: GeneratedLineupsProps) => {
               position,
               salary,
               projected_points,
-              ownership
+              ownership,
+              team,
+              opponent
             )
           )
         `)
@@ -70,12 +74,50 @@ const GeneratedLineups = ({ onBack }: GeneratedLineupsProps) => {
     });
   };
 
-  const handleEdit = (lineupId: string) => {
-    setEditingLineupId(lineupId);
-    toast({
-      title: "Edit Mode",
-      description: "Editing functionality will be implemented in a future update."
-    });
+  const handleClearAll = async () => {
+    try {
+      const { error } = await supabase
+        .from('lineups')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all lineups
+
+      if (error) throw error;
+
+      await queryClient.invalidateQueries({ queryKey: ['lineups'] });
+      toast({
+        title: "Lineups Cleared",
+        description: "All lineups have been removed successfully."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to clear lineups",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRemoveLineup = async (lineupId: string) => {
+    try {
+      const { error } = await supabase
+        .from('lineups')
+        .delete()
+        .eq('id', lineupId);
+
+      if (error) throw error;
+
+      await queryClient.invalidateQueries({ queryKey: ['lineups'] });
+      toast({
+        title: "Lineup Removed",
+        description: "The lineup has been removed successfully."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to remove lineup",
+        variant: "destructive"
+      });
+    }
   };
 
   if (isLoading) {
@@ -90,83 +132,93 @@ const GeneratedLineups = ({ onBack }: GeneratedLineupsProps) => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Generated Lineups</h2>
-        <Button 
-          variant="outline" 
-          onClick={onBack}
-          className="text-primary hover:text-primary"
-        >
-          Back to Settings
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={onBack}
+            className="text-primary hover:text-primary"
+          >
+            Back to Settings
+          </Button>
+          <Button 
+            variant="destructive" 
+            onClick={handleClearAll}
+            className="flex items-center gap-2"
+          >
+            <Trash2 className="h-4 w-4" />
+            Clear All
+          </Button>
+          <Button onClick={handleExport} className="flex items-center gap-2 bg-secondary hover:bg-secondary/90">
+            <Download className="h-4 w-4" />
+            Export to CSV
+          </Button>
+        </div>
       </div>
 
-      <div className="flex justify-end">
-        <Button onClick={handleExport} className="flex items-center gap-2 bg-secondary hover:bg-secondary/90">
-          <Download className="h-4 w-4" />
-          Export to CSV
-        </Button>
-      </div>
-
-      <div className="border rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Lineup #</TableHead>
-              <TableHead>Position</TableHead>
-              <TableHead>Player</TableHead>
-              <TableHead className="text-right">Salary</TableHead>
-              <TableHead className="text-right">Own%</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {lineups.map((lineup, lineupIndex) => (
-              <>
-                {lineup.lineup_players.map((lp, playerIndex) => (
-                  <TableRow 
-                    key={`${lineup.id}-${lp.player.id}`}
-                    className={playerIndex === lineup.lineup_players.length - 1 ? "border-b-4" : ""}
-                  >
-                    {playerIndex === 0 && (
-                      <TableCell rowSpan={lineup.lineup_players.length} className="align-top pt-4">
-                        {lineupIndex + 1}
-                      </TableCell>
-                    )}
-                    <TableCell>{lp.player.position}</TableCell>
-                    <TableCell>{lp.player.name}</TableCell>
-                    <TableCell className="text-right">${lp.player.salary.toLocaleString()}</TableCell>
-                    <TableCell className="text-right">{lp.player.ownership.toFixed(1)}%</TableCell>
-                    {playerIndex === 0 && (
-                      <TableCell rowSpan={lineup.lineup_players.length} className="align-top pt-4">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(lineup.id)}
-                          className="flex items-center gap-1 text-secondary hover:text-secondary/90"
-                        >
-                          <Pencil className="h-4 w-4" />
-                          Edit
-                        </Button>
-                      </TableCell>
-                    )}
+      <div className="grid grid-cols-1 gap-6">
+        {lineups.map((lineup, index) => (
+          <Card key={lineup.id} className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-2"
+              onClick={() => handleRemoveLineup(lineup.id)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            <CardHeader className="pb-2">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-sm text-muted-foreground">Salary</div>
+                  <div className="font-semibold">${lineup.total_salary.toLocaleString()}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">pOwn</div>
+                  <div className="font-semibold">{lineup.total_ownership.toFixed(2)}%</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">fpts</div>
+                  <div className="font-semibold">{lineup.projected_points.toFixed(2)}</div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Slot</TableHead>
+                    <TableHead>Player</TableHead>
+                    <TableHead>Match</TableHead>
+                    <TableHead className="text-right">Salary</TableHead>
+                    <TableHead className="text-right">pOwn</TableHead>
+                    <TableHead className="text-right">Fpts</TableHead>
                   </TableRow>
-                ))}
-                <TableRow className="bg-secondary/5">
-                  <TableCell colSpan={2} className="font-medium">
-                    Lineup Totals
-                  </TableCell>
-                  <TableCell />
-                  <TableCell className="text-right font-medium">
-                    ${lineup.total_salary.toLocaleString()}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {lineup.total_ownership.toFixed(1)}%
-                  </TableCell>
-                  <TableCell />
-                </TableRow>
-              </>
-            ))}
-          </TableBody>
-        </Table>
+                </TableHeader>
+                <TableBody>
+                  {lineup.lineup_players.map((lp) => (
+                    <TableRow key={`${lineup.id}-${lp.player.id}`}>
+                      <TableCell>{lp.player.position}</TableCell>
+                      <TableCell>
+                        <div className="font-medium">{lp.player.team}</div>
+                        {lp.player.name}
+                      </TableCell>
+                      <TableCell>{lp.player.team} @ {lp.player.opponent}</TableCell>
+                      <TableCell className="text-right">${lp.player.salary.toLocaleString()}</TableCell>
+                      <TableCell className="text-right">{lp.player.ownership.toFixed(2)}%</TableCell>
+                      <TableCell className="text-right">{lp.player.projected_points.toFixed(2)}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="bg-muted/50 font-medium">
+                    <TableCell colSpan={3}>Total</TableCell>
+                    <TableCell className="text-right">${lineup.total_salary.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{lineup.total_ownership.toFixed(2)}%</TableCell>
+                    <TableCell className="text-right">{lineup.projected_points.toFixed(2)}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
