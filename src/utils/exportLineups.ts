@@ -24,11 +24,13 @@ const mapPositionToRosterPositions = (position: string): string[] => {
 };
 
 export const exportLineupsToDraftKings = (lineups: any[]) => {
+  console.log('Full lineups data:', JSON.stringify(lineups, null, 2));
+  
   const header = NBA_POSITIONS.join(',');
   
   const formattedLineups = lineups.map(lineup => {
     const players = lineup.lineup_players || [];
-    console.log('Processing lineup players:', players);
+    console.log('Processing lineup players:', JSON.stringify(players, null, 2));
     
     const slots = new Array(8).fill('()');
     let remainingPlayers = [...players];
