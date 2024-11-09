@@ -35,7 +35,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     const players = lineup.lineup_players || [];
     console.log('Initial players:', players);
     
-    const slots = new Array(8).fill('');
+    const slots = new Array(8).fill(null);
     let remainingPlayers = [...players];
 
     // Helper function to find player for position
@@ -92,7 +92,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       slots[7] = `${utilPlayer.player.name} (${utilPlayer.player.partner_id || ''})`;
     }
 
-    // Fill any remaining empty slots with ()
+    // Fill any remaining empty slots with "()"
     const filledSlots = slots.map(slot => slot || '()');
     console.log('Final lineup slots:', filledSlots);
     console.log('Remaining unassigned players:', remainingPlayers);
