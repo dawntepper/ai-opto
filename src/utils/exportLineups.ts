@@ -7,11 +7,15 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
   // Transform lineups into DraftKings format
   const formattedLineups = lineups.map(lineup => {
     const players = lineup.lineup_players || [];
-    const sortedPlayers = assignPlayersToSlots(players.map((lp: any) => lp.player));
+    const validPlayers = players
+      .filter((lp: any) => lp?.player) // Filter out null players
+      .map((lp: any) => lp.player);
     
-    return sortedPlayers.map(player => 
-      `${player.name} (${player.partner_id})`
-    ).join('\t');
+    const sortedPlayers = assignPlayersToSlots(validPlayers);
+    
+    return sortedPlayers
+      .map(player => player ? `${player.name} (${player.partner_id || ''})` : '')
+      .join('\t');
   });
 
   // Combine header and lineups
@@ -35,13 +39,14 @@ const assignPlayersToSlots = (players: any[]) => {
 
   // Helper function to check if a player can play in a position
   const canPlayPosition = (player: any, pos: string) => {
-    const positions = player.roster_positions?.split(',') || [];
+    if (!player || !player.roster_positions) return false;
+    const positions = player.roster_positions.split(',');
     return positions.includes(pos);
   };
 
   // First, fill the primary positions (PG, SG, SF, PF, C)
   players.forEach(player => {
-    if (usedPlayers.has(player.id)) return;
+    if (!player || usedPlayers.has(player.id)) return;
     
     const primaryPos = player.position;
     const slotIndex = NBA_POSITIONS.indexOf(primaryPos);
@@ -55,7 +60,7 @@ const assignPlayersToSlots = (players: any[]) => {
   // Fill G slot (can be PG or SG)
   if (slots[5] === null) {
     const guard = players.find(p => 
-      !usedPlayers.has(p.id) && 
+      p && !usedPlayers.has(p.id) && 
       (canPlayPosition(p, 'PG') || canPlayPosition(p, 'SG'))
     );
     if (guard) {
@@ -67,7 +72,7 @@ const assignPlayersToSlots = (players: any[]) => {
   // Fill F slot (can be SF or PF)
   if (slots[6] === null) {
     const forward = players.find(p => 
-      !usedPlayers.has(p.id) && 
+      p && !usedPlayers.has(p.id) && 
       (canPlayPosition(p, 'SF') || canPlayPosition(p, 'PF'))
     );
     if (forward) {
@@ -78,7 +83,7 @@ const assignPlayersToSlots = (players: any[]) => {
 
   // Fill UTIL slot with remaining player
   if (slots[7] === null) {
-    const util = players.find(p => !usedPlayers.has(p.id));
+    const util = players.find(p => p && !usedPlayers.has(p.id));
     if (util) {
       slots[7] = util;
       usedPlayers.add(util.id);
