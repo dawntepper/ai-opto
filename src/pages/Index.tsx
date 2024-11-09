@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import PlayerPool from '../components/PlayerPool';
 import LineupOptimizer from '../components/LineupOptimizer';
 import StrategyGuide from '../components/StrategyGuide';
+import LineupAnalysis from '../components/LineupAnalysis';
+import CurrentLineups from '../components/CurrentLineups';
 import { EntryType } from '../types';
 
 const Index = () => {
@@ -17,22 +19,29 @@ const Index = () => {
           <p className="text-lg text-gray-200">Powered by OpenAI Predictions</p>
         </header>
 
-        <Tabs defaultValue="optimizer" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-primary/20">
-            <TabsTrigger value="optimizer">Optimizer</TabsTrigger>
+        <Tabs defaultValue="pool" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 bg-primary/20">
             <TabsTrigger value="pool">Player Pool</TabsTrigger>
+            <TabsTrigger value="lineups">Current Lineups</TabsTrigger>
+            <TabsTrigger value="analysis">Analysis</TabsTrigger>
             <TabsTrigger value="strategy">Strategy Guide</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="optimizer">
+          <TabsContent value="pool">
             <Card className="bg-white/10 backdrop-blur p-6">
               <LineupOptimizer entryType={entryType} />
             </Card>
           </TabsContent>
 
-          <TabsContent value="pool">
+          <TabsContent value="lineups">
             <Card className="bg-white/10 backdrop-blur p-6">
-              <PlayerPool />
+              <CurrentLineups />
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analysis">
+            <Card className="bg-white/10 backdrop-blur p-6">
+              <LineupAnalysis />
             </Card>
           </TabsContent>
 
