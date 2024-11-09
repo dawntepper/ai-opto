@@ -19,6 +19,10 @@ export interface Projection {
   floor: number;
   minutes: number;
   rg_id: string;
+  name: string;
+  team: string;
+  opp: string;
+  pos: string;
 }
 
 export const transformDraftKingsData = (player: DraftKingsPlayer) => ({
@@ -36,11 +40,16 @@ export const transformDraftKingsData = (player: DraftKingsPlayer) => ({
 
 export const transformProjectionsData = (proj: Projection) => ({
   partner_id: proj.partner_id,
+  name: proj.name,
+  position: proj.pos,
+  team: proj.team,
+  opponent: proj.opp,
   projected_points: Number(proj.fpts) || 0,
   ownership: Number(proj.proj_own) || 0,
   ceiling: Number(proj.ceil) || null,
   floor: Number(proj.floor) || null,
   minutes: Number(proj.minutes) || null,
   rg_id: proj.rg_id || null,
-  status: 'available'
+  status: 'available',
+  salary: 0 // This will be updated from DraftKings data
 });

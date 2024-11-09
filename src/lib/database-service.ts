@@ -11,23 +11,19 @@ export const markExistingPlayersUnavailable = async () => {
 };
 
 export const upsertDraftKingsPlayers = async (validData: DraftKingsPlayer[]) => {
+  const transformedData = validData.map(transformDraftKingsData);
   const { error } = await supabase
     .from('players')
-    .upsert(
-      validData.map(transformDraftKingsData),
-      { onConflict: 'partner_id' }
-    );
+    .upsert(transformedData, { onConflict: 'partner_id' });
   
   if (error) throw error;
 };
 
 export const upsertProjections = async (validData: Projection[]) => {
+  const transformedData = validData.map(transformProjectionsData);
   const { error } = await supabase
     .from('players')
-    .upsert(
-      validData.map(transformProjectionsData),
-      { onConflict: 'partner_id' }
-    );
+    .upsert(transformedData, { onConflict: 'partner_id' });
   
   if (error) throw error;
 };
