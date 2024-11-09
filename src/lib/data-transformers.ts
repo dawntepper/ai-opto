@@ -45,9 +45,6 @@ export const transformDraftKingsData = (player: DraftKingsPlayer) => {
 };
 
 export const transformProjectionsData = (proj: Projection) => {
-  // Ensure we preserve the salary if it exists in the projections
-  const salary = proj.salary ? Number(proj.salary) : 0;
-  
   return {
     partner_id: proj.partner_id,
     name: proj.name,
@@ -61,6 +58,6 @@ export const transformProjectionsData = (proj: Projection) => {
     minutes: Number(proj.minutes) || null,
     rg_id: proj.rg_id || null,
     status: 'available',
-    salary: salary // Preserve the salary field
+    salary: Number(proj.salary) || 0
   };
 };

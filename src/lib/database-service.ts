@@ -41,12 +41,13 @@ export const upsertProjections = async (validData: Projection[]) => {
 
   if (fetchError) throw fetchError;
 
-  // Merge with existing salary data
+  // Merge with existing salary data and ensure status is 'available'
   const mergedData = transformedData.map(player => {
     const existing = existingPlayers?.find(ep => ep.partner_id === player.partner_id);
     return {
       ...player,
-      salary: existing?.salary || player.salary || 0, // Use existing salary if available
+      salary: existing?.salary || player.salary || 0,
+      status: 'available' // Ensure players are marked as available
     };
   });
 
