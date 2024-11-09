@@ -49,11 +49,11 @@ const LineupHeader = ({ onBack, onClearAll }: LineupHeaderProps) => {
     <div className="flex justify-between items-center">
       <h2 className="text-xl font-semibold">Generated Lineups</h2>
       <div className="flex gap-2">
-        <Button variant="outline" onClick={handleExport}>
+        <Button variant="outline" onClick={handleExport} className="text-primary">
           <Download className="h-4 w-4 mr-2" />
           Export to DK
         </Button>
-        <Button variant="outline" onClick={onClearAll}>Clear All</Button>
+        <Button variant="outline" onClick={onClearAll} className="text-primary">Clear All</Button>
         <Button onClick={onBack}>Back to Settings</Button>
       </div>
     </div>
