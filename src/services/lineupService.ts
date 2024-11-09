@@ -33,30 +33,37 @@ export const saveOptimizationSettings = async (settings: OptimizationSettings) =
 export const generateLineups = async (settingsId: string): Promise<GeneratedLineup[]> => {
   console.log('Starting lineup generation with settings ID:', settingsId);
   
-  const { data, error } = await supabase
-    .rpc('generate_optimal_lineups', {
-      settings_id: settingsId
-    }) as { data: GeneratedLineup[] | null, error: any };
+  try {
+    // Use single() to ensure we get a single response object
+    const { data, error } = await supabase
+      .rpc('generate_optimal_lineups', {
+        settings_id: settingsId
+      })
+      .single();
 
-  console.log('RPC response received:', { 
-    hasData: !!data, 
-    dataType: data ? typeof data : 'null',
-    isArray: Array.isArray(data),
-    error: error || 'none' 
-  });
+    if (error) {
+      console.error('Failed to generate lineups:', error);
+      throw error;
+    }
 
-  if (error) {
-    console.error('Failed to generate lineups:', error);
-    throw error;
+    // Immediately after getting the response, check if it's valid
+    if (!data) {
+      throw new Error('No data received from lineup generation');
+    }
+
+    // Convert the single response into an array with one lineup
+    const lineup = {
+      lineup_id: data.lineup_id,
+      total_salary: data.total_salary,
+      projected_points: data.projected_points,
+      total_ownership: data.total_ownership
+    };
+
+    return [lineup];
+  } catch (error: any) {
+    console.error('Lineup generation error:', error);
+    throw new Error(error.message || 'Failed to generate lineups');
   }
-
-  if (!data || !Array.isArray(data)) {
-    console.error('Invalid lineup data received:', data);
-    throw new Error(`Invalid response format: expected array but got ${typeof data}`);
-  }
-
-  console.log(`Successfully generated ${data.length} lineups`);
-  return data;
 };
 
 export const checkValidPlayers = async () => {
