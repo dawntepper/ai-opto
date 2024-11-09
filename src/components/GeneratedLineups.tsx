@@ -86,7 +86,7 @@ const GeneratedLineups = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button onClick={handleExport} className="flex items-center gap-2">
+        <Button onClick={handleExport} className="flex items-center gap-2 text-primary-foreground">
           <Download className="h-4 w-4" />
           Export to CSV
         </Button>
@@ -125,7 +125,7 @@ const GeneratedLineups = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleEdit(lineup.id)}
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 text-primary hover:text-primary/90"
                   >
                     <Pencil className="h-4 w-4" />
                     Edit
