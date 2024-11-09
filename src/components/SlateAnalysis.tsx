@@ -135,9 +135,10 @@ const SlateAnalysis = () => {
           </div>
           <div className="flex gap-2">
             <Button 
-              variant="outline"
+              variant="secondary"
               onClick={handleAnalyze}
               disabled={isAnalyzing || mutation.isPending}
+              className="text-secondary-foreground"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${isAnalyzing ? 'animate-spin' : ''}`} />
               Analyze Slate
