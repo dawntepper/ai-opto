@@ -21,7 +21,7 @@ const FileUploadList = ({ fileUploads, isLoading, onRemoveFile }: FileUploadList
             <div key={file.id} className="flex items-center justify-between py-1">
               <div className="flex items-center gap-2">
                 <span className="text-sm">{file.filename}</span>
-                {!file.processed && (
+                {file.processed === false && (
                   <span className="text-xs text-yellow-500">(Processing...)</span>
                 )}
               </div>
