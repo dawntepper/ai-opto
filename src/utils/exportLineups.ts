@@ -40,19 +40,19 @@ const assignPlayersToSlots = (players: any[]) => {
   // Helper function to check if a player can play in a position
   const canPlayPosition = (player: any, pos: string) => {
     if (!player || !player.roster_positions) return false;
-    const positions = player.roster_positions.split(',');
+    const positions = player.roster_positions.split(',').map(p => p.trim());
     return positions.includes(pos);
   };
 
-  // First, fill the primary positions (PG, SG, SF, PF, C)
-  players.forEach(player => {
-    if (!player || usedPlayers.has(player.id)) return;
-    
-    const primaryPos = player.position;
-    const slotIndex = NBA_POSITIONS.indexOf(primaryPos);
-    
-    if (slotIndex !== -1 && slots[slotIndex] === null && canPlayPosition(player, primaryPos)) {
-      slots[slotIndex] = player;
+  // First pass: Try to fill primary positions (PG, SG, SF, PF, C)
+  NBA_POSITIONS.slice(0, 5).forEach((pos, index) => {
+    const player = players.find(p => 
+      p && !usedPlayers.has(p.id) && 
+      p.position === pos && 
+      canPlayPosition(p, pos)
+    );
+    if (player) {
+      slots[index] = player;
       usedPlayers.add(player.id);
     }
   });
@@ -81,7 +81,7 @@ const assignPlayersToSlots = (players: any[]) => {
     }
   }
 
-  // Fill UTIL slot with remaining player
+  // Fill UTIL slot with any remaining eligible player
   if (slots[7] === null) {
     const util = players.find(p => p && !usedPlayers.has(p.id));
     if (util) {
@@ -89,6 +89,20 @@ const assignPlayersToSlots = (players: any[]) => {
       usedPlayers.add(util.id);
     }
   }
+
+  // Second pass: Fill any remaining slots with eligible players
+  slots.forEach((slot, index) => {
+    if (slot === null) {
+      const position = NBA_POSITIONS[index];
+      const eligiblePlayer = players.find(p => 
+        p && !usedPlayers.has(p.id) && canPlayPosition(p, position)
+      );
+      if (eligiblePlayer) {
+        slots[index] = eligiblePlayer;
+        usedPlayers.add(eligiblePlayer.id);
+      }
+    }
+  });
 
   return slots;
 };
