@@ -96,42 +96,60 @@ const GeneratedLineups = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Lineup</TableHead>
-              <TableHead>Players</TableHead>
-              <TableHead>Salary</TableHead>
-              <TableHead>Proj. Points</TableHead>
-              <TableHead>Ownership</TableHead>
+              <TableHead>Lineup #</TableHead>
+              <TableHead>Position</TableHead>
+              <TableHead>Player</TableHead>
+              <TableHead className="text-right">Salary</TableHead>
+              <TableHead className="text-right">Own%</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {lineups.map((lineup, index) => (
-              <TableRow key={lineup.id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {lineup.lineup_players.map(lp => (
-                      <span key={lp.player.id} className="text-xs bg-secondary/20 px-2 py-1 rounded">
-                        {lp.player.position} {lp.player.name}
-                      </span>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>${lineup.total_salary.toLocaleString()}</TableCell>
-                <TableCell>{lineup.projected_points.toFixed(2)}</TableCell>
-                <TableCell>{lineup.total_ownership.toFixed(1)}%</TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(lineup.id)}
-                    className="flex items-center gap-1 text-secondary hover:text-secondary/90"
+            {lineups.map((lineup, lineupIndex) => (
+              <>
+                {lineup.lineup_players.map((lp, playerIndex) => (
+                  <TableRow 
+                    key={`${lineup.id}-${lp.player.id}`}
+                    className={playerIndex === lineup.lineup_players.length - 1 ? "border-b-4" : ""}
                   >
-                    <Pencil className="h-4 w-4" />
-                    Edit
-                  </Button>
-                </TableCell>
-              </TableRow>
+                    {playerIndex === 0 && (
+                      <TableCell rowSpan={lineup.lineup_players.length} className="align-top pt-4">
+                        {lineupIndex + 1}
+                      </TableCell>
+                    )}
+                    <TableCell>{lp.player.position}</TableCell>
+                    <TableCell>{lp.player.name}</TableCell>
+                    <TableCell className="text-right">${lp.player.salary.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{lp.player.ownership.toFixed(1)}%</TableCell>
+                    {playerIndex === 0 && (
+                      <TableCell rowSpan={lineup.lineup_players.length} className="align-top pt-4">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(lineup.id)}
+                          className="flex items-center gap-1 text-secondary hover:text-secondary/90"
+                        >
+                          <Pencil className="h-4 w-4" />
+                          Edit
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))}
+                <TableRow className="bg-secondary/5">
+                  <TableCell colSpan={2} className="font-medium">
+                    Lineup Totals
+                  </TableCell>
+                  <TableCell />
+                  <TableCell className="text-right font-medium">
+                    ${lineup.total_salary.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {lineup.total_ownership.toFixed(1)}%
+                  </TableCell>
+                  <TableCell />
+                </TableRow>
+              </>
             ))}
           </TableBody>
         </Table>
