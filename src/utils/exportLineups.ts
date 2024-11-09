@@ -44,12 +44,12 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
 
       if (playerIndex !== -1) {
         const player = remainingPlayers[playerIndex];
-        slots[index] = `${player.player.name} (${player.player.partner_id || ''})`;
+        slots[index] = `${player.player.name} (${player.player.id || ''})`;
         remainingPlayers.splice(playerIndex, 1);
       }
     });
 
-    // Fill G slot with remaining eligible guard (PG or SG)
+    // Fill G slot (index 5) with remaining eligible guard
     const guardIndex = remainingPlayers.findIndex(lp => {
       const pos = lp.player?.position || '';
       return pos.includes('PG') || pos.includes('SG');
@@ -57,21 +57,11 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
 
     if (guardIndex !== -1) {
       const guardPlayer = remainingPlayers[guardIndex];
-      slots[5] = `${guardPlayer.player.name} (${guardPlayer.player.partner_id || ''})`;
+      slots[5] = `${guardPlayer.player.name} (${guardPlayer.player.id || ''})`;
       remainingPlayers.splice(guardIndex, 1);
-    } else {
-      // If no dedicated guard remains, look through already placed players
-      const availableGuard = players.find(lp => {
-        const pos = lp.player?.position || '';
-        return (pos.includes('PG') || pos.includes('SG')) && 
-               !slots.includes(`${lp.player.name} (${lp.player.partner_id || ''})`);
-      });
-      if (availableGuard) {
-        slots[5] = `${availableGuard.player.name} (${availableGuard.player.partner_id || ''})`;
-      }
     }
 
-    // Fill F slot with remaining eligible forward (SF or PF)
+    // Fill F slot (index 6) with remaining eligible forward
     const forwardIndex = remainingPlayers.findIndex(lp => {
       const pos = lp.player?.position || '';
       return pos.includes('SF') || pos.includes('PF');
@@ -79,24 +69,14 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
 
     if (forwardIndex !== -1) {
       const forwardPlayer = remainingPlayers[forwardIndex];
-      slots[6] = `${forwardPlayer.player.name} (${forwardPlayer.player.partner_id || ''})`;
+      slots[6] = `${forwardPlayer.player.name} (${forwardPlayer.player.id || ''})`;
       remainingPlayers.splice(forwardIndex, 1);
-    } else {
-      // If no dedicated forward remains, look through already placed players
-      const availableForward = players.find(lp => {
-        const pos = lp.player?.position || '';
-        return (pos.includes('SF') || pos.includes('PF')) && 
-               !slots.includes(`${lp.player.name} (${lp.player.partner_id || ''})`);
-      });
-      if (availableForward) {
-        slots[6] = `${availableForward.player.name} (${availableForward.player.partner_id || ''})`;
-      }
     }
 
     // Fill UTIL slot with first remaining player
     if (remainingPlayers.length > 0) {
       const utilPlayer = remainingPlayers[0];
-      slots[7] = `${utilPlayer.player.name} (${utilPlayer.player.partner_id || ''})`;
+      slots[7] = `${utilPlayer.player.name} (${utilPlayer.player.id || ''})`;
     }
 
     console.log('Final lineup slots:', slots);
