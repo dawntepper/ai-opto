@@ -33,8 +33,7 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
             projected_points: player.AvgPointsPerGame,
             status: 'available',
             roster_positions: player.RosterPosition
-          })),
-          { onConflict: 'partner_id' }
+          }))
         );
 
         if (error) {
@@ -62,8 +61,7 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
             floor: proj.floor,
             minutes: proj.minutes,
             rg_id: proj.rg_id
-          })),
-          { onConflict: 'partner_id' }
+          }))
         );
 
         if (error) {
