@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 import { OptimizationSettings as Settings } from '../types';
 
 interface OptimizationSettingsProps {
@@ -18,9 +19,12 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
           <div>
             <Tooltip>
               <TooltipTrigger asChild>
-                <label className="block text-sm mb-2 cursor-help">Maximum Salary</label>
+                <div className="flex items-center gap-1 cursor-help mb-2">
+                  <label className="block text-sm">Maximum Salary</label>
+                  <Info className="h-4 w-4 text-gray-400" />
+                </div>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="max-w-[200px] whitespace-normal">
                 <p>The maximum total salary allowed for a lineup</p>
               </TooltipContent>
             </Tooltip>
@@ -41,9 +45,12 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
           <div>
             <Tooltip>
               <TooltipTrigger asChild>
-                <label className="block text-sm mb-2 cursor-help">Minimum Value</label>
+                <div className="flex items-center gap-1 cursor-help mb-2">
+                  <label className="block text-sm">Minimum Value</label>
+                  <Info className="h-4 w-4 text-gray-400" />
+                </div>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="max-w-[200px] whitespace-normal">
                 <p>The minimum fantasy points per $1000 salary required for a player</p>
               </TooltipContent>
             </Tooltip>
@@ -65,9 +72,12 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
           <div>
             <Tooltip>
               <TooltipTrigger asChild>
-                <label className="block text-sm mb-2 cursor-help">Maximum Ownership</label>
+                <div className="flex items-center gap-1 cursor-help mb-2">
+                  <label className="block text-sm">Maximum Ownership</label>
+                  <Info className="h-4 w-4 text-gray-400" />
+                </div>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="max-w-[200px] whitespace-normal">
                 <p>The maximum projected ownership percentage allowed for any player</p>
               </TooltipContent>
             </Tooltip>
@@ -89,9 +99,12 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
           <div>
             <Tooltip>
               <TooltipTrigger asChild>
-                <label className="block text-sm mb-2 cursor-help">Correlation Strength</label>
+                <div className="flex items-center gap-1 cursor-help mb-2">
+                  <label className="block text-sm">Correlation Strength</label>
+                  <Info className="h-4 w-4 text-gray-400" />
+                </div>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="max-w-[200px] whitespace-normal">
                 <p>How strongly correlated players should be stacked in lineups</p>
               </TooltipContent>
             </Tooltip>
