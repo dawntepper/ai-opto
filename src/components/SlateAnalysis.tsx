@@ -5,13 +5,16 @@ import { Button } from './ui/button';
 import { toast } from './ui/use-toast';
 import { ScrollArea } from './ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HelpCircle } from "lucide-react";
-import { useEffect } from 'react';
+import { HelpCircle, RefreshCw } from "lucide-react";
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { analyzeSlate } from '@/services/slateAnalysisService';
 
 const SlateAnalysis = () => {
   const queryClient = useQueryClient();
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
   const editor = useEditor({
     extensions: [StarterKit],
     content: '',
@@ -76,6 +79,26 @@ const SlateAnalysis = () => {
     }
   });
 
+  const handleAnalyze = async () => {
+    setIsAnalyzing(true);
+    try {
+      await analyzeSlate();
+      toast({
+        title: "Analysis Complete",
+        description: "Slate analysis has been processed and player adjustments have been updated.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['playerAdjustments'] });
+    } catch (error) {
+      toast({
+        title: "Analysis Failed",
+        description: "Failed to analyze slate content. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   useEffect(() => {
     if (analysisData?.content && editor) {
       editor.commands.setContent(analysisData.content);
@@ -110,9 +133,19 @@ const SlateAnalysis = () => {
               </Tooltip>
             </TooltipProvider>
           </div>
-          <Button onClick={handleSave} disabled={mutation.isPending}>
-            {mutation.isPending ? 'Saving...' : 'Save Analysis'}
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={handleAnalyze}
+              disabled={isAnalyzing || mutation.isPending}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isAnalyzing ? 'animate-spin' : ''}`} />
+              Analyze Slate
+            </Button>
+            <Button onClick={handleSave} disabled={mutation.isPending}>
+              {mutation.isPending ? 'Saving...' : 'Save Analysis'}
+            </Button>
+          </div>
         </div>
         <p className="text-sm text-gray-400 mt-2">Document key insights, matchups, and trends to inform your lineup optimization</p>
       </div>
