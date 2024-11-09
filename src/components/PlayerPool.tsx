@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 import { Player } from '../types';
 
 const mockPlayers: Player[] = [
@@ -26,6 +28,17 @@ const PlayerPool = () => {
     player.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const columnTooltips = {
+    name: "Player's full name as listed in DraftKings",
+    pos: "Player's eligible position(s)",
+    salary: "DraftKings salary for this slate",
+    team: "Player's team abbreviation",
+    opp: "Opposing team abbreviation",
+    proj: "Projected fantasy points for this slate",
+    own: "Projected ownership percentage for this slate",
+    status: "Player availability status (available, questionable, or out)"
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -42,14 +55,126 @@ const PlayerPool = () => {
         <Table>
           <TableHeader>
             <TableRow className="bg-primary/30">
-              <TableHead>Name</TableHead>
-              <TableHead>Pos</TableHead>
-              <TableHead>Salary</TableHead>
-              <TableHead>Team</TableHead>
-              <TableHead>Opp</TableHead>
-              <TableHead>Proj</TableHead>
-              <TableHead>Own%</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Name
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[250px]">
+                        <p>{columnTooltips.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Pos
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[250px]">
+                        <p>{columnTooltips.pos}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Salary
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[250px]">
+                        <p>{columnTooltips.salary}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Team
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[250px]">
+                        <p>{columnTooltips.team}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Opp
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[250px]">
+                        <p>{columnTooltips.opp}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Proj
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[250px]">
+                        <p>{columnTooltips.proj}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Own%
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[250px]">
+                        <p>{columnTooltips.own}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Status
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[250px]">
+                        <p>{columnTooltips.status}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
