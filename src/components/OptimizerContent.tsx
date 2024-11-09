@@ -5,8 +5,6 @@ import SlateNotes from './SlateNotes';
 import OptimizationSettingsComponent from './OptimizationSettings';
 import EntryTypeSettings from './EntryTypeSettings';
 import FileUploadList from './FileUploadList';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { ChevronDown } from "lucide-react";
 
 interface OptimizerContentProps {
   settings: OptimizationSettings;
@@ -42,24 +40,9 @@ const OptimizerContent = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Collapsible open={isNotesOpen} onOpenChange={setIsNotesOpen}>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <h3 className="text-lg font-semibold">Additional Analysis Notes</h3>
-                <span className="text-sm text-muted-foreground">(Click to expand)</span>
-              </div>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="hover:bg-transparent">
-                  <ChevronDown className={`h-4 w-4 transition-transform ${isNotesOpen ? 'transform rotate-180' : ''}`} />
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent>
-              <div className="border-2 border-primary/20 rounded-lg p-4 bg-primary/5">
-                <SlateNotes />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+          <div className="border-2 border-primary/20 rounded-lg bg-primary/5">
+            <SlateNotes defaultOpen={false} />
+          </div>
           
           <div className="border-2 border-secondary/20 rounded-lg p-4 bg-secondary/5">
             <ProjectionsUpload onProjectionsUploaded={onProjectionsUploaded} />
