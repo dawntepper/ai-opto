@@ -185,7 +185,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_optimal_lineups: {
+        Args: {
+          settings_id: string
+        }
+        Returns: {
+          lineup_id: string
+          total_salary: number
+          projected_points: number
+          total_ownership: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
