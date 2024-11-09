@@ -1,6 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
 import { OptimizationSettings } from "../types";
 
+interface GeneratedLineup {
+  lineup_id: string;
+  total_salary: number;
+  projected_points: number;
+  total_ownership: number;
+}
+
 export const saveOptimizationSettings = async (settings: OptimizationSettings) => {
   const { data, error } = await supabase
     .from('optimization_settings')
@@ -15,31 +22,34 @@ export const saveOptimizationSettings = async (settings: OptimizationSettings) =
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error saving optimization settings:', error);
+    throw error;
+  }
+  
   return data;
 };
 
-export const generateLineups = async (settingsId: string) => {
-  try {
-    const { data, error } = await supabase
-      .rpc('generate_optimal_lineups', {
-        settings_id: settingsId
-      });
+export const generateLineups = async (settingsId: string): Promise<GeneratedLineup[]> => {
+  console.log('Generating lineups with settings ID:', settingsId);
+  
+  const { data, error } = await supabase
+    .rpc('generate_optimal_lineups', {
+      settings_id: settingsId
+    });
 
-    if (error) {
-      console.error('RPC Error:', error);
-      throw new Error(error.message || 'Failed to generate lineups');
-    }
-
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      throw new Error('No valid lineups could be generated');
-    }
-
-    return data;
-  } catch (error: any) {
-    console.error('Error in generateLineups:', error);
-    throw new Error(error.message || 'Failed to generate lineups');
+  if (error) {
+    console.error('RPC Error:', error);
+    throw new Error(`Failed to generate lineups: ${error.message}`);
   }
+
+  if (!data || !Array.isArray(data)) {
+    console.error('Invalid response data:', data);
+    throw new Error('Invalid response from lineup generation');
+  }
+
+  console.log('Generated lineups:', data);
+  return data as GeneratedLineup[];
 };
 
 export const checkValidPlayers = async () => {
