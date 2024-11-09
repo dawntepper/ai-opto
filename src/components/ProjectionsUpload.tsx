@@ -18,10 +18,8 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
       if (fileName.toLowerCase().includes('draftkings')) {
         processedData = processDraftKingsTemplate(data);
         
-        // Filter out entries without partner_id
         const validData = processedData.filter(player => player.ID);
         
-        // Insert into players table
         const { error } = await supabase.from('players').upsert(
           validData.map(player => ({
             name: player.Name,
@@ -43,10 +41,8 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
       } else {
         processedData = processProjections(data);
         
-        // Filter out entries without partner_id
         const validData = processedData.filter(proj => proj.partner_id);
         
-        // Update players with projections
         const { error } = await supabase.from('players').upsert(
           validData.map(proj => ({
             partner_id: proj.partner_id,
@@ -65,7 +61,6 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
         }
       }
       
-      // Store file upload record
       const { error: uploadError } = await supabase.from('file_uploads').insert({
         filename: fileName,
         file_type: fileName.toLowerCase().includes('draftkings') ? 'draftkings' : 'projections',
@@ -88,6 +83,15 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
   };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 1) {
+      toast({
+        title: "Warning",
+        description: "Please upload only one file at a time.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const file = acceptedFiles[0];
     const reader = new FileReader();
 
@@ -118,7 +122,8 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
       'text/csv': ['.csv']
     },
-    maxFiles: 1
+    maxFiles: 1,
+    multiple: false
   });
 
   return (
@@ -131,15 +136,15 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
         {isDragActive ? (
           <p className="text-center text-primary">Drop the file here...</p>
         ) : (
-          <p className="text-center">Drag & drop DraftKings template or projections file here</p>
+          <p className="text-center">Drop a single file here or click to browse</p>
         )}
         <p className="text-center text-sm text-muted-foreground mt-2">
-          Supports CSV and Excel files
+          Upload one file at a time: CSV or Excel format
         </p>
       </Card>
 
       <div className="text-sm text-gray-300">
-        <p>Required files:</p>
+        <p>Required files (upload one at a time):</p>
         <ul className="list-disc list-inside ml-2">
           <li>DraftKings contest template (.csv)</li>
           <li>Projections file with matching player IDs (.csv)</li>
