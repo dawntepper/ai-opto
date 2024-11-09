@@ -70,33 +70,27 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     });
 
     // Fill G slot (PG/SG)
-    if (slots[5] === '') {
-      console.log('Looking for G slot player');
-      const guardPlayer = remainingPlayers.find(lp => {
-        const rosterPositions = mapPositionToRosterPositions(lp.player?.position || '');
-        return rosterPositions.includes('G');
-      });
-      
-      if (guardPlayer?.player) {
-        slots[5] = `${guardPlayer.player.name} (${guardPlayer.player.partner_id || ''})`;
-        remainingPlayers = remainingPlayers.filter(p => p !== guardPlayer);
-        console.log(`Assigned ${guardPlayer.player.name} to G slot`);
-      }
+    const guardPlayer = remainingPlayers.find(lp => {
+      const pos = lp.player?.position || '';
+      return pos.includes('PG') || pos.includes('SG');
+    });
+    
+    if (guardPlayer?.player) {
+      slots[5] = `${guardPlayer.player.name} (${guardPlayer.player.partner_id || ''})`;
+      remainingPlayers = remainingPlayers.filter(p => p !== guardPlayer);
+      console.log(`Assigned ${guardPlayer.player.name} to G slot`);
     }
 
     // Fill F slot (SF/PF)
-    if (slots[6] === '') {
-      console.log('Looking for F slot player');
-      const forwardPlayer = remainingPlayers.find(lp => {
-        const rosterPositions = mapPositionToRosterPositions(lp.player?.position || '');
-        return rosterPositions.includes('F');
-      });
-      
-      if (forwardPlayer?.player) {
-        slots[6] = `${forwardPlayer.player.name} (${forwardPlayer.player.partner_id || ''})`;
-        remainingPlayers = remainingPlayers.filter(p => p !== forwardPlayer);
-        console.log(`Assigned ${forwardPlayer.player.name} to F slot`);
-      }
+    const forwardPlayer = remainingPlayers.find(lp => {
+      const pos = lp.player?.position || '';
+      return pos.includes('SF') || pos.includes('PF');
+    });
+    
+    if (forwardPlayer?.player) {
+      slots[6] = `${forwardPlayer.player.name} (${forwardPlayer.player.partner_id || ''})`;
+      remainingPlayers = remainingPlayers.filter(p => p !== forwardPlayer);
+      console.log(`Assigned ${forwardPlayer.player.name} to F slot`);
     }
 
     // Fill UTIL with first remaining player
