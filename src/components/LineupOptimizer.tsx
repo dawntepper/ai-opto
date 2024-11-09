@@ -57,8 +57,8 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <OptimizationSettingsComponent settings={settings} setSettings={setSettings} />
         <EntryTypeSettings settings={settings} setSettings={setSettings} />
+        <OptimizationSettingsComponent settings={settings} setSettings={setSettings} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
