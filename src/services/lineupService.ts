@@ -31,25 +31,32 @@ export const saveOptimizationSettings = async (settings: OptimizationSettings) =
 };
 
 export const generateLineups = async (settingsId: string): Promise<GeneratedLineup[]> => {
-  console.log('Generating lineups with settings ID:', settingsId);
+  console.log('Starting lineup generation with settings ID:', settingsId);
   
   const { data, error } = await supabase
     .rpc('generate_optimal_lineups', {
       settings_id: settingsId
-    });
+    }) as { data: GeneratedLineup[] | null, error: any };
+
+  console.log('RPC response received:', { 
+    hasData: !!data, 
+    dataType: data ? typeof data : 'null',
+    isArray: Array.isArray(data),
+    error: error || 'none' 
+  });
 
   if (error) {
-    console.error('RPC Error:', error);
-    throw new Error(`Failed to generate lineups: ${error.message}`);
+    console.error('Failed to generate lineups:', error);
+    throw error;
   }
 
   if (!data || !Array.isArray(data)) {
-    console.error('Invalid response data:', data);
-    throw new Error('Invalid response from lineup generation');
+    console.error('Invalid lineup data received:', data);
+    throw new Error(`Invalid response format: expected array but got ${typeof data}`);
   }
 
-  console.log('Generated lineups:', data);
-  return data as GeneratedLineup[];
+  console.log(`Successfully generated ${data.length} lineups`);
+  return data;
 };
 
 export const checkValidPlayers = async () => {
