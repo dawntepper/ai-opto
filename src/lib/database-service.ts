@@ -11,21 +11,57 @@ export const markExistingPlayersUnavailable = async () => {
 };
 
 export const upsertDraftKingsPlayers = async (validData: DraftKingsPlayer[]) => {
+  // First, mark existing players as unavailable
+  await markExistingPlayersUnavailable();
+
+  // Transform and insert new data
   const transformedData = validData.map(transformDraftKingsData);
+  console.log('Upserting DraftKings players:', transformedData); // Debug log
+
   const { error } = await supabase
     .from('players')
-    .upsert(transformedData, { onConflict: 'partner_id' });
+    .upsert(transformedData, { 
+      onConflict: 'partner_id',
+      ignoreDuplicates: false 
+    });
   
-  if (error) throw error;
+  if (error) {
+    console.error('Error upserting DraftKings players:', error);
+    throw error;
+  }
 };
 
 export const upsertProjections = async (validData: Projection[]) => {
+  // Transform the data
   const transformedData = validData.map(transformProjectionsData);
+  console.log('Upserting projections:', transformedData); // Debug log
+
+  // Get existing players to preserve salary data
+  const { data: existingPlayers } = await supabase
+    .from('players')
+    .select('partner_id, salary')
+    .in('partner_id', transformedData.map(p => p.partner_id));
+
+  // Merge with existing salary data
+  const mergedData = transformedData.map(player => {
+    const existing = existingPlayers?.find(ep => ep.partner_id === player.partner_id);
+    return {
+      ...player,
+      salary: existing?.salary || 0, // Preserve existing salary
+    };
+  });
+
   const { error } = await supabase
     .from('players')
-    .upsert(transformedData, { onConflict: 'partner_id' });
+    .upsert(mergedData, { 
+      onConflict: 'partner_id',
+      ignoreDuplicates: false 
+    });
   
-  if (error) throw error;
+  if (error) {
+    console.error('Error upserting projections:', error);
+    throw error;
+  }
 };
 
 export const recordFileUpload = async (fileName: string, fileType: 'draftkings' | 'projections') => {

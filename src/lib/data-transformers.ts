@@ -25,18 +25,21 @@ export interface Projection {
   pos: string;
 }
 
-export const transformDraftKingsData = (player: DraftKingsPlayer) => ({
-  name: player.Name,
-  position: player.Position,
-  salary: Number(player.Salary),
-  team: player.TeamAbbrev,
-  opponent: extractGameInfo(player.GameInfo).awayTeam,
-  partner_id: player.ID,
-  projected_points: Number(player.AvgPointsPerGame) || 0,
-  ownership: 0,
-  status: 'available',
-  roster_positions: player.RosterPosition
-});
+export const transformDraftKingsData = (player: DraftKingsPlayer) => {
+  const gameInfo = extractGameInfo(player.GameInfo);
+  return {
+    name: player.Name,
+    position: player.Position,
+    salary: Number(player.Salary),
+    team: player.TeamAbbrev,
+    opponent: gameInfo.awayTeam === player.TeamAbbrev ? gameInfo.homeTeam : gameInfo.awayTeam,
+    partner_id: player.ID,
+    projected_points: Number(player.AvgPointsPerGame) || 0,
+    ownership: 0,
+    status: 'available',
+    roster_positions: player.RosterPosition
+  };
+};
 
 export const transformProjectionsData = (proj: Projection) => ({
   partner_id: proj.partner_id,
@@ -50,6 +53,5 @@ export const transformProjectionsData = (proj: Projection) => ({
   floor: Number(proj.floor) || null,
   minutes: Number(proj.minutes) || null,
   rg_id: proj.rg_id || null,
-  status: 'available',
-  salary: 0 // This will be updated from DraftKings data
+  status: 'available'
 });
