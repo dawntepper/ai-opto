@@ -42,15 +42,14 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
   });
 
-  const hasDraftKings = fileUploads?.some(file => file.file_type === 'draftkings' && file.processed);
   const hasProjections = fileUploads?.some(file => file.file_type === 'projections' && file.processed);
-  const canOptimize = hasDraftKings && hasProjections;
+  const canOptimize = hasProjections;
 
   const handleOptimize = async () => {
     if (!canOptimize) {
       toast({
-        title: "Missing Required Files",
-        description: "Please upload both the DraftKings template and projections before generating lineups.",
+        title: "Missing Required File",
+        description: "Please upload the projections file before generating lineups.",
         variant: "destructive"
       });
       return;
@@ -86,7 +85,6 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         throw new Error('No lineups were generated');
       }
 
-      // Invalidate the lineups query to force a refresh
       await queryClient.invalidateQueries({ queryKey: ['lineups'] });
 
       toast({
@@ -109,7 +107,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     await refetch();
     toast({
       title: "Files Processed",
-      description: "Files have been processed successfully"
+      description: "Projections have been processed successfully"
     });
   };
 
@@ -175,10 +173,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         </Button>
         {!canOptimize && (
           <p className="text-sm text-gray-400">
-            {isLoading ? "Loading files..." : 
-             !hasDraftKings && !hasProjections ? "Please upload both the DraftKings template and projections" :
-             !hasDraftKings ? "Please upload the DraftKings template" :
-             "Please upload the projections file"}
+            {isLoading ? "Loading files..." : "Please upload the projections file"}
           </p>
         )}
       </div>

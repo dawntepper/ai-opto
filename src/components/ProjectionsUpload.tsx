@@ -3,11 +3,8 @@ import { useDropzone } from 'react-dropzone';
 import { read, utils } from 'xlsx';
 import { Card } from './ui/card';
 import { toast } from './ui/use-toast';
-import { processDraftKingsTemplate } from '@/lib/process-draftkings';
 import { processProjections } from '@/lib/process-projections';
 import { 
-  markExistingPlayersUnavailable, 
-  upsertDraftKingsPlayers, 
   upsertProjections,
   recordFileUpload,
   markFileProcessed
@@ -20,27 +17,15 @@ interface ProjectionsUploadProps {
 const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) => {
   const processFile = async (data: any[], fileName: string) => {
     try {
-      const fileType = fileName.toLowerCase().includes('draftkings') ? 'draftkings' : 'projections';
-      
       // Record the file upload
-      const fileUpload = await recordFileUpload(fileName, fileType);
+      const fileUpload = await recordFileUpload(fileName, 'projections');
       console.log('File upload recorded:', fileUpload);
 
-      if (fileType === 'draftkings') {
-        const processedData = processDraftKingsTemplate(data);
-        const validData = processedData.filter(player => player.ID);
-        console.log('Processing DraftKings data:', validData.length, 'valid players');
-        
-        await markExistingPlayersUnavailable();
-        await upsertDraftKingsPlayers(validData);
-      } else {
-        const processedData = processProjections(data);
-        const validData = processedData.filter(proj => proj.partner_id);
-        console.log('Processing projections data:', validData.length, 'valid projections');
-        
-        await upsertProjections(validData);
-      }
+      const processedData = processProjections(data);
+      const validData = processedData.filter(proj => proj.partner_id);
+      console.log('Processing projections data:', validData.length, 'valid projections');
       
+      await upsertProjections(validData);
       await markFileProcessed(fileUpload.id);
 
       toast({
@@ -117,15 +102,14 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
           <p className="text-center">Drop a single file here or click to browse</p>
         )}
         <p className="text-center text-sm text-muted-foreground mt-2">
-          Upload one file at a time: CSV or Excel format
+          Upload projections file in CSV or Excel format
         </p>
       </Card>
 
       <div className="text-sm text-gray-300">
-        <p>Required files (upload one at a time):</p>
+        <p>Required file format:</p>
         <ul className="list-disc list-inside ml-2">
-          <li>DraftKings contest template (.csv)</li>
-          <li>Projections file with matching player IDs (.csv)</li>
+          <li>Projections file with player IDs (.csv or .xlsx)</li>
         </ul>
       </div>
     </div>
