@@ -2,9 +2,9 @@ import { EntryType } from '../types';
 
 export function getDefaultMaxOwnership(entryType: EntryType): number {
   switch (entryType) {
-    case 'single': return 35;
-    case '3-max': return 45;
-    case '20-max': return 55;
+    case 'single': return 30;
+    case '3-max': return 35;
+    case '20-max': return 25;
   }
 }
 

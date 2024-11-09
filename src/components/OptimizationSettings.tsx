@@ -14,44 +14,44 @@ interface OptimizationSettingsProps {
 const getSalaryTooltip = (entryType: 'single' | '3-max' | '20-max') => {
   switch (entryType) {
     case 'single':
-      return "Using full salary (within $500 of cap) recommended to maximize ceiling potential.";
+      return "Using 98-100% of salary cap ($49,000-$50,000) recommended to maximize ceiling potential. Avoid leaving more than $1,000 on the table as single-entry lineups need every point for tournaments.";
     case '3-max':
-      return "Vary salary usage across lineups (one near max, one $1-2K under, one $2-3K under) to create differentiation.";
+      return "Strategic salary variation recommended:\n- Lineup 1: $49,500-$50,000 (balanced build)\n- Lineup 2: $48,500-$49,500 (mid-range focus)\n- Lineup 3: $47,500-$48,500 (value-focused build)\n\nThis creates natural differentiation while maintaining upside.";
     case '20-max':
-      return "Strategically vary salary usage:\n- 25% of lineups: Within $500 of cap\n- 50% of lineups: $500-$2000 under cap\n- 25% of lineups: $2000+ under cap";
+      return "Implement strategic salary distribution:\n- 15% of lineups: $49,700-$50,000 (maximum ceiling)\n- 40% of lineups: $48,500-$49,700 (balanced builds)\n- 30% of lineups: $47,500-$48,500 (value leverage)\n- 15% of lineups: $46,500-$47,500 (extreme differentiation)";
   }
 };
 
 const getCorrelationTooltip = (entryType: 'single' | '3-max' | '20-max') => {
   switch (entryType) {
     case 'single':
-      return "Target moderate correlation (2-3 correlated players max) to maintain balanced exposure.";
+      return "Target moderate correlation:\n- Maximum 2 players from same team\n- One mini-stack (2 players) plus game bring-back\n- Avoid over-stacking in single entry";
     case '3-max':
-      return "Each lineup should feature different correlation approaches:\n- One lineup with game stack\n- One lineup with team stack\n- One lineup with mini-correlations";
+      return "Implement distinct correlation strategies per lineup:\n- Lineup 1: 2-1 mini-stack with game bring-back\n- Lineup 2: 3-2 game stack\n- Lineup 3: 3-1 team stack with differentiated bring-back";
     case '20-max':
-      return "Use systematic correlation rules:\n- Max 30% exposure to any single game stack\n- Max 35% exposure to any team stack\n- Vary correlation strength across lineup sets\n- Include some negative correlation between competing players";
+      return "Systematic correlation implementation:\n- Max 25% exposure to any single game stack\n- Max 30% exposure to any team stack\n- Include 20% negative correlation lineups\n- Vary stack types across lineup sets\n\nCorrelation Rules:\n- 30% of lineups: 4-2 or 3-3 game stacks\n- 40% of lineups: 3-1 team stacks with bring-back\n- 30% of lineups: 2-1 mini-stacks with varied correlation";
   }
 };
 
 const getMaxOwnershipLimit = (entryType: 'single' | '3-max' | '20-max') => {
   switch (entryType) {
     case 'single':
-      return 35;
+      return 30;
     case '3-max':
-      return 45;
+      return 35;
     case '20-max':
-      return 55;
+      return 25;
   }
 };
 
 const getOwnershipTooltip = (entryType: 'single' | '3-max' | '20-max') => {
   switch (entryType) {
     case 'single':
-      return "Lower ownership cap (35%) for single-entry reduces risk and avoids chalk plays. Include 1-2 contrarian plays for differentiation.";
+      return "Maximum 30% ownership per player\n- Allows for 1-2 popular plays\n- Maintains differentiation potential\n- Reduces risk from chalk busts";
     case '3-max':
-      return "Moderate ownership cap (45%) for 3-max entries. Decrease chalk exposure across lineups while maintaining some popular plays.";
+      return "Decreasing ownership caps across lineups:\n- Lineup 1: 35% max ownership\n- Lineup 2: 25% max ownership\n- Lineup 3: 20% max ownership\n\nOverall portfolio max: 35%";
     case '20-max':
-      return "Higher ownership cap (55%) allows for varied exposure:\n- Core plays: 25-35% exposure\n- Mid-tier: 15-25% exposure\n- Low exposure: 5-15%\n- Dart throws: <5%";
+      return "Structured ownership caps:\n- No player over 25% exposure\n- Maximum 35% to any game environment\n- Chalk players (>25% projected) capped at 20% exposure\n- At least 30% of lineups using sub-10% owned players\n\nOverall portfolio max: 25%";
   }
 };
 
