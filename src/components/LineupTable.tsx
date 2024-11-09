@@ -16,6 +16,7 @@ interface Player {
   salary: number;
   ownership: number;
   projected_points: number;
+  partner_id?: string;
 }
 
 interface LineupTableProps {
@@ -24,6 +25,8 @@ interface LineupTableProps {
   totalOwnership: number;
   projectedPoints: number;
 }
+
+const NBA_POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'UTIL'];
 
 const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints }: LineupTableProps) => {
   return (
@@ -40,9 +43,14 @@ const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints }: 
           </TableRow>
         </TableHeader>
         <TableBody>
-          {players && players.map((lp) => (
+          {players && players.map((lp, index) => (
             <TableRow key={`${lp.player.id}`} className="hover:bg-gray-50 dark:hover:bg-gray-900">
-              <TableCell className="font-medium text-gray-900 dark:text-gray-100">{lp.player.position}</TableCell>
+              <TableCell className="font-medium text-gray-900 dark:text-gray-100">
+                {NBA_POSITIONS[index]}
+                {lp.player.partner_id && (
+                  <span className="text-xs text-gray-500 ml-1">({lp.player.partner_id})</span>
+                )}
+              </TableCell>
               <TableCell>
                 <div className="flex flex-col gap-1">
                   <span className="text-sm text-gray-500 dark:text-gray-400">{lp.player.team}</span>
