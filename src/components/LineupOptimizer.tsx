@@ -61,18 +61,21 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
               <Button
                 variant={settings.entryType === 'single' ? "default" : "outline"}
                 onClick={() => setSettings({ ...settings, entryType: 'single' })}
+                className={settings.entryType !== 'single' ? "text-primary" : ""}
               >
                 Single
               </Button>
               <Button
                 variant={settings.entryType === '3-max' ? "default" : "outline"}
                 onClick={() => setSettings({ ...settings, entryType: '3-max' })}
+                className={settings.entryType !== '3-max' ? "text-primary" : ""}
               >
                 3-Max
               </Button>
               <Button
                 variant={settings.entryType === '20-max' ? "default" : "outline"}
                 onClick={() => setSettings({ ...settings, entryType: '20-max' })}
+                className={settings.entryType !== '20-max' ? "text-primary" : ""}
               >
                 20-Max
               </Button>
