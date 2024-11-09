@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./ui/use-toast";
-import { Info } from "lucide-react";
+import { Info, Upload } from "lucide-react";
+import { useDropzone } from 'react-dropzone';
 
 const SlateNotes = () => {
   const [notes, setNotes] = useState("");
@@ -49,6 +50,54 @@ const SlateNotes = () => {
     }
   });
 
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    const reader = new FileReader();
+
+    reader.onload = async () => {
+      const text = reader.result as string;
+      try {
+        const { data, error } = await supabase
+          .from('file_uploads')
+          .insert([{ 
+            filename: file.name,
+            file_type: 'analysis',
+            content: text 
+          }]);
+
+        if (error) throw error;
+
+        // Append the CSV content to the existing notes
+        setNotes(prev => {
+          const newContent = `${prev}\n\nImported from ${file.name}:\n${text}`;
+          return newContent.trim();
+        });
+
+        toast({
+          title: "Analysis File Uploaded",
+          description: `Successfully imported content from ${file.name}`,
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: `Failed to upload analysis file: ${error.message}`,
+          variant: "destructive"
+        });
+      }
+    };
+
+    reader.readAsText(file);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'text/csv': ['.csv'],
+      'text/plain': ['.txt']
+    },
+    maxFiles: 1
+  });
+
   const handleSave = () => {
     if (notes.trim()) {
       saveMutation.mutate(notes);
@@ -61,6 +110,19 @@ const SlateNotes = () => {
         <Info className="h-4 w-4" />
         <p>Add notes about injuries, weather conditions, or any other factors that might affect player performance. These notes will be used to enhance projection analysis.</p>
       </div>
+
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-lg p-4 mb-4 cursor-pointer transition-colors
+          ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-primary'}`}
+      >
+        <input {...getInputProps()} />
+        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Upload className="h-4 w-4" />
+          <p>{isDragActive ? "Drop the file here" : "Drag & drop a CSV/TXT file, or click to import analysis data"}</p>
+        </div>
+      </div>
+
       <Textarea
         placeholder="Example: John Smith (questionable) expected to play limited minutes. Weather forecast shows heavy rain in Chicago..."
         value={notes}
