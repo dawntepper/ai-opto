@@ -20,17 +20,26 @@ export const saveOptimizationSettings = async (settings: OptimizationSettings) =
 };
 
 export const generateLineups = async (settingsId: string) => {
-  const { data, error } = await supabase
-    .rpc('generate_optimal_lineups', {
-      settings_id: settingsId
-    });
+  try {
+    const response = await supabase
+      .rpc('generate_optimal_lineups', {
+        settings_id: settingsId
+      });
 
-  if (error) {
-    console.error('Error generating lineups:', error);
+    if (response.error) {
+      console.error('RPC Error:', response.error);
+      throw new Error(response.error.message);
+    }
+
+    if (!response.data) {
+      throw new Error('No lineups were generated');
+    }
+
+    return response.data;
+  } catch (error: any) {
+    console.error('Error in generateLineups:', error);
     throw error;
   }
-
-  return data;
 };
 
 export const checkValidPlayers = async () => {

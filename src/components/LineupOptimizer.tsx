@@ -28,6 +28,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   });
 
   const [showLineups, setShowLineups] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
 
   const { data: validPlayersCount, isLoading: playersLoading } = useQuery({
     queryKey: ['validPlayers'],
@@ -60,6 +61,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       return;
     }
 
+    setIsOptimizing(true);
     try {
       console.log('Attempting to save optimization settings:', settings);
       const settingsData = await saveOptimizationSettings(settings);
@@ -89,6 +91,8 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         description: error.message || "Failed to generate lineups. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsOptimizing(false);
     }
   };
 
@@ -130,7 +134,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     queryClient.invalidateQueries({ queryKey: ['lineups'] });
   };
 
-  const isLoading = fileUploadsLoading || playersLoading;
+  const isLoading = fileUploadsLoading || playersLoading || isOptimizing;
 
   if (showLineups) {
     return <GeneratedLineups onBack={handleBack} />;
@@ -162,7 +166,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
           className="bg-secondary hover:bg-secondary/90"
           disabled={!canOptimize || isLoading}
         >
-          Generate Optimal Lineups
+          {isOptimizing ? 'Generating Lineups...' : 'Generate Optimal Lineups'}
         </Button>
         {isLoading ? (
           <p className="text-sm text-gray-400">Loading...</p>
