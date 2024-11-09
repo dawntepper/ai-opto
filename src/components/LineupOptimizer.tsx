@@ -21,7 +21,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   const queryClient = useQueryClient();
   const [settings, setSettings] = useState<OptimizationSettings>({
     entryType,
-    maxSalary: 50000,
+    maxSalary: 50000, // Set default to maximum allowed
     maxOwnership: getDefaultMaxOwnership(entryType),
     correlationStrength: getDefaultCorrelation(entryType),
     lineupCount: getDefaultLineupCount(entryType)
@@ -56,6 +56,16 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
       toast({
         title: "Cannot Generate Lineups",
         description: "Please ensure you have at least 8 valid players with non-zero salary and projected points.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Additional salary cap validation
+    if (settings.maxSalary > 50000) {
+      toast({
+        title: "Invalid Salary Cap",
+        description: "Maximum salary cap cannot exceed $50,000.",
         variant: "destructive"
       });
       return;

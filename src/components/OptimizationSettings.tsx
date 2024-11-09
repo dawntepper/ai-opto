@@ -61,6 +61,10 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
     if (settings.maxOwnership > maxLimit) {
       setSettings({ ...settings, maxOwnership: maxLimit });
     }
+    // Ensure salary never exceeds 50000
+    if (settings.maxSalary > 50000) {
+      setSettings({ ...settings, maxSalary: 50000 });
+    }
   }, [settings.entryType]);
 
   return (
@@ -86,7 +90,9 @@ const OptimizationSettings = ({ settings, setSettings }: OptimizationSettingsPro
               onChange={(e) => {
                 const salary = parseInt(e.target.value);
                 if (!isNaN(salary)) {
-                  setSettings({ ...settings, maxSalary: Math.min(Math.max(salary, 30000), 50000) });
+                  // Strictly enforce the 50000 cap
+                  const cappedSalary = Math.min(Math.max(salary, 30000), 50000);
+                  setSettings({ ...settings, maxSalary: cappedSalary });
                 }
               }}
               min={30000}
