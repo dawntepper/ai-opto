@@ -44,7 +44,6 @@ const GeneratedLineups = () => {
   const handleExport = () => {
     if (!lineups?.length) return;
 
-    // Convert lineups to CSV format
     const csvContent = lineups.map(lineup => {
       const players = lineup.lineup_players.map(lp => lp.player);
       return `${players.map(p => p.name).join(',')},${lineup.total_salary},${lineup.projected_points.toFixed(2)},${lineup.total_ownership.toFixed(2)}`;
@@ -85,6 +84,13 @@ const GeneratedLineups = () => {
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Generated Lineups</h2>
+        <Button variant="outline" onClick={() => window.history.back()} className="text-primary hover:text-primary">
+          Back to Settings
+        </Button>
+      </div>
+
       <div className="flex justify-end">
         <Button onClick={handleExport} className="flex items-center gap-2 bg-secondary hover:bg-secondary/90">
           <Download className="h-4 w-4" />
