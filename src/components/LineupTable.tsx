@@ -47,9 +47,6 @@ const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints }: 
             <TableRow key={`${lp.player.id}`} className="hover:bg-gray-50 dark:hover:bg-gray-900">
               <TableCell className="font-medium text-gray-900 dark:text-gray-100">
                 {NBA_POSITIONS[index]}
-                {lp.player.partner_id && (
-                  <span className="text-xs text-gray-500 ml-1">({lp.player.partner_id})</span>
-                )}
               </TableCell>
               <TableCell>
                 <div className="flex flex-col gap-1">

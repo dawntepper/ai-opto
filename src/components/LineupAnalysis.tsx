@@ -46,6 +46,11 @@ const LineupAnalysis: React.FC<LineupAnalysisProps> = ({ lineup }) => {
           <li>This lineup leverages {highCeilingPlayers.length} high-ceiling players for tournament upside.</li>
           <li>It includes {lowOwnershipPlayers.length} low-ownership players for differentiation.</li>
           <li>The average salary utilization is efficient at ${averageSalary.toFixed(0)} per player.</li>
+          {slateAnalysis?.content && (
+            <li className="text-green-600 dark:text-green-400">
+              Slate Note: {slateAnalysis.content.split('\n')[0]}
+            </li>
+          )}
         </ul>
       </div>
       
