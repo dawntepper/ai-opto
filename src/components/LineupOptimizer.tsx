@@ -42,7 +42,21 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
     }
   });
 
-  const hasProjections = fileUploads?.some(file => file.file_type === 'projections' && file.processed);
+  // Query to check if we have players data
+  const { data: playersData } = useQuery({
+    queryKey: ['players'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('players')
+        .select('id')
+        .limit(1);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const hasProjections = playersData && playersData.length > 0;
   const canOptimize = hasProjections;
 
   const handleOptimize = async () => {
