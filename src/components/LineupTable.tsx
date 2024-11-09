@@ -26,7 +26,7 @@ interface LineupTableProps {
 }
 
 const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints }: LineupTableProps) => (
-  <Table className="relative">
+  <Table>
     <TableHeader>
       <TableRow>
         <TableHead>Slot</TableHead>
@@ -37,14 +37,14 @@ const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints }: 
         <TableHead className="text-right">Fpts</TableHead>
       </TableRow>
     </TableHeader>
-    <TableBody className="relative">
+    <TableBody>
       {players?.map((lp) => (
-        <TableRow key={`${lp.player.id}`} className="relative">
+        <TableRow key={`${lp.player.id}`}>
           <TableCell>{lp.player.position}</TableCell>
           <TableCell>
             <div className="space-y-1">
               <div className="font-medium text-gray-500">{lp.player.team}</div>
-              <div className="relative z-10">{lp.player.name}</div>
+              <div>{lp.player.name}</div>
             </div>
           </TableCell>
           <TableCell>{lp.player.team} @ {lp.player.opponent}</TableCell>
