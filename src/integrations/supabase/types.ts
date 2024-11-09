@@ -180,6 +180,27 @@ export type Database = {
         }
         Relationships: []
       }
+      slate_analysis: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

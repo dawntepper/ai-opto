@@ -7,8 +7,11 @@ import { ScrollArea } from './ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
 import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const SlateAnalysis = () => {
+  const queryClient = useQueryClient();
   const editor = useEditor({
     extensions: [StarterKit],
     content: '',
@@ -19,21 +22,76 @@ const SlateAnalysis = () => {
     },
   });
 
-  useEffect(() => {
-    const savedContent = localStorage.getItem('slateAnalysis');
-    if (savedContent && editor) {
-      editor.commands.setContent(savedContent);
+  const { data: analysisData, isLoading } = useQuery({
+    queryKey: ['slateAnalysis'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('slate_analysis')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
     }
-  }, [editor]);
+  });
+
+  const mutation = useMutation({
+    mutationFn: async (content: string) => {
+      if (analysisData?.id) {
+        const { data, error } = await supabase
+          .from('slate_analysis')
+          .update({ content })
+          .eq('id', analysisData.id)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return data;
+      } else {
+        const { data, error } = await supabase
+          .from('slate_analysis')
+          .insert({ content })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return data;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['slateAnalysis'] });
+      toast({
+        title: "Success",
+        description: "Slate analysis saved",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to save slate analysis",
+        variant: "destructive"
+      });
+    }
+  });
+
+  useEffect(() => {
+    if (analysisData?.content && editor) {
+      editor.commands.setContent(analysisData.content);
+    }
+  }, [analysisData, editor]);
 
   const handleSave = () => {
     const content = editor?.getHTML();
-    localStorage.setItem('slateAnalysis', content || '');
-    toast({
-      title: "Success",
-      description: "Slate analysis saved",
-    });
+    if (content) {
+      mutation.mutate(content);
+    }
   };
+
+  if (isLoading) {
+    return <div>Loading analysis...</div>;
+  }
 
   return (
     <Card className="p-4">
@@ -52,7 +110,9 @@ const SlateAnalysis = () => {
               </Tooltip>
             </TooltipProvider>
           </div>
-          <Button onClick={handleSave}>Save Analysis</Button>
+          <Button onClick={handleSave} disabled={mutation.isPending}>
+            {mutation.isPending ? 'Saving...' : 'Save Analysis'}
+          </Button>
         </div>
         <p className="text-sm text-gray-400 mt-2">Document key insights, matchups, and trends to inform your lineup optimization</p>
       </div>
