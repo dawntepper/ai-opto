@@ -9,7 +9,132 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      lineup_players: {
+        Row: {
+          lineup_id: string
+          player_id: string
+        }
+        Insert: {
+          lineup_id: string
+          player_id: string
+        }
+        Update: {
+          lineup_id?: string
+          player_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lineup_players_lineup_id_fkey"
+            columns: ["lineup_id"]
+            isOneToOne: false
+            referencedRelation: "lineups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lineup_players_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lineups: {
+        Row: {
+          created_at: string | null
+          id: string
+          projected_points: number
+          total_ownership: number
+          total_salary: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          projected_points: number
+          total_ownership: number
+          total_salary: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          projected_points?: number
+          total_ownership?: number
+          total_salary?: number
+        }
+        Relationships: []
+      }
+      optimization_settings: {
+        Row: {
+          correlation_strength: string
+          created_at: string | null
+          entry_type: string
+          id: string
+          lineup_count: number
+          max_ownership: number
+          max_salary: number
+          min_value: number
+        }
+        Insert: {
+          correlation_strength: string
+          created_at?: string | null
+          entry_type: string
+          id?: string
+          lineup_count: number
+          max_ownership: number
+          max_salary: number
+          min_value: number
+        }
+        Update: {
+          correlation_strength?: string
+          created_at?: string | null
+          entry_type?: string
+          id?: string
+          lineup_count?: number
+          max_ownership?: number
+          max_salary?: number
+          min_value?: number
+        }
+        Relationships: []
+      }
+      players: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          opponent: string
+          ownership: number
+          position: string
+          projected_points: number
+          salary: number
+          status: string
+          team: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          opponent: string
+          ownership: number
+          position: string
+          projected_points: number
+          salary: number
+          status: string
+          team: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          opponent?: string
+          ownership?: number
+          position?: string
+          projected_points?: number
+          salary?: number
+          status?: string
+          team?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
