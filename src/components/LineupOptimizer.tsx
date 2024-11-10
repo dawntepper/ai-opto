@@ -32,6 +32,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
   const [showLineups, setShowLineups] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
 
   const { data: validPlayersCount, isLoading: playersLoading } = useQuery({
     queryKey: ['validPlayers', settings.sport],
@@ -109,6 +110,8 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   return <OptimizerContent 
     settings={settings}
     setSettings={setSettings}
+    isNotesOpen={isNotesOpen}
+    setIsNotesOpen={setIsNotesOpen}
     fileUploads={fileUploads}
     isLoading={fileUploadsLoading || playersLoading || isOptimizing}
     canOptimize={canOptimize}
