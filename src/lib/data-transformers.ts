@@ -76,14 +76,26 @@ export const transformDraftKingsData = (player: DraftKingsPlayer) => {
 };
 
 export const transformEnhancedProjections = (proj: EnhancedProjection) => {
+  // Get projected points from either fpts or rg_value, ensuring positive values
+  const projectedPoints = Math.max(
+    Number(proj.fpts) || 0,
+    Number(proj.rg_value) || 0
+  );
+
+  // Ensure salary is a positive number
+  const salary = Math.max(Number(proj.salary) || 0, 0);
+
+  // Ensure ownership is a non-negative number
+  const ownership = Math.max(Number(proj.proj_own) || 0, 0);
+
   return {
     name: proj.name,
     position: proj.pos,
     team: proj.team,
     opponent: proj.opp,
-    projected_points: Number(proj.fpts) || Number(proj.rg_value) || 0, // Try to use rg_value if fpts is missing
-    salary: Number(proj.salary) || 0,
-    ownership: Number(proj.proj_own) || 0,
+    projected_points: projectedPoints,
+    salary: salary,
+    ownership: ownership,
     status: 'available',
     roster_positions: mapPositionToRosterPositions(proj.pos),
     ceiling: Number(proj.ceil) || null,
