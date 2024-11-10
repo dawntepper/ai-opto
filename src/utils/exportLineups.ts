@@ -11,6 +11,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     
     const slots = new Array(8).fill('()');
     let remainingPlayers = [...players];
+    const usedPlayerIds = new Set();
 
     // Helper function to check if a player is eligible for a position
     const isEligibleForPosition = (player: any, pos: string) => {
@@ -30,66 +31,57 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     };
 
     // Helper function to format player string
-    const formatPlayer = (player: any) => 
-      `${player.player.name} (${player.player.partner_id || ''})`;
-
-    // Track all guard and forward eligible players
-    const guardPlayers = players.filter(p => isEligibleForPosition(p, 'G'));
-    const forwardPlayers = players.filter(p => isEligibleForPosition(p, 'F'));
+    const formatPlayer = (player: any) => {
+      return `${player.player.name} (${player.player.partner_id || ''})`;
+    };
 
     // Fill primary positions first (PG, SG, SF, PF, C)
     NBA_POSITIONS.slice(0, 5).forEach((position, index) => {
       const playerIndex = remainingPlayers.findIndex(p => 
-        isEligibleForPosition(p, position)
+        !usedPlayerIds.has(p.player.id) && isEligibleForPosition(p, position)
       );
 
       if (playerIndex !== -1) {
         const player = remainingPlayers[playerIndex];
         slots[index] = formatPlayer(player);
+        usedPlayerIds.add(player.player.id);
         remainingPlayers.splice(playerIndex, 1);
       }
     });
 
     // Fill G slot (index 5)
-    // First try remaining guards, then consider moving a PG/SG if needed
-    let guardSlotFilled = false;
+    // First try remaining guards, then find an unused eligible guard
+    const unusedGuard = players.find(p => 
+      !usedPlayerIds.has(p.player.id) && isEligibleForPosition(p, 'G')
+    );
     
-    // Try remaining unassigned guards first
-    const remainingGuard = remainingPlayers.find(p => isEligibleForPosition(p, 'G'));
-    if (remainingGuard) {
-      slots[5] = formatPlayer(remainingGuard);
-      remainingPlayers = remainingPlayers.filter(p => p !== remainingGuard);
-      guardSlotFilled = true;
-    }
-    
-    // If no remaining guards, look at already assigned PG/SG players
-    if (!guardSlotFilled && guardPlayers.length > 0) {
-      slots[5] = formatPlayer(guardPlayers[0]);
+    if (unusedGuard) {
+      slots[5] = formatPlayer(unusedGuard);
+      usedPlayerIds.add(unusedGuard.player.id);
+      remainingPlayers = remainingPlayers.filter(p => p.player.id !== unusedGuard.player.id);
     }
 
     // Fill F slot (index 6)
-    // First try remaining forwards, then consider moving a SF/PF if needed
-    let forwardSlotFilled = false;
+    // First try remaining forwards, then find an unused eligible forward
+    const unusedForward = players.find(p => 
+      !usedPlayerIds.has(p.player.id) && isEligibleForPosition(p, 'F')
+    );
     
-    // Try remaining unassigned forwards first
-    const remainingForward = remainingPlayers.find(p => isEligibleForPosition(p, 'F'));
-    if (remainingForward) {
-      slots[6] = formatPlayer(remainingForward);
-      remainingPlayers = remainingPlayers.filter(p => p !== remainingForward);
-      forwardSlotFilled = true;
-    }
-    
-    // If no remaining forwards, look at already assigned SF/PF players
-    if (!forwardSlotFilled && forwardPlayers.length > 0) {
-      slots[6] = formatPlayer(forwardPlayers[0]);
+    if (unusedForward) {
+      slots[6] = formatPlayer(unusedForward);
+      usedPlayerIds.add(unusedForward.player.id);
+      remainingPlayers = remainingPlayers.filter(p => p.player.id !== unusedForward.player.id);
     }
 
-    // Fill UTIL slot with first remaining player
-    if (remainingPlayers.length > 0) {
-      slots[7] = formatPlayer(remainingPlayers[0]);
+    // Fill UTIL slot with first remaining unused player
+    const unusedUtil = players.find(p => !usedPlayerIds.has(p.player.id));
+    if (unusedUtil) {
+      slots[7] = formatPlayer(unusedUtil);
+      usedPlayerIds.add(unusedUtil.player.id);
     }
 
     console.log('Final lineup slots:', slots);
+    console.log('Used player IDs:', [...usedPlayerIds]);
     console.log('Remaining unassigned players:', remainingPlayers);
     return slots.join('\t');
   });
