@@ -81,7 +81,7 @@ export const transformEnhancedProjections = (proj: EnhancedProjection) => {
     position: proj.pos,
     team: proj.team,
     opponent: proj.opp,
-    projected_points: Number(proj.fpts) || 0,
+    projected_points: Number(proj.fpts) || Number(proj.rg_value) || 0, // Try to use rg_value if fpts is missing
     salary: Number(proj.salary) || 0,
     ownership: Number(proj.proj_own) || 0,
     status: 'available',
