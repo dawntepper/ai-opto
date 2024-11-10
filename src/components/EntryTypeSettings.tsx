@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Settings2 } from "lucide-react";
+import { Settings2, ChevronDown } from "lucide-react";
 import { EntryType, OptimizationSettings } from '../types';
 import { getDefaultMaxOwnership, getDefaultCorrelation, getDefaultLineupCount, getMaxLineups } from '../utils/optimizationDefaults';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,16 +26,18 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
           </label>
           <Select
             value={settings.sport || 'nba'}
-            onValueChange={(sport: 'nba' | 'nfl') => 
+            onValueChange={(sport: 'nba' | 'nfl' | 'mlb') => 
               setSettings({ ...settings, sport })
             }
           >
-            <SelectTrigger className="bg-white dark:bg-gray-700 border-green-100">
+            <SelectTrigger className="bg-white dark:bg-gray-700 border-green-900 flex items-center">
               <SelectValue />
+              <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="nba">NBA</SelectItem>
               <SelectItem value="nfl">NFL</SelectItem>
+              <SelectItem value="mlb">MLB (Coming Soon)</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -50,7 +52,7 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
               correlationStrength: getDefaultCorrelation('single', settings.sport),
               lineupCount: getDefaultLineupCount('single')
             })}
-            className={`${settings.entryType !== 'single' ? "text-gray-700 dark:text-gray-300 border-green-100" : "bg-green-600 hover:bg-green-700 text-white"}`}
+            className={`${settings.entryType !== 'single' ? "text-gray-700 dark:text-gray-300 border-green-900" : "bg-green-600 hover:bg-green-700 text-white"}`}
           >
             Single
           </Button>
@@ -63,7 +65,7 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
               correlationStrength: getDefaultCorrelation('3-max', settings.sport),
               lineupCount: getDefaultLineupCount('3-max')
             })}
-            className={`${settings.entryType !== '3-max' ? "text-gray-700 dark:text-gray-300 border-green-100" : "bg-green-600 hover:bg-green-700 text-white"}`}
+            className={`${settings.entryType !== '3-max' ? "text-gray-700 dark:text-gray-300 border-green-900" : "bg-green-600 hover:bg-green-700 text-white"}`}
           >
             3-Max
           </Button>
@@ -76,7 +78,7 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
               correlationStrength: getDefaultCorrelation('20-max', settings.sport),
               lineupCount: getDefaultLineupCount('20-max')
             })}
-            className={`${settings.entryType !== '20-max' ? "text-gray-700 dark:text-gray-300 border-green-100" : "bg-green-600 hover:bg-green-700 text-white"}`}
+            className={`${settings.entryType !== '20-max' ? "text-gray-700 dark:text-gray-300 border-green-900" : "bg-green-600 hover:bg-green-700 text-white"}`}
           >
             20-Max
           </Button>
@@ -97,7 +99,7 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
             }}
             min={1}
             max={getMaxLineups(settings.entryType)}
-            className="bg-white dark:bg-gray-700 border-green-100 text-gray-900 dark:text-white"
+            className="bg-white dark:bg-gray-700 border-green-900 text-gray-900 dark:text-white"
           />
         </div>
       </div>

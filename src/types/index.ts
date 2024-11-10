@@ -1,5 +1,5 @@
 export type EntryType = 'single' | '3-max' | '20-max';
-export type Sport = 'nba' | 'nfl';
+export type Sport = 'nba' | 'nfl' | 'mlb';
 
 export interface Player {
   id: string;
