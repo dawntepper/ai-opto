@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import LineupTable from "./LineupTable";
 import { Card } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
+import { Sport } from "@/types";
 
 const CurrentLineups = () => {
   const { data: lineups, isLoading } = useQuery({
@@ -32,7 +33,18 @@ const CurrentLineups = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      
+      // Transform the data to ensure sport is typed correctly
+      return data?.map(lineup => ({
+        ...lineup,
+        sport: (lineup.sport || 'nba') as Sport,
+        lineup_players: lineup.lineup_players?.map(lp => ({
+          player: {
+            ...lp.player,
+            sport: (lp.player.sport || 'nba') as Sport
+          }
+        }))
+      }));
     }
   });
 
