@@ -30,8 +30,8 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
               setSettings({ ...settings, sport })
             }
           >
-            <SelectTrigger className="bg-white dark:bg-gray-700 border-green-900 flex items-center">
-              <SelectValue placeholder="Select Sport" />
+            <SelectTrigger className="bg-white dark:bg-gray-700 border-green-900 flex items-center text-gray-900">
+              <SelectValue placeholder="Select Sport" className="text-gray-900 dark:text-gray-300" />
               <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
             </SelectTrigger>
             <SelectContent>
