@@ -84,9 +84,10 @@ const safeNumber = (value: any): number => {
 
 export const transformEnhancedProjections = (proj: EnhancedProjection) => {
   // Get projected points from either fpts or rg_value, ensuring positive values
+  // If both are negative or zero, default to 0
   const projectedPoints = Math.max(
     safeNumber(proj.fpts),
-    safeNumber(proj.rg_value)
+    Math.abs(safeNumber(proj.rg_value)) // Convert negative RG values to positive
   );
 
   // Ensure salary is a positive number
@@ -94,6 +95,9 @@ export const transformEnhancedProjections = (proj: EnhancedProjection) => {
 
   // Ensure ownership is a non-negative number
   const ownership = safeNumber(proj.proj_own);
+
+  // Convert negative RG ID to positive string if needed
+  const rgId = proj.rg_id?.startsWith('-') ? proj.rg_id.substring(1) : proj.rg_id;
 
   return {
     name: proj.name || '',
@@ -103,12 +107,13 @@ export const transformEnhancedProjections = (proj: EnhancedProjection) => {
     projected_points: projectedPoints,
     salary: salary,
     ownership: ownership,
+    proj_ownership: ownership, // Store in both fields for consistency
     status: 'available',
     roster_positions: mapPositionToRosterPositions(proj.pos || ''),
     ceiling: safeNumber(proj.ceil),
     floor: safeNumber(proj.floor),
     partner_id: proj.partner_id || null,
-    rg_id: proj.rg_id || null,
+    rg_id: rgId || null,
     sport: 'nfl'
   };
 };
