@@ -34,9 +34,10 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
 
-  const { data: validPlayersCount, isLoading: playersLoading } = useQuery({
+  const { data: validPlayersCount = 0, isLoading: playersLoading } = useQuery({
     queryKey: ['validPlayers', settings.sport],
-    queryFn: () => checkValidPlayers(settings.sport)
+    queryFn: () => checkValidPlayers(settings.sport),
+    enabled: !!settings.sport
   });
 
   const { data: fileUploads, refetch, isLoading: fileUploadsLoading } = useQuery({
@@ -54,6 +55,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   });
 
   const canOptimize = validPlayersCount && validPlayersCount >= 8;
+  console.log('Can optimize:', canOptimize, 'Valid players count:', validPlayersCount);
 
   const handleOptimize = async () => {
     if (!canOptimize) {

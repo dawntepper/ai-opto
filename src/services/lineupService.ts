@@ -33,15 +33,30 @@ export const saveOptimizationSettings = async (settings: OptimizationSettings) =
   return data;
 };
 
-const isSport = (value: string): value is Sport => {
-  return ['nba', 'nfl', 'mlb'].includes(value as Sport);
+export const checkValidPlayers = async (sport: Sport = 'nba') => {
+  console.log('Checking valid players for sport:', sport);
+  
+  const { count, error } = await supabase
+    .from('players')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'available')
+    .eq('sport', sport)
+    .gt('salary', 0)
+    .gt('projected_points', 0);
+
+  if (error) {
+    console.error('Error checking valid players:', error);
+    throw error;
+  }
+
+  console.log(`Found ${count} valid ${sport} players`);
+  return count || 0;
 };
 
 export const generateLineups = async (settingsId: string): Promise<GeneratedLineup[]> => {
   console.log('Starting lineup generation with settings ID:', settingsId);
   
   try {
-    // First get the sport from the settings
     const { data: settings, error: settingsError } = await supabase
       .from('optimization_settings')
       .select('sport')
@@ -55,12 +70,11 @@ export const generateLineups = async (settingsId: string): Promise<GeneratedLine
 
     console.log('Retrieved settings:', settings);
 
-    if (!settings.sport || !isSport(settings.sport)) {
+    if (!settings.sport) {
       console.error('Invalid sport type:', settings.sport);
       throw new Error('Invalid sport type');
     }
 
-    // Validate we have enough players for the specific sport
     const validPlayersCount = await checkValidPlayers(settings.sport);
     console.log(`Found ${validPlayersCount} valid players for ${settings.sport}`);
 
@@ -87,35 +101,10 @@ export const generateLineups = async (settingsId: string): Promise<GeneratedLine
     const lineups = Array.isArray(data) ? data : [data];
     console.log(`Successfully generated ${lineups.length} lineups`);
     
-    return lineups.map(lineup => ({
-      lineup_id: lineup.lineup_id,
-      total_salary: lineup.total_salary,
-      projected_points: lineup.projected_points,
-      total_ownership: lineup.total_ownership
-    }));
+    return lineups;
 
   } catch (error: any) {
     console.error('Lineup generation error:', error);
     throw new Error(error.message || 'Failed to generate lineups');
   }
-};
-
-export const checkValidPlayers = async (sport: Sport = 'nba') => {
-  console.log('Checking valid players for sport:', sport);
-  
-  const { count, error } = await supabase
-    .from('players')
-    .select('id', { count: 'exact', head: true })
-    .eq('status', 'available')
-    .eq('sport', sport)
-    .gt('salary', 0)
-    .gt('projected_points', 0);
-
-  if (error) {
-    console.error('Error checking valid players:', error);
-    throw error;
-  }
-
-  console.log(`Found ${count} valid ${sport} players`);
-  return count || 0;
 };
