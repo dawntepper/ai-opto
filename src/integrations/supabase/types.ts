@@ -71,6 +71,7 @@ export type Database = {
           created_at: string | null
           id: string
           projected_points: number
+          sport: string | null
           total_ownership: number
           total_salary: number
         }
@@ -78,6 +79,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           projected_points: number
+          sport?: string | null
           total_ownership: number
           total_salary: number
         }
@@ -85,6 +87,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           projected_points?: number
+          sport?: string | null
           total_ownership?: number
           total_salary?: number
         }
@@ -100,6 +103,7 @@ export type Database = {
           max_ownership: number
           max_salary: number
           min_value: number
+          sport: string | null
         }
         Insert: {
           correlation_strength: string
@@ -110,6 +114,7 @@ export type Database = {
           max_ownership: number
           max_salary: number
           min_value: number
+          sport?: string | null
         }
         Update: {
           correlation_strength?: string
@@ -120,6 +125,7 @@ export type Database = {
           max_ownership?: number
           max_salary?: number
           min_value?: number
+          sport?: string | null
         }
         Relationships: []
       }
@@ -164,6 +170,7 @@ export type Database = {
           blocks: number | null
           ceiling: number | null
           created_at: string | null
+          defense_rank: number | null
           dvp: number | null
           effective_field_goal_percentage: number | null
           field_goal_percentage: number | null
@@ -172,6 +179,7 @@ export type Database = {
           floor: number | null
           fppm: number | null
           free_throws: number | null
+          game_time: string | null
           id: string
           minutes: number | null
           name: string
@@ -182,24 +190,32 @@ export type Database = {
           player_efficiency: number | null
           points: number | null
           position: string
+          position_flex: string[] | null
           proj_ownership: number | null
           projected_points: number
           rebounds: number | null
+          red_zone_share: number | null
           rg_id: string | null
           roster_positions: string | null
+          rush_share: number | null
           salary: number
+          snap_count: number | null
+          sport: string | null
           spread: number | null
           status: string
           steals: number | null
+          target_share: number | null
           team: string
           total: number | null
           usage_rate: number | null
+          weather_conditions: string | null
         }
         Insert: {
           assists?: number | null
           blocks?: number | null
           ceiling?: number | null
           created_at?: string | null
+          defense_rank?: number | null
           dvp?: number | null
           effective_field_goal_percentage?: number | null
           field_goal_percentage?: number | null
@@ -208,6 +224,7 @@ export type Database = {
           floor?: number | null
           fppm?: number | null
           free_throws?: number | null
+          game_time?: string | null
           id?: string
           minutes?: number | null
           name: string
@@ -218,24 +235,32 @@ export type Database = {
           player_efficiency?: number | null
           points?: number | null
           position: string
+          position_flex?: string[] | null
           proj_ownership?: number | null
           projected_points: number
           rebounds?: number | null
+          red_zone_share?: number | null
           rg_id?: string | null
           roster_positions?: string | null
+          rush_share?: number | null
           salary: number
+          snap_count?: number | null
+          sport?: string | null
           spread?: number | null
           status: string
           steals?: number | null
+          target_share?: number | null
           team: string
           total?: number | null
           usage_rate?: number | null
+          weather_conditions?: string | null
         }
         Update: {
           assists?: number | null
           blocks?: number | null
           ceiling?: number | null
           created_at?: string | null
+          defense_rank?: number | null
           dvp?: number | null
           effective_field_goal_percentage?: number | null
           field_goal_percentage?: number | null
@@ -244,6 +269,7 @@ export type Database = {
           floor?: number | null
           fppm?: number | null
           free_throws?: number | null
+          game_time?: string | null
           id?: string
           minutes?: number | null
           name?: string
@@ -254,18 +280,52 @@ export type Database = {
           player_efficiency?: number | null
           points?: number | null
           position?: string
+          position_flex?: string[] | null
           proj_ownership?: number | null
           projected_points?: number
           rebounds?: number | null
+          red_zone_share?: number | null
           rg_id?: string | null
           roster_positions?: string | null
+          rush_share?: number | null
           salary?: number
+          snap_count?: number | null
+          sport?: string | null
           spread?: number | null
           status?: string
           steals?: number | null
+          target_share?: number | null
           team?: string
           total?: number | null
           usage_rate?: number | null
+          weather_conditions?: string | null
+        }
+        Relationships: []
+      }
+      position_correlations: {
+        Row: {
+          correlation_strength: number
+          created_at: string | null
+          id: string
+          position1: string
+          position2: string
+          sport: string
+        }
+        Insert: {
+          correlation_strength: number
+          created_at?: string | null
+          id?: string
+          position1: string
+          position2: string
+          sport: string
+        }
+        Update: {
+          correlation_strength?: number
+          created_at?: string | null
+          id?: string
+          position1?: string
+          position2?: string
+          sport?: string
         }
         Relationships: []
       }
