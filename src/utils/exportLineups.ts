@@ -12,7 +12,6 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     const slots = new Array(8).fill('()');
     let remainingPlayers = [...players];
     const usedPlayerIds = new Set();
-    const primaryPositionPlayers = new Map(); // Track which players are in primary positions
 
     // Helper function to check if a player is eligible for a position
     const isEligibleForPosition = (player: any, pos: string) => {
@@ -46,59 +45,28 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
         const player = remainingPlayers[playerIndex];
         slots[index] = formatPlayer(player);
         usedPlayerIds.add(player.player.id);
-        primaryPositionPlayers.set(player.player.id, position);
         remainingPlayers.splice(playerIndex, 1);
       }
     });
 
-    // Fill G slot (index 5)
-    let guardSlotFilled = false;
-    
-    // First try remaining guards
-    const unusedGuard = remainingPlayers.find(p => isEligibleForPosition(p, 'G'));
+    // Get all eligible guards and forwards for later use
+    const allGuards = players.filter(p => isEligibleForPosition(p, 'G'));
+    const allForwards = players.filter(p => isEligibleForPosition(p, 'F'));
+
+    // Fill G slot (index 5) with an unused guard
+    const unusedGuard = allGuards.find(p => !usedPlayerIds.has(p.player.id));
     if (unusedGuard) {
       slots[5] = formatPlayer(unusedGuard);
       usedPlayerIds.add(unusedGuard.player.id);
       remainingPlayers = remainingPlayers.filter(p => p.player.id !== unusedGuard.player.id);
-      guardSlotFilled = true;
-    }
-    
-    // If no unused guards, look for an already used guard that can be moved
-    if (!guardSlotFilled) {
-      const guardEligible = players.find(p => 
-        isEligibleForPosition(p, 'G') &&
-        primaryPositionPlayers.has(p.player.id) &&
-        ['PG', 'SG'].includes(primaryPositionPlayers.get(p.player.id))
-      );
-      
-      if (guardEligible) {
-        slots[5] = formatPlayer(guardEligible);
-      }
     }
 
-    // Fill F slot (index 6)
-    let forwardSlotFilled = false;
-    
-    // First try remaining forwards
-    const unusedForward = remainingPlayers.find(p => isEligibleForPosition(p, 'F'));
+    // Fill F slot (index 6) with an unused forward
+    const unusedForward = allForwards.find(p => !usedPlayerIds.has(p.player.id));
     if (unusedForward) {
       slots[6] = formatPlayer(unusedForward);
       usedPlayerIds.add(unusedForward.player.id);
       remainingPlayers = remainingPlayers.filter(p => p.player.id !== unusedForward.player.id);
-      forwardSlotFilled = true;
-    }
-    
-    // If no unused forwards, look for an already used forward that can be moved
-    if (!forwardSlotFilled) {
-      const forwardEligible = players.find(p => 
-        isEligibleForPosition(p, 'F') &&
-        primaryPositionPlayers.has(p.player.id) &&
-        ['SF', 'PF'].includes(primaryPositionPlayers.get(p.player.id))
-      );
-      
-      if (forwardEligible) {
-        slots[6] = formatPlayer(forwardEligible);
-      }
     }
 
     // Fill UTIL slot with first remaining unused player
