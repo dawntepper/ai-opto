@@ -10,8 +10,8 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     console.log('Processing lineup players:', JSON.stringify(players, null, 2));
     
     const slots = new Array(8).fill('()');
-    const assignedPositions = new Map(); // Track where each player is assigned
-    const usedInFlexPositions = new Set(); // Track players used in G/F/UTIL
+    const usedInFlexPositions = new Set();
+    const positionAssignments = new Map();
 
     // Helper function to check if a player is eligible for a position
     const isEligibleForPosition = (player: any, pos: string) => {
@@ -32,54 +32,83 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
 
     // Helper function to format player string
     const formatPlayer = (player: any) => {
+      positionAssignments.set(player.player.id, player.player.position);
       return `${player.player.name} (${player.player.partner_id || ''})`;
     };
 
-    // Fill primary positions first (PG, SG, SF, PF, C)
-    ['PG', 'SG', 'SF', 'PF', 'C'].forEach((pos, index) => {
-      const playerIndex = players.findIndex(p => 
-        !assignedPositions.has(p.player.id) && isEligibleForPosition(p, pos)
+    // Helper function to find an unused player for a position
+    const findPlayerForPosition = (pos: string, usedIds = new Set()) => {
+      return players.find(p => 
+        !usedIds.has(p.player.id) && isEligibleForPosition(p, pos)
       );
+    };
 
-      if (playerIndex !== -1) {
-        const player = players[playerIndex];
-        slots[index] = formatPlayer(player);
-        assignedPositions.set(player.player.id, pos);
-      }
-    });
+    // Keep track of used players in primary positions
+    const usedInPrimary = new Set();
 
-    // Find an eligible guard for G slot who hasn't been used in flex positions
-    const guardsForGSlot = players.filter(p => 
-      isEligibleForPosition(p, 'G') && !usedInFlexPositions.has(p.player.id)
+    // Fill PG position
+    const pgPlayer = findPlayerForPosition('PG', usedInPrimary);
+    if (pgPlayer) {
+      slots[0] = formatPlayer(pgPlayer);
+      usedInPrimary.add(pgPlayer.player.id);
+    }
+
+    // Fill SG position
+    const sgPlayer = findPlayerForPosition('SG', usedInPrimary);
+    if (sgPlayer) {
+      slots[1] = formatPlayer(sgPlayer);
+      usedInPrimary.add(sgPlayer.player.id);
+    }
+
+    // Fill SF position
+    const sfPlayer = findPlayerForPosition('SF', usedInPrimary);
+    if (sfPlayer) {
+      slots[2] = formatPlayer(sfPlayer);
+      usedInPrimary.add(sfPlayer.player.id);
+    }
+
+    // Fill PF position
+    const pfPlayer = findPlayerForPosition('PF', usedInPrimary);
+    if (pfPlayer) {
+      slots[3] = formatPlayer(pfPlayer);
+      usedInPrimary.add(pfPlayer.player.id);
+    }
+
+    // Fill C position
+    const cPlayer = findPlayerForPosition('C', usedInPrimary);
+    if (cPlayer) {
+      slots[4] = formatPlayer(cPlayer);
+      usedInPrimary.add(cPlayer.player.id);
+    }
+
+    // Fill G slot (can use PG or SG)
+    const guardPlayer = players.find(p => 
+      !usedInFlexPositions.has(p.player.id) && isEligibleForPosition(p, 'G')
     );
-    
-    if (guardsForGSlot.length > 0) {
-      const guardPlayer = guardsForGSlot[0];
+    if (guardPlayer) {
       slots[5] = formatPlayer(guardPlayer);
       usedInFlexPositions.add(guardPlayer.player.id);
     }
 
-    // Find an eligible forward for F slot who hasn't been used in flex positions
-    const forwardsForFSlot = players.filter(p => 
-      isEligibleForPosition(p, 'F') && !usedInFlexPositions.has(p.player.id)
+    // Fill F slot (can use SF or PF)
+    const forwardPlayer = players.find(p => 
+      !usedInFlexPositions.has(p.player.id) && isEligibleForPosition(p, 'F')
     );
-    
-    if (forwardsForFSlot.length > 0) {
-      const forwardPlayer = forwardsForFSlot[0];
+    if (forwardPlayer) {
       slots[6] = formatPlayer(forwardPlayer);
       usedInFlexPositions.add(forwardPlayer.player.id);
     }
 
-    // Find a player for UTIL who hasn't been used in flex positions
-    const remainingPlayers = players.filter(p => !usedInFlexPositions.has(p.player.id));
-    
-    if (remainingPlayers.length > 0) {
-      slots[7] = formatPlayer(remainingPlayers[0]);
+    // Fill UTIL with any remaining player
+    const utilPlayer = players.find(p => 
+      !usedInPrimary.has(p.player.id) && 
+      !usedInFlexPositions.has(p.player.id)
+    );
+    if (utilPlayer) {
+      slots[7] = formatPlayer(utilPlayer);
     }
 
     console.log('Final lineup slots:', slots);
-    console.log('Position assignments:', Object.fromEntries(assignedPositions));
-    console.log('Used in flex positions:', [...usedInFlexPositions]);
     return slots.join('\t');
   });
 
