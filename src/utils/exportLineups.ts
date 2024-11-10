@@ -15,9 +15,13 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       
       switch (pos) {
         case 'G':
-          return positions.some(p => p === 'PG' || p === 'SG');
+          const isGuard = positions.some(p => p === 'PG' || p === 'SG');
+          console.log(`Checking ${player.player.name} for G slot - positions: ${positions.join('/')} - eligible: ${isGuard}`);
+          return isGuard;
         case 'F':
-          return positions.some(p => p === 'SF' || p === 'PF');
+          const isForward = positions.some(p => p === 'SF' || p === 'PF');
+          console.log(`Checking ${player.player.name} for F slot - positions: ${positions.join('/')} - eligible: ${isForward}`);
+          return isForward;
         case 'UTIL':
           return true;
         default:
@@ -41,9 +45,12 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
 
     // Fill G slot
     const guardIndex = remainingPlayers.findIndex(lp => {
-      if (assignedPlayerIds.has(lp.player.id)) return false;
-      const positions = lp.player.position.split('/');
-      return positions.some(p => p === 'PG' || p === 'SG');
+      if (assignedPlayerIds.has(lp.player.id)) {
+        console.log(`${lp.player.name} already assigned, skipping for G slot`);
+        return false;
+      }
+      const isEligible = isEligibleForPosition(lp, 'G');
+      return isEligible;
     });
 
     if (guardIndex !== -1) {
@@ -51,13 +58,22 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       slots[5] = `${player.player.name} (${player.player.partner_id || ''})`;
       assignedPlayerIds.add(player.player.id);
       console.log(`Added ${player.player.name} to G slot`);
+    } else {
+      console.log('No eligible player found for G slot. Available players:', 
+        remainingPlayers
+          .filter(p => !assignedPlayerIds.has(p.player.id))
+          .map(p => `${p.player.name} (${p.player.position})`)
+      );
     }
 
     // Fill F slot
     const forwardIndex = remainingPlayers.findIndex(lp => {
-      if (assignedPlayerIds.has(lp.player.id)) return false;
-      const positions = lp.player.position.split('/');
-      return positions.some(p => p === 'SF' || p === 'PF');
+      if (assignedPlayerIds.has(lp.player.id)) {
+        console.log(`${lp.player.name} already assigned, skipping for F slot`);
+        return false;
+      }
+      const isEligible = isEligibleForPosition(lp, 'F');
+      return isEligible;
     });
 
     if (forwardIndex !== -1) {
@@ -65,6 +81,12 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       slots[6] = `${player.player.name} (${player.player.partner_id || ''})`;
       assignedPlayerIds.add(player.player.id);
       console.log(`Added ${player.player.name} to F slot`);
+    } else {
+      console.log('No eligible player found for F slot. Available players:', 
+        remainingPlayers
+          .filter(p => !assignedPlayerIds.has(p.player.id))
+          .map(p => `${p.player.name} (${p.player.position})`)
+      );
     }
 
     // Fill UTIL slot
@@ -81,7 +103,6 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
 
   const content = [header, ...formattedLineups].join('\n');
   
-  // Create and trigger download of CSV file
   const blob = new Blob([content], { type: 'text/csv' });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
