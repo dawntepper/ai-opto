@@ -12,6 +12,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     const slots = new Array(8).fill('()');
     let remainingPlayers = [...players];
     const primarySlots = new Map(); // Track players in primary slots
+    const flexUsedPlayerIds = new Set(); // Track players used in flex positions
 
     // Helper function to check if a player is eligible for a position
     const isEligibleForPosition = (player: any, pos: string) => {
@@ -35,6 +36,11 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       return `${player.player.name} (${player.player.partner_id || ''})`;
     };
 
+    // Helper function to mark a player as used in a flex position
+    const markPlayerAsUsedInFlex = (player: any) => {
+      flexUsedPlayerIds.add(player.player.id);
+    };
+
     // Fill primary positions first (PG, SG, SF, PF, C)
     NBA_POSITIONS.slice(0, 5).forEach((position, index) => {
       const playerIndex = remainingPlayers.findIndex(p => 
@@ -51,12 +57,16 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
 
     // Fill G slot (index 5)
     // Try remaining guards first
-    let guardSlotPlayer = remainingPlayers.find(p => isEligibleForPosition(p, 'G'));
+    let guardSlotPlayer = remainingPlayers.find(p => 
+      !flexUsedPlayerIds.has(p.player.id) && isEligibleForPosition(p, 'G')
+    );
     
-    // If no remaining guards, look for a guard in a primary position
+    // If no remaining guards, look for a guard in a primary position not used in flex
     if (!guardSlotPlayer) {
       const primaryGuards = Array.from(primarySlots.entries())
-        .filter(([id, pos]) => pos === 'PG' || pos === 'SG')
+        .filter(([id, pos]) => 
+          (pos === 'PG' || pos === 'SG') && !flexUsedPlayerIds.has(id)
+        )
         .map(([id]) => players.find(p => p.player.id === id))
         .filter(p => p);
         
@@ -67,17 +77,22 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     
     if (guardSlotPlayer) {
       slots[5] = formatPlayer(guardSlotPlayer);
+      markPlayerAsUsedInFlex(guardSlotPlayer);
       remainingPlayers = remainingPlayers.filter(p => p.player.id !== guardSlotPlayer.player.id);
     }
 
     // Fill F slot (index 6)
     // Try remaining forwards first
-    let forwardSlotPlayer = remainingPlayers.find(p => isEligibleForPosition(p, 'F'));
+    let forwardSlotPlayer = remainingPlayers.find(p => 
+      !flexUsedPlayerIds.has(p.player.id) && isEligibleForPosition(p, 'F')
+    );
     
-    // If no remaining forwards, look for a forward in a primary position
+    // If no remaining forwards, look for a forward in a primary position not used in flex
     if (!forwardSlotPlayer) {
       const primaryForwards = Array.from(primarySlots.entries())
-        .filter(([id, pos]) => pos === 'SF' || pos === 'PF')
+        .filter(([id, pos]) => 
+          (pos === 'SF' || pos === 'PF') && !flexUsedPlayerIds.has(id)
+        )
         .map(([id]) => players.find(p => p.player.id === id))
         .filter(p => p);
         
@@ -88,16 +103,20 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     
     if (forwardSlotPlayer) {
       slots[6] = formatPlayer(forwardSlotPlayer);
+      markPlayerAsUsedInFlex(forwardSlotPlayer);
       remainingPlayers = remainingPlayers.filter(p => p.player.id !== forwardSlotPlayer.player.id);
     }
 
-    // Fill UTIL slot with first remaining player
-    if (remainingPlayers.length > 0) {
-      slots[7] = formatPlayer(remainingPlayers[0]);
+    // Fill UTIL slot with first remaining player not used in flex
+    const utilPlayer = remainingPlayers.find(p => !flexUsedPlayerIds.has(p.player.id));
+    if (utilPlayer) {
+      slots[7] = formatPlayer(utilPlayer);
+      markPlayerAsUsedInFlex(utilPlayer);
     }
 
     console.log('Final lineup slots:', slots);
     console.log('Primary slot assignments:', [...primarySlots.entries()]);
+    console.log('Flex used player IDs:', [...flexUsedPlayerIds]);
     console.log('Remaining unassigned players:', remainingPlayers);
     return slots.join('\t');
   });
