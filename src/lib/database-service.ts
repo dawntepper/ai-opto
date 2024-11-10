@@ -34,9 +34,9 @@ export const upsertDraftKingsPlayers = async (validData: DraftKingsPlayer[]) => 
   return data;
 };
 
-export const upsertEnhancedProjections = async (validData: EnhancedProjection[], positionData?: { [key: string]: string }) => {
+export const upsertEnhancedProjections = async (validData: EnhancedProjection[]) => {
   console.log('Processing enhanced projections:', validData.length, 'projections');
-  const transformedData = validData.map(proj => transformEnhancedProjections(proj, positionData));
+  const transformedData = validData.map(proj => transformEnhancedProjections(proj));
   console.log('Transformed projections data:', transformedData);
 
   const { data: existingPlayers, error: fetchError } = await supabase
