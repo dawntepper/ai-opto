@@ -64,11 +64,12 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       }
     });
 
-    // Fill G slot (index 5)
+    // Fill G slot (index 5) with any remaining eligible guard
     console.log('\nFilling G slot');
     const guardIndex = remainingPlayers.findIndex(lp => {
-      const eligible = !assignedPlayerIds.has(lp.player.id) && isEligibleForPosition(lp, 'G');
-      console.log(`Checking player ${lp.player.name} for G slot - Eligible: ${eligible}`);
+      const eligible = !assignedPlayerIds.has(lp.player.id) && 
+        (lp.player.position.includes('PG') || lp.player.position.includes('SG'));
+      console.log(`Checking player ${lp.player.name} for G slot - Eligible: ${eligible}, Already assigned: ${assignedPlayerIds.has(lp.player.id)}`);
       return eligible;
     });
 
@@ -77,15 +78,14 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       console.log(`Assigned ${player.player.name} to G slot`);
       slots[5] = `${player.player.name} (${player.player.partner_id || ''})`;
       assignedPlayerIds.add(player.player.id);
-    } else {
-      console.log('No eligible player found for G slot');
     }
 
-    // Fill F slot (index 6)
+    // Fill F slot (index 6) with any remaining eligible forward
     console.log('\nFilling F slot');
     const forwardIndex = remainingPlayers.findIndex(lp => {
-      const eligible = !assignedPlayerIds.has(lp.player.id) && isEligibleForPosition(lp, 'F');
-      console.log(`Checking player ${lp.player.name} for F slot - Eligible: ${eligible}`);
+      const eligible = !assignedPlayerIds.has(lp.player.id) && 
+        (lp.player.position.includes('SF') || lp.player.position.includes('PF'));
+      console.log(`Checking player ${lp.player.name} for F slot - Eligible: ${eligible}, Already assigned: ${assignedPlayerIds.has(lp.player.id)}`);
       return eligible;
     });
 
@@ -94,8 +94,6 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       console.log(`Assigned ${player.player.name} to F slot`);
       slots[6] = `${player.player.name} (${player.player.partner_id || ''})`;
       assignedPlayerIds.add(player.player.id);
-    } else {
-      console.log('No eligible player found for F slot');
     }
 
     // Fill UTIL slot with first remaining unassigned player
@@ -105,8 +103,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       const player = remainingPlayers[utilIndex];
       console.log(`Assigned ${player.player.name} to UTIL slot`);
       slots[7] = `${player.player.name} (${player.player.partner_id || ''})`;
-    } else {
-      console.log('No eligible player found for UTIL slot');
+      assignedPlayerIds.add(player.player.id);
     }
 
     console.log('\nFinal lineup slots:', slots);
