@@ -48,6 +48,13 @@ export default {
           DEFAULT: "#000000",
           foreground: "#ffffff",
         },
+        green: {
+          900: "#064e3b",  // Darker green for borders
+          800: "#065f46",  // Slightly lighter but still dark green
+        },
+      },
+      borderColor: {
+        DEFAULT: "#065f46",  // Dark green border color
       },
       fontFamily: {
         sans: ["Inter", "sans-serif"],
