@@ -35,6 +35,21 @@ export const generateLineups = async (settingsId: string): Promise<GeneratedLine
   console.log('Starting lineup generation with settings ID:', settingsId);
   
   try {
+    // First get the sport from the settings
+    const { data: settings, error: settingsError } = await supabase
+      .from('optimization_settings')
+      .select('sport')
+      .eq('id', settingsId)
+      .single();
+
+    if (settingsError) throw settingsError;
+
+    // Validate we have enough players for the specific sport
+    const validPlayersCount = await checkValidPlayers(settings.sport);
+    if (validPlayersCount < 8) {
+      throw new Error(`Need at least 8 valid ${settings.sport.toUpperCase()} players with non-zero salary and projected points`);
+    }
+
     const { data, error } = await supabase
       .rpc('generate_optimal_lineups', {
         settings_id: settingsId
@@ -65,6 +80,8 @@ export const generateLineups = async (settingsId: string): Promise<GeneratedLine
 };
 
 export const checkValidPlayers = async (sport: Sport = 'nba') => {
+  console.log('Checking valid players for sport:', sport);
+  
   const { count, error } = await supabase
     .from('players')
     .select('id', { count: 'exact', head: true })
@@ -73,6 +90,11 @@ export const checkValidPlayers = async (sport: Sport = 'nba') => {
     .gt('salary', 0)
     .gt('projected_points', 0);
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error checking valid players:', error);
+    throw error;
+  }
+
+  console.log(`Found ${count} valid ${sport} players`);
   return count || 0;
 };

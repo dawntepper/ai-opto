@@ -11,6 +11,8 @@ export const validateSettings = (settings: OptimizationSettings) => {
 };
 
 export const getValidPlayersStats = async (sport: Sport = 'nba') => {
+  console.log('Getting valid players stats for sport:', sport);
+  
   const { data: players, error } = await supabase
     .from('players')
     .select('salary, projected_points')
@@ -22,16 +24,19 @@ export const getValidPlayersStats = async (sport: Sport = 'nba') => {
   if (error) throw error;
 
   if (!players || players.length === 0) {
-    throw new Error('No valid players found with non-zero salary and projected points');
+    throw new Error(`No valid ${sport.toUpperCase()} players found with non-zero salary and projected points`);
   }
 
   const totalSalary = players.reduce((sum, p) => sum + p.salary, 0);
   const avgSalary = totalSalary / players.length;
 
+  const stats = `Found ${players.length} valid ${sport.toUpperCase()} players with average salary $${Math.round(avgSalary)}`;
+  console.log(stats);
+
   return {
     count: players.length,
     totalSalary,
     avgSalary,
-    stats: `Found ${players.length} valid players with average salary $${Math.round(avgSalary)}`
+    stats
   };
 };
