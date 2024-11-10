@@ -25,13 +25,13 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
             Sport
           </label>
           <Select
-            value={settings.sport || 'nba'}
+            value={settings.sport || ''}
             onValueChange={(sport: 'nba' | 'nfl' | 'mlb') => 
               setSettings({ ...settings, sport })
             }
           >
             <SelectTrigger className="bg-white dark:bg-gray-700 border-green-900 flex items-center">
-              <SelectValue />
+              <SelectValue placeholder="Select Sport" />
               <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
             </SelectTrigger>
             <SelectContent>

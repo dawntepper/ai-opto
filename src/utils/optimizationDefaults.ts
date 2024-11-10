@@ -1,51 +1,57 @@
-import { EntryType } from '../types';
+import { EntryType, Sport } from '../types';
 
-export function getDefaultMaxOwnership(entryType: EntryType, sport: 'nba' | 'nfl' = 'nba'): number {
-  if (sport === 'nfl') {
-    switch (entryType) {
-      case 'single': return 40;
-      case '3-max': return 30;
-      case '20-max': return 25;
-    }
-  }
+export const getDefaultMaxOwnership = (entryType: EntryType, sport?: Sport) => {
+  if (!sport) return 30;
   
-  // NBA defaults
   switch (entryType) {
-    case 'single': return 30;
-    case '3-max': return 35;
-    case '20-max': return 25;
+    case 'single':
+      return 30;
+    case '3-max':
+      return 35;
+    case '20-max':
+      return 25;
+    default:
+      return 30;
   }
-}
+};
 
-export function getDefaultCorrelation(entryType: EntryType, sport: 'nba' | 'nfl' = 'nba'): 'weak' | 'medium' | 'strong' {
-  if (sport === 'nfl') {
-    switch (entryType) {
-      case 'single': return 'medium';
-      case '3-max': return 'strong';
-      case '20-max': return 'strong';
-    }
-  }
+export const getDefaultCorrelation = (entryType: EntryType, sport?: Sport) => {
+  if (!sport) return 'medium';
   
-  // NBA defaults
   switch (entryType) {
-    case 'single': return 'medium';
-    case '3-max': return 'medium';
-    case '20-max': return 'strong';
+    case 'single':
+      return 'medium';
+    case '3-max':
+      return 'strong';
+    case '20-max':
+      return 'strong';
+    default:
+      return 'medium';
   }
-}
+};
 
-export function getDefaultLineupCount(entryType: EntryType): number {
+export const getDefaultLineupCount = (entryType: EntryType) => {
   switch (entryType) {
-    case 'single': return 1;
-    case '3-max': return 3;
-    case '20-max': return 20;
+    case 'single':
+      return 1;
+    case '3-max':
+      return 3;
+    case '20-max':
+      return 20;
+    default:
+      return 1;
   }
-}
+};
 
-export function getMaxLineups(entryType: EntryType): number {
+export const getMaxLineups = (entryType: EntryType) => {
   switch (entryType) {
-    case 'single': return 1;
-    case '3-max': return 3;
-    case '20-max': return 20;
+    case 'single':
+      return 1;
+    case '3-max':
+      return 3;
+    case '20-max':
+      return 20;
+    default:
+      return 1;
   }
-}
+};
