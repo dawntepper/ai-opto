@@ -13,7 +13,7 @@ interface EntryTypeSettingsProps {
 
 const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) => {
   return (
-    <Card className="p-4 bg-white dark:bg-gray-800 border-green-100">
+    <Card className="p-4 bg-gray-200 dark:bg-gray-800 border-green-100">
       <div className="flex items-center gap-2 mb-4">
         <Settings2 className="h-5 w-5 text-green-600" />
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Entry Type Settings</h3>
