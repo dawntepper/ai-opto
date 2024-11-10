@@ -6,12 +6,12 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
   const header = NBA_POSITIONS.join('\t');
   
   const formattedLineups = lineups.map(lineup => {
-    console.log('Current lineup object:', lineup);
     const players = lineup.lineup_players || [];
     console.log('Processing lineup players:', JSON.stringify(players, null, 2));
     
     const slots = new Array(8).fill('()');
     const usedPlayerIds = new Set();
+    const positionAssignments = new Map();
 
     // Helper function to check if a player is eligible for a position
     const isEligibleForPosition = (player: any, pos: string) => {
@@ -36,47 +36,46 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
       return `${player.player.name} (${player.player.partner_id || ''})`;
     };
 
-    // Helper function to find next available player for position
-    const findPlayerForPosition = (position: string, availablePlayers: any[]) => {
-      return availablePlayers.find(p => 
-        !usedPlayerIds.has(p.player.id) && isEligibleForPosition(p, position)
+    // Helper function to find an unused player for a position
+    const findUnusedPlayerForPosition = (position: string) => {
+      return players.find(p => 
+        !usedPlayerIds.has(p.player.id) && 
+        isEligibleForPosition(p, position)
       );
     };
 
-    // Get all available players for each position
-    const getAvailablePlayers = () => 
-      players.filter(p => !usedPlayerIds.has(p.player.id));
-
-    // Fill positions sequentially
-    // Primary positions first (PG, SG, SF, PF, C)
+    // Fill primary positions first (PG, SG, SF, PF, C)
     ['PG', 'SG', 'SF', 'PF', 'C'].forEach((pos, index) => {
-      const player = findPlayerForPosition(pos, getAvailablePlayers());
+      const player = findUnusedPlayerForPosition(pos);
       if (player) {
         slots[index] = formatPlayer(player);
+        positionAssignments.set(player.player.id, pos);
       }
     });
 
-    // Fill G slot (index 5)
-    const availableForG = getAvailablePlayers();
-    const guardPlayer = findPlayerForPosition('G', availableForG);
-    if (guardPlayer) {
-      slots[5] = formatPlayer(guardPlayer);
+    // For G slot, find any unused guard
+    const gSlotPlayer = findUnusedPlayerForPosition('G');
+    if (gSlotPlayer) {
+      slots[5] = formatPlayer(gSlotPlayer);
+      positionAssignments.set(gSlotPlayer.player.id, 'G');
     }
 
-    // Fill F slot (index 6)
-    const availableForF = getAvailablePlayers();
-    const forwardPlayer = findPlayerForPosition('F', availableForF);
-    if (forwardPlayer) {
-      slots[6] = formatPlayer(forwardPlayer);
+    // For F slot, find any unused forward
+    const fSlotPlayer = findUnusedPlayerForPosition('F');
+    if (fSlotPlayer) {
+      slots[6] = formatPlayer(fSlotPlayer);
+      positionAssignments.set(fSlotPlayer.player.id, 'F');
     }
 
-    // Fill UTIL slot (index 7)
-    const availableForUtil = getAvailablePlayers();
-    if (availableForUtil.length > 0) {
-      slots[7] = formatPlayer(availableForUtil[0]);
+    // For UTIL, use any remaining unused player
+    const remainingPlayer = players.find(p => !usedPlayerIds.has(p.player.id));
+    if (remainingPlayer) {
+      slots[7] = formatPlayer(remainingPlayer);
+      positionAssignments.set(remainingPlayer.player.id, 'UTIL');
     }
 
     console.log('Final lineup slots:', slots);
+    console.log('Position assignments:', Object.fromEntries(positionAssignments));
     console.log('Used player IDs:', [...usedPlayerIds]);
     return slots.join('\t');
   });
