@@ -8,6 +8,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     const slots = new Array(8).fill('()');
     let remainingPlayers = [...players];
     let assignedPlayerIds = new Set();
+    let positionAssignments = new Map(); // Track which positions players are assigned to
 
     const isEligibleForPosition = (player: any, pos: string) => {
       if (!player?.player?.position) return false;
@@ -37,60 +38,49 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
         const player = remainingPlayers[playerIndex];
         slots[index] = `${player.player.name} (${player.player.partner_id || ''})`;
         assignedPlayerIds.add(player.player.id);
+        positionAssignments.set(player.player.id, position);
         console.log(`Added ${player.player.name} to ${position} slot`);
       }
     });
 
-    // Fill G slot
+    // Fill G slot - consider all players, including those assigned to PG/SG
     console.log('\nProcessing G slot...');
-    console.log('Remaining unassigned players:', remainingPlayers
-      .filter(p => !assignedPlayerIds.has(p.player.id))
-      .map(p => `${p.player.name} (${p.player.position})`));
-
-    const guardIndex = remainingPlayers.findIndex(lp => {
-      if (assignedPlayerIds.has(lp.player.id)) {
-        return false;
-      }
+    const eligibleGuards = players.filter(lp => {
       const isEligible = isEligibleForPosition(lp, 'G');
-      if (!isEligible) {
+      const currentPosition = positionAssignments.get(lp.player.id);
+      const canReuse = currentPosition === 'PG' || currentPosition === 'SG';
+      if (!isEligible && !canReuse) {
         console.log(`${lp.player.name} not eligible for G slot (positions: ${lp.player.position})`);
       }
-      return isEligible;
+      return isEligible && !assignedPlayerIds.has(lp.player.id) || canReuse;
     });
 
-    if (guardIndex !== -1) {
-      const player = remainingPlayers[guardIndex];
-      slots[5] = `${player.player.name} (${player.player.partner_id || ''})`;
-      assignedPlayerIds.add(player.player.id);
-      console.log(`Added ${player.player.name} to G slot`);
+    if (eligibleGuards.length > 0) {
+      const guard = eligibleGuards[0];
+      slots[5] = `${guard.player.name} (${guard.player.partner_id || ''})`;
+      console.log(`Added ${guard.player.name} to G slot`);
     } else {
-      console.log('No eligible guards remaining for G slot');
+      console.log('No eligible guards available for G slot');
     }
 
-    // Fill F slot
+    // Fill F slot - consider all players, including those assigned to SF/PF
     console.log('\nProcessing F slot...');
-    console.log('Remaining unassigned players:', remainingPlayers
-      .filter(p => !assignedPlayerIds.has(p.player.id))
-      .map(p => `${p.player.name} (${p.player.position})`));
-
-    const forwardIndex = remainingPlayers.findIndex(lp => {
-      if (assignedPlayerIds.has(lp.player.id)) {
-        return false;
-      }
+    const eligibleForwards = players.filter(lp => {
       const isEligible = isEligibleForPosition(lp, 'F');
-      if (!isEligible) {
+      const currentPosition = positionAssignments.get(lp.player.id);
+      const canReuse = currentPosition === 'SF' || currentPosition === 'PF';
+      if (!isEligible && !canReuse) {
         console.log(`${lp.player.name} not eligible for F slot (positions: ${lp.player.position})`);
       }
-      return isEligible;
+      return isEligible && !assignedPlayerIds.has(lp.player.id) || canReuse;
     });
 
-    if (forwardIndex !== -1) {
-      const player = remainingPlayers[forwardIndex];
-      slots[6] = `${player.player.name} (${player.player.partner_id || ''})`;
-      assignedPlayerIds.add(player.player.id);
-      console.log(`Added ${player.player.name} to F slot`);
+    if (eligibleForwards.length > 0) {
+      const forward = eligibleForwards[0];
+      slots[6] = `${forward.player.name} (${forward.player.partner_id || ''})`;
+      console.log(`Added ${forward.player.name} to F slot`);
     } else {
-      console.log('No eligible forwards remaining for F slot');
+      console.log('No eligible forwards available for F slot');
     }
 
     // Fill UTIL slot
