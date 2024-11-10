@@ -75,33 +75,40 @@ export const transformDraftKingsData = (player: DraftKingsPlayer) => {
   };
 };
 
+const safeNumber = (value: any): number => {
+  // Convert to number and handle various cases
+  const num = Number(value);
+  // Return 0 for null, undefined, NaN, empty string, or negative values
+  return (!value || isNaN(num) || num < 0) ? 0 : num;
+};
+
 export const transformEnhancedProjections = (proj: EnhancedProjection) => {
   // Get projected points from either fpts or rg_value, ensuring positive values
   const projectedPoints = Math.max(
-    Number(proj.fpts) || 0,
-    Number(proj.rg_value) || 0
+    safeNumber(proj.fpts),
+    safeNumber(proj.rg_value)
   );
 
   // Ensure salary is a positive number
-  const salary = Math.max(Number(proj.salary) || 0, 0);
+  const salary = safeNumber(proj.salary);
 
   // Ensure ownership is a non-negative number
-  const ownership = Math.max(Number(proj.proj_own) || 0, 0);
+  const ownership = safeNumber(proj.proj_own);
 
   return {
-    name: proj.name,
-    position: proj.pos,
-    team: proj.team,
-    opponent: proj.opp,
+    name: proj.name || '',
+    position: proj.pos || '',
+    team: proj.team || '',
+    opponent: proj.opp || '',
     projected_points: projectedPoints,
     salary: salary,
     ownership: ownership,
     status: 'available',
-    roster_positions: mapPositionToRosterPositions(proj.pos),
-    ceiling: Number(proj.ceil) || null,
-    floor: Number(proj.floor) || null,
-    partner_id: proj.partner_id,
-    rg_id: proj.rg_id,
+    roster_positions: mapPositionToRosterPositions(proj.pos || ''),
+    ceiling: safeNumber(proj.ceil),
+    floor: safeNumber(proj.floor),
+    partner_id: proj.partner_id || null,
+    rg_id: proj.rg_id || null,
     sport: 'nfl'
   };
 };
