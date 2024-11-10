@@ -29,6 +29,10 @@ const GeneratedLineups = ({ onBack }: GeneratedLineupsProps) => {
               ownership,
               team,
               opponent,
+              sport,
+              snap_count,
+              target_share,
+              rush_share,
               ceiling
             )
           )

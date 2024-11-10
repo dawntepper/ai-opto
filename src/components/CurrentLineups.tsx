@@ -21,7 +21,11 @@ const CurrentLineups = () => {
               projected_points,
               ownership,
               team,
-              opponent
+              opponent,
+              sport,
+              snap_count,
+              target_share,
+              rush_share
             )
           )
         `)
@@ -50,6 +54,7 @@ const CurrentLineups = () => {
                 totalSalary={lineup.total_salary}
                 totalOwnership={lineup.total_ownership}
                 projectedPoints={lineup.projected_points}
+                sport={lineup.sport}
               />
             </div>
           </Card>

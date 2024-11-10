@@ -18,6 +18,9 @@ interface Player {
   projected_points: number;
   partner_id?: string;
   sport?: 'nba' | 'nfl' | 'mlb';
+  snap_count?: number;
+  target_share?: number;
+  rush_share?: number;
 }
 
 interface LineupTableProps {
@@ -36,6 +39,26 @@ const POSITIONS = {
 
 const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints, sport = 'nba' }: LineupTableProps) => {
   const positions = POSITIONS[sport] || POSITIONS.nba;
+
+  const renderNFLStats = (player: Player) => (
+    <>
+      {player.snap_count && (
+        <div className="text-xs text-muted-foreground">
+          Snaps: {player.snap_count}
+        </div>
+      )}
+      {player.target_share && (
+        <div className="text-xs text-muted-foreground">
+          Tgt%: {(player.target_share * 100).toFixed(1)}%
+        </div>
+      )}
+      {player.rush_share && (
+        <div className="text-xs text-muted-foreground">
+          Rush%: {(player.rush_share * 100).toFixed(1)}%
+        </div>
+      )}
+    </>
+  );
 
   return (
     <div className="w-full overflow-x-auto">
@@ -60,6 +83,7 @@ const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints, sp
                 <div className="flex flex-col gap-1">
                   <span className="text-sm text-muted-foreground">{lp.player.team}</span>
                   <span className="font-medium text-foreground">{lp.player.name}</span>
+                  {sport === 'nfl' && renderNFLStats(lp.player)}
                 </div>
               </TableCell>
               <TableCell className="text-foreground">{lp.player.team} @ {lp.player.opponent}</TableCell>
