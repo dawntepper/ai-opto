@@ -17,6 +17,7 @@ interface Player {
   ownership: number;
   projected_points: number;
   partner_id?: string;
+  sport?: 'nba' | 'nfl' | 'mlb';
 }
 
 interface LineupTableProps {
@@ -24,11 +25,18 @@ interface LineupTableProps {
   totalSalary: number;
   totalOwnership: number;
   projectedPoints: number;
+  sport?: 'nba' | 'nfl' | 'mlb';
 }
 
-const NBA_POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'UTIL'];
+const POSITIONS = {
+  nba: ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'UTIL'],
+  nfl: ['QB', 'RB', 'RB', 'WR', 'WR', 'WR', 'TE', 'FLEX', 'DST'],
+  mlb: [] // To be implemented
+};
 
-const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints }: LineupTableProps) => {
+const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints, sport = 'nba' }: LineupTableProps) => {
+  const positions = POSITIONS[sport] || POSITIONS.nba;
+
   return (
     <div className="w-full overflow-x-auto">
       <Table>
@@ -46,7 +54,7 @@ const LineupTable = ({ players, totalSalary, totalOwnership, projectedPoints }: 
           {players && players.map((lp, index) => (
             <TableRow key={`${lp.player.id}`} className="hover:bg-muted">
               <TableCell className="font-medium text-foreground">
-                {NBA_POSITIONS[index]}
+                {positions[index]}
               </TableCell>
               <TableCell>
                 <div className="flex flex-col gap-1">
