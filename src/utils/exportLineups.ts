@@ -9,32 +9,10 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     const players = lineup.lineup_players || [];
     console.log('Processing lineup players:', JSON.stringify(players, null, 2));
     
-    // Create array to store players in their correct positions
-    const slots = new Array(8).fill('()');
-    
-    // Format player for CSV
-    const formatPlayer = (player: any) => {
-      return `${player.player.name} (${player.player.partner_id || ''})`;
-    };
-
-    // Process each player in the lineup
-    players.forEach(playerData => {
-      const player = playerData.player;
-      if (!player || !player.position) return;
-
-      // Get all positions this player can play
-      const positions = player.roster_positions ? 
-        player.roster_positions.split(',') : 
-        player.position.split('/');
-
-      // Find the first available slot for this player
-      for (let i = 0; i < NBA_POSITIONS.length; i++) {
-        const pos = NBA_POSITIONS[i];
-        if (slots[i] === '()' && positions.includes(pos)) {
-          slots[i] = formatPlayer(playerData);
-          break;
-        }
-      }
+    // Get the players' names and IDs in the exact order they appear in the lineup
+    const slots = NBA_POSITIONS.map((_, index) => {
+      const player = players[index]?.player;
+      return player ? `${player.name} (${player.partner_id || ''})` : '()';
     });
 
     console.log('Final lineup slots:', slots);
