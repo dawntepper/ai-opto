@@ -31,6 +31,10 @@ export const saveOptimizationSettings = async (settings: OptimizationSettings) =
   return data;
 };
 
+const isSport = (value: string): value is Sport => {
+  return ['nba', 'nfl', 'mlb'].includes(value as Sport);
+};
+
 export const generateLineups = async (settingsId: string): Promise<GeneratedLineup[]> => {
   console.log('Starting lineup generation with settings ID:', settingsId);
   
@@ -43,6 +47,9 @@ export const generateLineups = async (settingsId: string): Promise<GeneratedLine
       .single();
 
     if (settingsError) throw settingsError;
+    if (!settings.sport || !isSport(settings.sport)) {
+      throw new Error('Invalid sport type');
+    }
 
     // Validate we have enough players for the specific sport
     const validPlayersCount = await checkValidPlayers(settings.sport);
