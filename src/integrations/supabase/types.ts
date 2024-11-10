@@ -329,6 +329,33 @@ export type Database = {
         }
         Relationships: []
       }
+      position_requirements: {
+        Row: {
+          created_at: string | null
+          id: string
+          max_count: number
+          min_count: number
+          position: string
+          sport: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          max_count: number
+          min_count: number
+          position: string
+          sport: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          max_count?: number
+          min_count?: number
+          position?: string
+          sport?: string
+        }
+        Relationships: []
+      }
       slate_analysis: {
         Row: {
           content: string
@@ -379,6 +406,12 @@ export type Database = {
           multiplier: number
         }
         Returns: number
+      }
+      validate_nfl_lineup: {
+        Args: {
+          lineup_id: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
