@@ -9,6 +9,7 @@ interface GeneratedLineup {
 }
 
 export const saveOptimizationSettings = async (settings: OptimizationSettings) => {
+  console.log('Saving optimization settings:', settings);
   const { data, error } = await supabase
     .from('optimization_settings')
     .insert({
@@ -28,6 +29,7 @@ export const saveOptimizationSettings = async (settings: OptimizationSettings) =
     throw error;
   }
   
+  console.log('Successfully saved optimization settings:', data);
   return data;
 };
 
@@ -46,17 +48,27 @@ export const generateLineups = async (settingsId: string): Promise<GeneratedLine
       .eq('id', settingsId)
       .single();
 
-    if (settingsError) throw settingsError;
+    if (settingsError) {
+      console.error('Error fetching settings:', settingsError);
+      throw settingsError;
+    }
+
+    console.log('Retrieved settings:', settings);
+
     if (!settings.sport || !isSport(settings.sport)) {
+      console.error('Invalid sport type:', settings.sport);
       throw new Error('Invalid sport type');
     }
 
     // Validate we have enough players for the specific sport
     const validPlayersCount = await checkValidPlayers(settings.sport);
+    console.log(`Found ${validPlayersCount} valid players for ${settings.sport}`);
+
     if (validPlayersCount < 8) {
       throw new Error(`Need at least 8 valid ${settings.sport.toUpperCase()} players with non-zero salary and projected points`);
     }
 
+    console.log('Calling generate_optimal_lineups function...');
     const { data, error } = await supabase
       .rpc('generate_optimal_lineups', {
         settings_id: settingsId
@@ -68,10 +80,12 @@ export const generateLineups = async (settingsId: string): Promise<GeneratedLine
     }
 
     if (!data) {
+      console.error('No data received from lineup generation');
       throw new Error('No data received from lineup generation');
     }
 
     const lineups = Array.isArray(data) ? data : [data];
+    console.log(`Successfully generated ${lineups.length} lineups`);
     
     return lineups.map(lineup => ({
       lineup_id: lineup.lineup_id,
