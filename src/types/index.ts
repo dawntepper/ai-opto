@@ -12,6 +12,9 @@ export interface Player {
   ownership: number;
   status: 'available' | 'questionable' | 'out';
   sport?: Sport;
+  snapCount?: number;
+  targetShare?: number;
+  rushShare?: number;
 }
 
 export interface Lineup {
@@ -30,4 +33,15 @@ export interface OptimizationSettings {
   correlationStrength: 'weak' | 'medium' | 'strong';
   lineupCount: number;
   sport?: Sport;
+}
+
+export interface DefensiveMatchup {
+  id: string;
+  team: string;
+  position: string;
+  points_allowed_per_game: number;
+  rank: number;
+  season: string;
+  week: number | null;
+  last_updated?: string;
 }

@@ -26,9 +26,9 @@ const PlayerPoolRow = ({ player }: PlayerPoolRowProps) => {
       </TableCell>
       {player.sport === 'nfl' && (
         <>
-          <TableCell>{player.snapCount}%</TableCell>
-          <TableCell>{player.targetShare}%</TableCell>
-          <TableCell>{player.rushShare}%</TableCell>
+          <TableCell>{player.snapCount ?? '-'}%</TableCell>
+          <TableCell>{player.targetShare ?? '-'}%</TableCell>
+          <TableCell>{player.rushShare ?? '-'}%</TableCell>
         </>
       )}
     </TableRow>

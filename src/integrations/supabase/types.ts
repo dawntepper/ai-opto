@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      defensive_matchups: {
+        Row: {
+          id: string
+          last_updated: string | null
+          points_allowed_per_game: number
+          position: string
+          rank: number
+          season: string
+          team: string
+          week: number | null
+        }
+        Insert: {
+          id?: string
+          last_updated?: string | null
+          points_allowed_per_game: number
+          position: string
+          rank: number
+          season: string
+          team: string
+          week?: number | null
+        }
+        Update: {
+          id?: string
+          last_updated?: string | null
+          points_allowed_per_game?: number
+          position?: string
+          rank?: number
+          season?: string
+          team?: string
+          week?: number | null
+        }
+        Relationships: []
+      }
       file_uploads: {
         Row: {
           content: string | null

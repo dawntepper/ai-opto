@@ -1,3 +1,5 @@
+// ... keep existing code
+
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
 export type TablesInsert<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert']
 export type TablesUpdate<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update']
@@ -30,6 +32,39 @@ type Database = {
           processed?: boolean | null
           content?: string | null
         }
+      }
+      defensive_matchups: {
+        Row: {
+          id: string;
+          team: string;
+          position: string;
+          points_allowed_per_game: number;
+          rank: number;
+          season: string;
+          week: number | null;
+          last_updated: string | null;
+        }
+        Insert: {
+          id?: string;
+          team: string;
+          position: string;
+          points_allowed_per_game: number;
+          rank: number;
+          season: string;
+          week?: number | null;
+          last_updated?: string | null;
+        }
+        Update: {
+          id?: string;
+          team?: string;
+          position?: string;
+          points_allowed_per_game?: number;
+          rank?: number;
+          season?: string;
+          week?: number | null;
+          last_updated?: string | null;
+        }
+        Relationships: []
       }
       lineup_players: {
         Row: {
