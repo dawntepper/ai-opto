@@ -12,55 +12,47 @@ export interface DraftKingsPlayer {
 }
 
 export interface EnhancedProjection {
-  Name: string;
-  Team: string;
-  Projection: number;
-  Salary: number;
-  'Pts/$1k': number;
-  FPPM: number;
-  'USG%': number;
-  Opp: string;
-  DVP: number;
-  Spread: number;
-  Total: number;
-  'O/U': number;
-  Minutes: number;
-  PTS: number;
-  AST: number;
-  REB: number;
-  STL: number;
-  BLK: number;
-  FT: number;
-  FGA: number;
-  FGM: number;
-  PER: number;
-  'FG%': number;
-  'eFG%': number;
+  player_id: string;
+  team: string;
+  opp: string;
+  pos: string;
+  name: string;
+  fpts: number;
+  proj_own: number;
+  smash: number;
+  opto_pct: number;
+  value_percent: number;
+  ceil: number;
+  floor: number;
+  min_exposure: number;
+  max_exposure: number;
+  rg_value: number;
+  salary: number;
+  custom: string;
+  rg_id: string;
+  partner_id: string;
 }
 
 const mapPositionToRosterPositions = (position: string): string => {
-  // Handle multi-position players (e.g., "PG/SG")
   const positions = position.split('/');
   
-  // Map each position to its eligible roster spots
   const rosterPositions = positions.map(pos => {
     switch (pos.trim()) {
-      case 'PG':
-        return ['PG', 'G', 'UTIL'];
-      case 'SG':
-        return ['SG', 'G', 'UTIL'];
-      case 'SF':
-        return ['SF', 'F', 'UTIL'];
-      case 'PF':
-        return ['PF', 'F', 'UTIL'];
-      case 'C':
-        return ['C', 'UTIL'];
+      case 'QB':
+        return ['QB'];
+      case 'RB':
+        return ['RB', 'FLEX'];
+      case 'WR':
+        return ['WR', 'FLEX'];
+      case 'TE':
+        return ['TE', 'FLEX'];
+      case 'DST':
+        return ['DST'];
       default:
-        return ['UTIL'];
+        return ['FLEX'];
     }
   });
 
-  // Flatten and deduplicate the array
   return [...new Set(rosterPositions.flat())].join(',');
 };
 
@@ -78,40 +70,26 @@ export const transformDraftKingsData = (player: DraftKingsPlayer) => {
     projected_points: Number(player.AvgPointsPerGame) || 0,
     ownership: 0,
     status: 'available',
-    roster_positions: mapPositionToRosterPositions(player.Position)
+    roster_positions: mapPositionToRosterPositions(player.Position),
+    sport: 'nfl'
   };
 };
 
-export const transformEnhancedProjections = (proj: EnhancedProjection, positionData?: { [key: string]: string }) => {
-  const position = positionData?.[proj.Name] || 'UNKNOWN';
-  
+export const transformEnhancedProjections = (proj: EnhancedProjection) => {
   return {
-    name: proj.Name,
-    position: position,
-    team: proj.Team,
-    opponent: proj.Opp,
-    projected_points: Number(proj.Projection) || 0,
-    salary: Number(proj.Salary) || 0,
-    ownership: 0,
+    name: proj.name,
+    position: proj.pos,
+    team: proj.team,
+    opponent: proj.opp,
+    projected_points: Number(proj.fpts) || 0,
+    salary: Number(proj.salary) || 0,
+    ownership: Number(proj.proj_own) || 0,
     status: 'available',
-    roster_positions: mapPositionToRosterPositions(position),
-    fppm: Number(proj.FPPM) || 0,
-    usage_rate: Number(proj['USG%']) || 0,
-    dvp: Number(proj.DVP) || 0,
-    spread: Number(proj.Spread) || 0,
-    total: Number(proj.Total) || 0,
-    over_under: Number(proj['O/U']) || 0,
-    minutes: Number(proj.Minutes) || 0,
-    points: Number(proj.PTS) || 0,
-    assists: Number(proj.AST) || 0,
-    rebounds: Number(proj.REB) || 0,
-    steals: Number(proj.STL) || 0,
-    blocks: Number(proj.BLK) || 0,
-    free_throws: Number(proj.FT) || 0,
-    field_goals_attempted: Number(proj.FGA) || 0,
-    field_goals_made: Number(proj.FGM) || 0,
-    player_efficiency: Number(proj.PER) || 0,
-    field_goal_percentage: Number(proj['FG%']) || 0,
-    effective_field_goal_percentage: Number(proj['eFG%']) || 0
+    roster_positions: mapPositionToRosterPositions(proj.pos),
+    ceiling: Number(proj.ceil) || null,
+    floor: Number(proj.floor) || null,
+    partner_id: proj.partner_id,
+    rg_id: proj.rg_id,
+    sport: 'nfl'
   };
 };
