@@ -12,7 +12,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     // Get the players' names and IDs in the exact order they appear in the lineup
     const slots = NBA_POSITIONS.map((_, index) => {
       const player = players[index]?.player;
-      return player ? `${player.name} (${player.partner_id || ''})` : '()';
+      return player ? `${player.name} (${player.id || ''})` : '()';
     });
 
     console.log('Final lineup slots:', slots);
