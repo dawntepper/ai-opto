@@ -6,6 +6,7 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
   const header = NBA_POSITIONS.join('\t');
   
   const formattedLineups = lineups.map(lineup => {
+    console.log('Current lineup object:', lineup);
     const players = lineup.lineup_players || [];
     console.log('Processing lineup players:', JSON.stringify(players, null, 2));
     
