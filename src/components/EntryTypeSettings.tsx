@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Settings2 } from "lucide-react";
 import { EntryType, OptimizationSettings } from '../types';
 import { getDefaultMaxOwnership, getDefaultCorrelation, getDefaultLineupCount, getMaxLineups } from '../utils/optimizationDefaults';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface EntryTypeSettingsProps {
   settings: OptimizationSettings;
@@ -17,15 +18,36 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
         <Settings2 className="h-5 w-5 text-green-600" />
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Entry Type Settings</h3>
       </div>
+      
       <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Sport
+          </label>
+          <Select
+            value={settings.sport || 'nba'}
+            onValueChange={(sport: 'nba' | 'nfl') => 
+              setSettings({ ...settings, sport })
+            }
+          >
+            <SelectTrigger className="bg-white dark:bg-gray-700 border-green-100">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="nba">NBA</SelectItem>
+              <SelectItem value="nfl">NFL</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="grid grid-cols-3 gap-2">
           <Button
             variant={settings.entryType === 'single' ? "default" : "outline"}
             onClick={() => setSettings({ 
               ...settings, 
               entryType: 'single',
-              maxOwnership: getDefaultMaxOwnership('single'),
-              correlationStrength: getDefaultCorrelation('single'),
+              maxOwnership: getDefaultMaxOwnership('single', settings.sport),
+              correlationStrength: getDefaultCorrelation('single', settings.sport),
               lineupCount: getDefaultLineupCount('single')
             })}
             className={`${settings.entryType !== 'single' ? "text-gray-700 dark:text-gray-300 border-green-100" : "bg-green-600 hover:bg-green-700 text-white"}`}
@@ -37,8 +59,8 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
             onClick={() => setSettings({ 
               ...settings, 
               entryType: '3-max',
-              maxOwnership: getDefaultMaxOwnership('3-max'),
-              correlationStrength: getDefaultCorrelation('3-max'),
+              maxOwnership: getDefaultMaxOwnership('3-max', settings.sport),
+              correlationStrength: getDefaultCorrelation('3-max', settings.sport),
               lineupCount: getDefaultLineupCount('3-max')
             })}
             className={`${settings.entryType !== '3-max' ? "text-gray-700 dark:text-gray-300 border-green-100" : "bg-green-600 hover:bg-green-700 text-white"}`}
@@ -50,8 +72,8 @@ const EntryTypeSettings = ({ settings, setSettings }: EntryTypeSettingsProps) =>
             onClick={() => setSettings({ 
               ...settings, 
               entryType: '20-max',
-              maxOwnership: getDefaultMaxOwnership('20-max'),
-              correlationStrength: getDefaultCorrelation('20-max'),
+              maxOwnership: getDefaultMaxOwnership('20-max', settings.sport),
+              correlationStrength: getDefaultCorrelation('20-max', settings.sport),
               lineupCount: getDefaultLineupCount('20-max')
             })}
             className={`${settings.entryType !== '20-max' ? "text-gray-700 dark:text-gray-300 border-green-100" : "bg-green-600 hover:bg-green-700 text-white"}`}
