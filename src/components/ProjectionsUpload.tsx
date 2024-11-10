@@ -13,9 +13,10 @@ import {
 
 interface ProjectionsUploadProps {
   onProjectionsUploaded: () => void;
+  sport?: 'nba' | 'nfl';
 }
 
-const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) => {
+const ProjectionsUpload = ({ onProjectionsUploaded, sport = 'nba' }: ProjectionsUploadProps) => {
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     const reader = new FileReader();
@@ -61,11 +62,41 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
     maxFiles: 1
   });
 
+  const getNFLHeaders = () => (
+    <ul className="text-sm text-gray-300 list-disc pl-4">
+      <li>partner_id - Unique identifier from DraftKings</li>
+      <li>name - Player name</li>
+      <li>position - QB, RB, WR, TE, DST</li>
+      <li>salary - DraftKings salary</li>
+      <li>team - Team abbreviation</li>
+      <li>opp - Opponent team</li>
+      <li>fpts - Projected fantasy points</li>
+      <li>proj_own - Projected ownership %</li>
+      <li>snap_count - Snap count (optional)</li>
+      <li>target_share - Target share % (optional)</li>
+      <li>rush_share - Rush share % (optional)</li>
+    </ul>
+  );
+
+  const getNBAHeaders = () => (
+    <ul className="text-sm text-gray-300 list-disc pl-4">
+      <li>partner_id - Unique identifier</li>
+      <li>name - Player name</li>
+      <li>fpts - Projected fantasy points</li>
+      <li>proj_own - Projected ownership %</li>
+      <li>team - Team abbreviation</li>
+      <li>opp - Opponent team</li>
+      <li>pos - Position</li>
+      <li>salary - Player salary</li>
+      <li>Optional: ceil, floor, minutes</li>
+    </ul>
+  );
+
   return (
     <div className="bg-black/90 p-6 rounded-xl">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-medium text-white">Upload Projections</h3>
+          <h3 className="text-lg font-medium text-white">Upload {sport.toUpperCase()} Projections</h3>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
@@ -73,18 +104,10 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
               </TooltipTrigger>
               <TooltipContent className="max-w-sm bg-zinc-900 border-zinc-800">
                 <p className="font-medium text-white mb-2">Required CSV Headers:</p>
-                <ul className="text-sm text-gray-300 list-disc pl-4">
-                  <li>partner_id - Unique identifier</li>
-                  <li>name - Player name</li>
-                  <li>fpts - Projected fantasy points</li>
-                  <li>proj_own - Projected ownership %</li>
-                  <li>team - Team abbreviation</li>
-                  <li>opp - Opponent team</li>
-                  <li>pos - Position</li>
-                  <li>salary - Player salary</li>
-                  <li>Optional: ceil, floor, minutes</li>
-                </ul>
-                <p className="mt-2 text-xs text-gray-400">You can use any projections source as long as your CSV matches these headers.</p>
+                {sport === 'nfl' ? getNFLHeaders() : getNBAHeaders()}
+                <p className="mt-2 text-xs text-gray-400">
+                  You can use any projections source as long as your CSV matches these headers.
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -92,7 +115,7 @@ const ProjectionsUpload = ({ onProjectionsUploaded }: ProjectionsUploadProps) =>
       </div>
 
       <div className="text-sm text-gray-400 mb-4">
-        Click or drag & drop to upload your projections file.
+        Click or drag & drop to upload your {sport.toUpperCase()} projections file.
       </div>
 
       <div
