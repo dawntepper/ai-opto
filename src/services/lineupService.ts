@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { OptimizationSettings } from "../types";
+import { OptimizationSettings, Sport } from "../types";
 
 interface GeneratedLineup {
   lineup_id: string;
@@ -17,7 +17,8 @@ export const saveOptimizationSettings = async (settings: OptimizationSettings) =
       max_ownership: settings.maxOwnership,
       correlation_strength: settings.correlationStrength,
       lineup_count: settings.lineupCount,
-      min_value: 0
+      min_value: 0,
+      sport: settings.sport
     })
     .select()
     .single();
@@ -48,7 +49,6 @@ export const generateLineups = async (settingsId: string): Promise<GeneratedLine
       throw new Error('No data received from lineup generation');
     }
 
-    // Ensure data is an array, if not, wrap it in an array
     const lineups = Array.isArray(data) ? data : [data];
     
     return lineups.map(lineup => ({
@@ -64,11 +64,12 @@ export const generateLineups = async (settingsId: string): Promise<GeneratedLine
   }
 };
 
-export const checkValidPlayers = async () => {
+export const checkValidPlayers = async (sport: Sport = 'nba') => {
   const { count, error } = await supabase
     .from('players')
     .select('id', { count: 'exact', head: true })
     .eq('status', 'available')
+    .eq('sport', sport)
     .gt('salary', 0)
     .gt('projected_points', 0);
 

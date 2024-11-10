@@ -13,8 +13,6 @@ import FileUploadList from './FileUploadList';
 import { checkValidPlayers, generateLineups, saveOptimizationSettings } from '../services/lineupService';
 import { validateSettings, getValidPlayersStats } from '../services/optimizationService';
 import { supabase } from "@/integrations/supabase/client";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { ChevronDown } from "lucide-react";
 import OptimizerContent from './OptimizerContent';
 
 interface LineupOptimizerProps {
@@ -23,21 +21,21 @@ interface LineupOptimizerProps {
 
 const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   const queryClient = useQueryClient();
-  const [isNotesOpen, setIsNotesOpen] = useState(true);
   const [settings, setSettings] = useState<OptimizationSettings>({
     entryType,
     maxSalary: 50000,
     maxOwnership: getDefaultMaxOwnership(entryType),
     correlationStrength: getDefaultCorrelation(entryType),
-    lineupCount: getDefaultLineupCount(entryType)
+    lineupCount: getDefaultLineupCount(entryType),
+    sport: 'nba'
   });
 
   const [showLineups, setShowLineups] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
 
   const { data: validPlayersCount, isLoading: playersLoading } = useQuery({
-    queryKey: ['validPlayers'],
-    queryFn: checkValidPlayers
+    queryKey: ['validPlayers', settings.sport],
+    queryFn: () => checkValidPlayers(settings.sport)
   });
 
   const { data: fileUploads, refetch, isLoading: fileUploadsLoading } = useQuery({
@@ -68,11 +66,8 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
 
     setIsOptimizing(true);
     try {
-      // Validate settings
       validateSettings(settings);
-
-      // Get player stats for better error messages
-      const playerStats = await getValidPlayersStats();
+      const playerStats = await getValidPlayersStats(settings.sport);
       console.log('Player stats:', playerStats.stats);
 
       const settingsData = await saveOptimizationSettings(settings);
@@ -114,15 +109,13 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
   return <OptimizerContent 
     settings={settings}
     setSettings={setSettings}
-    isNotesOpen={isNotesOpen}
-    setIsNotesOpen={setIsNotesOpen}
     fileUploads={fileUploads}
     isLoading={fileUploadsLoading || playersLoading || isOptimizing}
     canOptimize={canOptimize}
     onOptimize={handleOptimize}
     onProjectionsUploaded={async () => {
       await refetch();
-      await queryClient.invalidateQueries({ queryKey: ['validPlayers'] });
+      await queryClient.invalidateQueries({ queryKey: ['validPlayers', settings.sport] });
       toast({
         title: "Files Processed",
         description: "Projections have been processed successfully"
@@ -138,7 +131,7 @@ const LineupOptimizer = ({ entryType }: LineupOptimizerProps) => {
         if (error) throw error;
         
         await refetch();
-        await queryClient.invalidateQueries({ queryKey: ['validPlayers'] });
+        await queryClient.invalidateQueries({ queryKey: ['validPlayers', settings.sport] });
         toast({
           title: "File Removed",
           description: "File has been removed successfully"

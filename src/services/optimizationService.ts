@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { OptimizationSettings } from "../types";
+import { OptimizationSettings, Sport } from "../types";
 
 export const validateSettings = (settings: OptimizationSettings) => {
   if (settings.maxSalary > 50000) {
@@ -10,11 +10,12 @@ export const validateSettings = (settings: OptimizationSettings) => {
   }
 };
 
-export const getValidPlayersStats = async () => {
+export const getValidPlayersStats = async (sport: Sport = 'nba') => {
   const { data: players, error } = await supabase
     .from('players')
     .select('salary, projected_points')
     .eq('status', 'available')
+    .eq('sport', sport)
     .gt('salary', 0)
     .gt('projected_points', 0);
 
