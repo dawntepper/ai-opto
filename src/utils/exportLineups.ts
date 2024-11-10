@@ -59,17 +59,16 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
         console.log(`Assigned ${player.player.name} to ${position}`);
         slots[index] = `${player.player.name} (${player.player.partner_id || ''})`;
         assignedPlayerIds.add(player.player.id);
-      } else {
-        console.log(`No eligible player found for ${position}`);
       }
     });
 
     // Fill G slot (index 5) with any remaining eligible guard
     console.log('\nFilling G slot');
     const guardIndex = remainingPlayers.findIndex(lp => {
-      const eligible = !assignedPlayerIds.has(lp.player.id) && 
-        (lp.player.position.includes('PG') || lp.player.position.includes('SG'));
-      console.log(`Checking player ${lp.player.name} for G slot - Eligible: ${eligible}, Already assigned: ${assignedPlayerIds.has(lp.player.id)}`);
+      if (assignedPlayerIds.has(lp.player.id)) return false;
+      const positions = lp.player.position.split('/');
+      const eligible = positions.some(p => p === 'PG' || p === 'SG');
+      console.log(`Checking player ${lp.player.name} for G slot - Positions: ${positions}, Eligible: ${eligible}`);
       return eligible;
     });
 
@@ -83,9 +82,10 @@ export const exportLineupsToDraftKings = (lineups: any[]) => {
     // Fill F slot (index 6) with any remaining eligible forward
     console.log('\nFilling F slot');
     const forwardIndex = remainingPlayers.findIndex(lp => {
-      const eligible = !assignedPlayerIds.has(lp.player.id) && 
-        (lp.player.position.includes('SF') || lp.player.position.includes('PF'));
-      console.log(`Checking player ${lp.player.name} for F slot - Eligible: ${eligible}, Already assigned: ${assignedPlayerIds.has(lp.player.id)}`);
+      if (assignedPlayerIds.has(lp.player.id)) return false;
+      const positions = lp.player.position.split('/');
+      const eligible = positions.some(p => p === 'SF' || p === 'PF');
+      console.log(`Checking player ${lp.player.name} for F slot - Positions: ${positions}, Eligible: ${eligible}`);
       return eligible;
     });
 
